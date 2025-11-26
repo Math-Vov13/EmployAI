@@ -11,19 +11,26 @@
     "prettier": "prettier --write ."
   },
   "dependencies": {
+    "@mastra/core": "^0.24.5",
+    "@mastra/libsql": "^0.16.2",
+    "@mastra/loggers": "^0.10.19",
+    "@mastra/memory": "^0.15.11",
+    "ai": "^5.0.76",
+    "mastra": "^0.18.5",
     "next": "16.0.4",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/node": "^20.19.25",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.1",
     "eslint-config-next": "16.0.4",
     "prettier": "3.6.2",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3"
   }
 }
