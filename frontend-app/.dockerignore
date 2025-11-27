@@ -1,0 +1,13 @@
+```
+# Node folder
+.github/
+.vscode/
+
+# VSCode settings / Next.js build folder
+node_modules/
+.next/
+**/logs
+
+# Env files
+*.md
+```

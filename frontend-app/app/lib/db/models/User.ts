@@ -33,7 +33,7 @@ export interface UserDocument {
   picture?: string; // ?
   createdAt: Date;
   updatedAt: Date;
-  lastLogin?: Date; 
+  lastLogin?: Date;
 }
 
 export interface UserResponse {
