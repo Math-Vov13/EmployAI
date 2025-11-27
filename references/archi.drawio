@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="ZFecHn-Pvhn_Sqsd4INW" name="Page-1">
-        <mxGraphModel dx="526" dy="353" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="781" dy="501" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -46,44 +46,47 @@
                 <mxCell id="15" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="14" target="9" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="32" value="" style="group" vertex="1" connectable="0" parent="1">
-                    <mxGeometry x="160" y="40" width="480" height="240" as="geometry"/>
+                <mxCell id="17" value="" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="40" width="600" height="240" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="" style="whiteSpace=wrap;html=1;" parent="32" vertex="1">
-                    <mxGeometry width="400" height="240" as="geometry"/>
+                <mxCell id="18" value="API ENDPOINTS" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="40" width="600" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="18" value="API ENDPOINTS" style="whiteSpace=wrap;html=1;" parent="32" vertex="1">
-                    <mxGeometry width="480" height="20" as="geometry"/>
+                <mxCell id="19" value="" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="60" width="360" height="220" as="geometry"/>
                 </mxCell>
-                <mxCell id="19" value="" style="whiteSpace=wrap;html=1;" parent="32" vertex="1">
-                    <mxGeometry x="120" y="20" width="360" height="220" as="geometry"/>
+                <mxCell id="20" value="" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="60" width="120" height="220" as="geometry"/>
                 </mxCell>
-                <mxCell id="20" value="" style="whiteSpace=wrap;html=1;" parent="32" vertex="1">
-                    <mxGeometry x="240" y="20" width="120" height="220" as="geometry"/>
+                <mxCell id="21" value="admin" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="60" width="120" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="21" value="Auth" style="whiteSpace=wrap;html=1;" parent="32" vertex="1">
-                    <mxGeometry y="20" width="120" height="20" as="geometry"/>
+                <mxCell id="22" value="auth" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="60" width="120" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="22" value="IA" style="whiteSpace=wrap;html=1;" parent="32" vertex="1">
-                    <mxGeometry x="120" y="20" width="120" height="20" as="geometry"/>
+                <mxCell id="23" value="chat" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="60" width="120" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="23" value="Admin (auth)" style="whiteSpace=wrap;html=1;" parent="32" vertex="1">
-                    <mxGeometry x="240" y="20" width="120" height="20" as="geometry"/>
+                <mxCell id="25" value="documents" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="520" y="60" width="120" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="25" value="Files" style="whiteSpace=wrap;html=1;" parent="32" vertex="1">
-                    <mxGeometry x="360" y="20" width="120" height="20" as="geometry"/>
+                <mxCell id="26" value="&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;-POST (token)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;/&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;logs&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- GET&lt;/span&gt;&lt;/div&gt;&lt;div&gt;/users&lt;/div&gt;&lt;div&gt;- GET, POST&lt;/div&gt;&lt;div&gt;/users/[user_id]&lt;/div&gt;&lt;div&gt;- GET,&amp;nbsp;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;PUT,&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;DELETE&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;/users/[user_id]/roles&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;- GET, PUT, DELETE&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;/../[user_id]/roles/&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;[role_id]&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;- DELETE&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="80" width="120" height="200" as="geometry"/>
                 </mxCell>
-                <mxCell id="26" value="/users (GET)&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;/users/{user_id}&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;- DELETE&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-GET&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-PUT&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;/auth/register (POST)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;div&gt;/auth/login (POST)&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;/auth/token (POST)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="32" vertex="1">
-                    <mxGeometry y="40" width="120" height="200" as="geometry"/>
+                <mxCell id="27" value="&lt;div&gt;/google&lt;/div&gt;&lt;div&gt;-&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;/callback&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;/login&lt;br&gt;- POST&lt;/div&gt;&lt;div&gt;/register&lt;br&gt;- POST&lt;/div&gt;&lt;div&gt;/token&lt;/div&gt;&lt;div&gt;- POST&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="80" width="120" height="200" as="geometry"/>
                 </mxCell>
-                <mxCell id="27" value="/Completion (&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;POST)&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="32" vertex="1">
-                    <mxGeometry x="120" y="40" width="120" height="80" as="geometry"/>
+                <mxCell id="28" value="&lt;div&gt;/completion&lt;/div&gt;&lt;div&gt;- POST&lt;/div&gt;&lt;div&gt;/history&lt;/div&gt;&lt;div&gt;- GET&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="80" width="120" height="200" as="geometry"/>
                 </mxCell>
-                <mxCell id="28" value="&lt;div&gt;/admin (token)&lt;/div&gt;&lt;div&gt;/admin/users&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent; white-space: pre;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-GET&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent; white-space: pre;&quot;&gt;/admin/users/{user_id}&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent; white-space: pre;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-PUT&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent; white-space: pre;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-DELETE&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;/admin/logs&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-GET&lt;br&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="32" vertex="1">
-                    <mxGeometry x="240" y="40" width="120" height="200" as="geometry"/>
+                <mxCell id="29" value="- GET, POST&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;/[id]&lt;/div&gt;&lt;div&gt;- GET, PUT, DELETE&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;/[id]/download&lt;/div&gt;&lt;div&gt;- GET&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="520" y="80" width="120" height="200" as="geometry"/>
                 </mxCell>
-                <mxCell id="29" value="&lt;div&gt;&lt;div&gt;/upload&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;- POST&lt;/div&gt;&lt;div&gt;/files&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;- GET&lt;/div&gt;&lt;div&gt;/files/fileid&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-GET&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;-DELETE&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="32">
-                    <mxGeometry x="360" y="40" width="120" height="200" as="geometry"/>
+                <mxCell id="33" value="users" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="640" y="60" width="120" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="/me&lt;div&gt;- GET&lt;/div&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="640" y="80" width="120" height="200" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
