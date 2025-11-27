@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, getCurrentUser } from "@/app/lib/auth/middleware";
+import { requireOwnership, getCurrentUser } from "@/app/lib/auth/middleware";
 import { getUsersCollection } from "@/app/lib/db/mongodb";
 import { toUserResponse } from "@/app/lib/db/models/User";
 import { ObjectId } from "mongodb";
 
-export async function GET(request: NextRequest) {
-  const authError = await requireAuth(request);
-  if (authError) return authError;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ user_id: string }> },
+) {
+  const { user_id } = await params;
 
-  const currentUser = await getCurrentUser();
-  if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = await requireOwnership(request, user_id);
+  if (authError) return authError;
 
   try {
     const usersCollection = await getUsersCollection();
     const user = await usersCollection.findOne({
-      _id: new ObjectId(currentUser.userId),
+      _id: new ObjectId(user_id),
     });
 
     if (!user) {
@@ -30,20 +30,20 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Get user error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch user profile" },
+      { error: "Failed to fetch user" },
       { status: 500 },
     );
   }
 }
 
-export async function PUT(request: NextRequest) {
-  const authError = await requireAuth(request);
-  if (authError) return authError;
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ user_id: string }> },
+) {
+  const { user_id } = await params;
 
-  const currentUser = await getCurrentUser();
-  if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = await requireOwnership(request, user_id);
+  if (authError) return authError;
 
   try {
     const body = await request.json();
@@ -58,7 +58,7 @@ export async function PUT(request: NextRequest) {
 
     const usersCollection = await getUsersCollection();
     const result = await usersCollection.findOneAndUpdate(
-      { _id: new ObjectId(currentUser.userId) },
+      { _id: new ObjectId(user_id) },
       {
         $set: {
           name: name.trim(),
@@ -78,9 +78,6 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error("Update user error:", error);
-    return NextResponse.json(
-      { error: "Failed to update user profile" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Fail update user" }, { status: 500 });
   }
 }
