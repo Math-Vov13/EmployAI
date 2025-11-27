@@ -1,3 +1,3 @@
 export async function POST(request: Request) {
-    return new Response("POST /auth/login");
+  return new Response("POST /auth/login");
 }

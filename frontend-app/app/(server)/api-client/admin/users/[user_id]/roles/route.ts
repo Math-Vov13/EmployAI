@@ -1,35 +1,38 @@
 export async function GET(
-    request: Request,
-    { params }: { params: { user_id: string } }
+  request: Request,
+  { params }: { params: Promise<{ user_id: string }> },
 ) {
-    return new Response(`GET /admin/users/${params.user_id}`, {
-        status: 200,
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+  const { user_id } = await params;
+  return new Response(`GET /admin/users/${user_id}`, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 }
 
 export async function PUT(
-    request: Request,
-    { params }: { params: { user_id: string } }
+  request: Request,
+  { params }: { params: Promise<{ user_id: string }> },
 ) {
-    return new Response(`PUT /admin/users/${params.user_id}`, {
-        status: 200,
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+  const { user_id } = await params;
+  return new Response(`PUT /admin/users/${user_id}`, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 }
 
 export async function DELETE(
-    request: Request,
-    { params }: { params: { user_id: string } }
+  request: Request,
+  { params }: { params: Promise<{ user_id: string }> },
 ) {
-    return new Response(`DELETE /admin/users/${params.user_id}`, {
-        status: 200,
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+  const { user_id } = await params;
+  return new Response(`DELETE /admin/users/${user_id}`, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 }

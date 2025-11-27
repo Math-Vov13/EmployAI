@@ -1,3 +1,3 @@
 export async function POST(request: Request) {
-    return new Response("POST /auth/register");
+  return new Response("POST /auth/register");
 }
