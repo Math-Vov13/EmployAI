@@ -1,5 +1,6 @@
 import { MongoClient, Db, Collection } from "mongodb";
 import { UserDocument } from "./models/User";
+import { DocumentDocument } from "./models/Document";
 
 if (!process.env.MONGODB_URI) {
   throw new Error("MONGODB_URI is not defined in environment variables");
@@ -28,6 +29,13 @@ async function connectToDatabase() {
 export async function getUsersCollection(): Promise<Collection<UserDocument>> {
   const { db } = await connectToDatabase();
   return db.collection<UserDocument>("users");
+}
+
+export async function getDocumentsCollection(): Promise<
+  Collection<DocumentDocument>
+> {
+  const { db } = await connectToDatabase();
+  return db.collection<DocumentDocument>("documents");
 }
 
 export async function getDatabase(): Promise<Db> {
