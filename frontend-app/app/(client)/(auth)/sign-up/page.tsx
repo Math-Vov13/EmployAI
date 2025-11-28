@@ -1,62 +1,68 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Spinner } from '@/components/ui/spinner';
-import { Field, FieldLabel, FieldError } from '@/components/ui/field';
-import { Boxes } from '@/components/ui/background-boxes';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
+import { Boxes } from "@/components/ui/background-boxes";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     // Validate password match
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api-client/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api-client/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Failed to create account');
+        setError(data.error || "Failed to create account");
         setLoading(false);
         return;
       }
 
       // Redirect to dashboard on successful registration
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (err) {
-      console.error('Error registering:', err);
-      setError('An unexpected error occurred');
+      console.error("Error registering:", err);
+      setError("An unexpected error occurred");
       setLoading(false);
     }
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = '/api-client/auth/google';
+    window.location.href = "/api-client/auth/google";
   };
 
   return (
@@ -69,7 +75,9 @@ export default function RegisterPage() {
               EmployAI
             </h1>
           </div>
-          <CardTitle className="text-xl text-center text-gray-900">Create an account</CardTitle>
+          <CardTitle className="text-xl text-center text-gray-900">
+            Create an account
+          </CardTitle>
           <CardDescription className="text-center text-gray-600">
             Sign up to get started with EmployAI
           </CardDescription>
@@ -120,7 +128,9 @@ export default function RegisterPage() {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="confirmPassword">Confirm password</FieldLabel>
+              <FieldLabel htmlFor="confirmPassword">
+                Confirm password
+              </FieldLabel>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -135,18 +145,14 @@ export default function RegisterPage() {
               {error && <FieldError>{error}</FieldError>}
             </Field>
 
-            <Button
-              type="submit"
-              className="w-full h-11"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full h-11" disabled={loading}>
               {loading ? (
                 <>
-                  <Spinner/>
+                  <Spinner />
                   <span>Creating account...</span>
                 </>
               ) : (
-                'Sign Up'
+                "Sign Up"
               )}
             </Button>
 
@@ -155,7 +161,9 @@ export default function RegisterPage() {
                 <span className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-amber-50 px-2 text-gray-500">Or continue with</span>
+                <span className="bg-amber-50 px-2 text-gray-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -190,8 +198,11 @@ export default function RegisterPage() {
 
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
-              Already have an account?{' '}
-              <Link href="/sign-in" className="font-semibold text-gray-900 hover:text-gray-700">
+              Already have an account?{" "}
+              <Link
+                href="/sign-in"
+                className="font-semibold text-gray-900 hover:text-gray-700"
+              >
                 Sign in
               </Link>
             </p>

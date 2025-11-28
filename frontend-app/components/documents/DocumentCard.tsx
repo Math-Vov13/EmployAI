@@ -1,11 +1,16 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { formatFileSize } from '@/app/lib/storage/file-validation';
-import { format } from 'date-fns';
-import Link from 'next/link';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { formatFileSize } from "@/app/lib/storage/file-validation";
+import { format } from "date-fns";
+import Link from "next/link";
 
 type Document = {
   id: string;
@@ -30,29 +35,35 @@ interface DocumentCardProps {
   showActions?: boolean;
 }
 
-export function DocumentCard({ document, onDownload, onDelete, showActions = true }: DocumentCardProps) {
-  const createdDate = typeof document.createdAt === 'string'
-    ? new Date(document.createdAt)
-    : document.createdAt;
+export function DocumentCard({
+  document,
+  onDownload,
+  onDelete,
+  showActions = true,
+}: DocumentCardProps) {
+  const createdDate =
+    typeof document.createdAt === "string"
+      ? new Date(document.createdAt)
+      : document.createdAt;
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.includes('pdf')) return '📄';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
-    if (mimeType.includes('text')) return '📃';
-    if (mimeType.includes('image')) return '🖼️';
-    return '📎';
+    if (mimeType.includes("pdf")) return "📄";
+    if (mimeType.includes("word") || mimeType.includes("document")) return "📝";
+    if (mimeType.includes("text")) return "📃";
+    if (mimeType.includes("image")) return "🖼️";
+    return "📎";
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ONLINE':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'DELETED':
-        return 'bg-red-100 text-red-800 border-red-200';
+      case "ONLINE":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "DELETED":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -92,7 +103,7 @@ export function DocumentCard({ document, onDownload, onDelete, showActions = tru
 
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>{formatFileSize(document.fileSize)}</span>
-          <span>{format(createdDate, 'MMM d, yyyy')}</span>
+          <span>{format(createdDate, "MMM d, yyyy")}</span>
         </div>
 
         <div className="text-xs text-gray-500 mt-2">
@@ -111,11 +122,7 @@ export function DocumentCard({ document, onDownload, onDelete, showActions = tru
             Download
           </Button>
           <Link href={`/chat/${document.id}`} className="flex-1">
-            <Button
-              size="sm"
-              variant="secondary"
-              className="w-full"
-            >
+            <Button size="sm" variant="secondary" className="w-full">
               Chat
             </Button>
           </Link>

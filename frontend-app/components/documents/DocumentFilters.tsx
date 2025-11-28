@@ -1,7 +1,13 @@
-'use client';
+"use client";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 interface Tag {
   id: string;
@@ -26,7 +32,9 @@ export function DocumentFilters({
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-6">
       <div className="flex-1 relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          🔍
+        </span>
         <Input
           placeholder="Search documents..."
           value={searchQuery}
@@ -36,10 +44,7 @@ export function DocumentFilters({
       </div>
 
       <div className="w-full md:w-64">
-        <Select
-          value={selectedTag}
-          onValueChange={onTagChange}
-        >
+        <Select value={selectedTag} onValueChange={onTagChange}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="All tags" />
           </SelectTrigger>

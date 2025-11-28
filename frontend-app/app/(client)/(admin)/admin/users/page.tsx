@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Spinner } from '@/components/ui/spinner';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableHeader,
@@ -14,7 +14,7 @@ import {
   TableHead,
   TableRow,
   TableCell,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -22,14 +22,14 @@ import {
   DialogFooter,
   DialogDescription,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
 interface User {
   id: string;
@@ -58,14 +58,14 @@ export default function AdminUsersPage() {
 
   // Create User Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [createEmail, setCreateEmail] = useState('');
-  const [createRole, setCreateRole] = useState('USER');
-  const [createStatus, setCreateStatus] = useState('ONLINE');
+  const [createEmail, setCreateEmail] = useState("");
+  const [createRole, setCreateRole] = useState("USER");
+  const [createStatus, setCreateStatus] = useState("ONLINE");
 
   // Edit User Modal
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editRole, setEditRole] = useState('USER');
-  const [editStatus, setEditStatus] = useState('ONLINE');
+  const [editRole, setEditRole] = useState("USER");
+  const [editStatus, setEditStatus] = useState("ONLINE");
 
   // Delete Confirmation Modal
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -77,26 +77,26 @@ export default function AdminUsersPage() {
 
   const fetchCurrentUser = async () => {
     try {
-      const res = await fetch('/api/auth/session');
+      const res = await fetch("/api/auth/session");
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data.user);
       }
     } catch (error) {
-      console.error('Error fetching current user:', error);
+      console.error("Error fetching current user:", error);
     }
   };
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/users');
-      if (!res.ok) throw new Error('Failed to fetch users');
+      const res = await fetch("/api/admin/users");
+      if (!res.ok) throw new Error("Failed to fetch users");
 
       const data = await res.json();
       setUsers(data.users);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     } finally {
       setLoading(false);
     }
@@ -105,9 +105,9 @@ export default function AdminUsersPage() {
   const handleCreateUser = async () => {
     try {
       setUpdating(true);
-      const res = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: createEmail,
           role: createRole,
@@ -117,17 +117,17 @@ export default function AdminUsersPage() {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to create user');
+        throw new Error(error.error || "Failed to create user");
       }
 
       await fetchUsers();
       setIsCreateOpen(false);
-      setCreateEmail('');
-      setCreateRole('USER');
-      setCreateStatus('ONLINE');
+      setCreateEmail("");
+      setCreateRole("USER");
+      setCreateStatus("ONLINE");
     } catch (error) {
-      console.error('Error creating user:', error);
-      alert(error instanceof Error ? error.message : 'Failed to create user');
+      console.error("Error creating user:", error);
+      alert(error instanceof Error ? error.message : "Failed to create user");
     } finally {
       setUpdating(false);
     }
@@ -139,8 +139,8 @@ export default function AdminUsersPage() {
     try {
       setUpdating(true);
       const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           role: editRole,
           status: editStatus,
@@ -149,14 +149,14 @@ export default function AdminUsersPage() {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to update user');
+        throw new Error(error.error || "Failed to update user");
       }
 
       await fetchUsers();
       setIsEditOpen(false);
     } catch (error) {
-      console.error('Error updating user:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update user');
+      console.error("Error updating user:", error);
+      alert(error instanceof Error ? error.message : "Failed to update user");
     } finally {
       setUpdating(false);
     }
@@ -168,19 +168,19 @@ export default function AdminUsersPage() {
     try {
       setUpdating(true);
       const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to delete user');
+        throw new Error(error.error || "Failed to delete user");
       }
 
       await fetchUsers();
       setIsDeleteOpen(false);
     } catch (error) {
-      console.error('Error deleting user:', error);
-      alert(error instanceof Error ? error.message : 'Failed to delete user');
+      console.error("Error deleting user:", error);
+      alert(error instanceof Error ? error.message : "Failed to delete user");
     } finally {
       setUpdating(false);
     }
@@ -199,19 +199,19 @@ export default function AdminUsersPage() {
   };
 
   const getRoleColor = (role: string) => {
-    return role === 'ADMIN' ? 'danger' : 'primary';
+    return role === "ADMIN" ? "danger" : "primary";
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ONLINE':
-        return 'success';
-      case 'STANDBY':
-        return 'warning';
-      case 'OFFLINE':
-        return 'default';
+      case "ONLINE":
+        return "success";
+      case "STANDBY":
+        return "warning";
+      case "OFFLINE":
+        return "default";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -229,11 +229,11 @@ export default function AdminUsersPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-2">Manage users and their permissions</p>
+          <p className="text-gray-600 mt-2">
+            Manage users and their permissions
+          </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>
-          ➕ Create User
-        </Button>
+        <Button onClick={() => setIsCreateOpen(true)}>➕ Create User</Button>
       </div>
 
       {/* Statistics */}
@@ -247,7 +247,7 @@ export default function AdminUsersPage() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-green-600">
-              {users.filter((u) => u.status === 'ONLINE').length}
+              {users.filter((u) => u.status === "ONLINE").length}
             </p>
             <p className="text-sm text-gray-600">Online</p>
           </CardContent>
@@ -255,7 +255,7 @@ export default function AdminUsersPage() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-orange-600">
-              {users.filter((u) => u.status === 'STANDBY').length}
+              {users.filter((u) => u.status === "STANDBY").length}
             </p>
             <p className="text-sm text-gray-600">Standby</p>
           </CardContent>
@@ -263,7 +263,7 @@ export default function AdminUsersPage() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-red-600">
-              {users.filter((u) => u.role === 'ADMIN').length}
+              {users.filter((u) => u.role === "ADMIN").length}
             </p>
             <p className="text-sm text-gray-600">Admins</p>
           </CardContent>
@@ -296,19 +296,31 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{user.email}</span>
                         {currentUser?.id === user.id && (
-                          <Badge variant="secondary">
-                            You
-                          </Badge>
+                          <Badge variant="secondary">You</Badge>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getRoleColor(user.role) === 'danger' ? 'destructive' : 'default'}>
+                      <Badge
+                        variant={
+                          getRoleColor(user.role) === "danger"
+                            ? "destructive"
+                            : "default"
+                        }
+                      >
                         {user.role}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusColor(user.status) === 'success' ? 'default' : getStatusColor(user.status) === 'warning' ? 'secondary' : 'outline'}>
+                      <Badge
+                        variant={
+                          getStatusColor(user.status) === "success"
+                            ? "default"
+                            : getStatusColor(user.status) === "warning"
+                              ? "secondary"
+                              : "outline"
+                        }
+                      >
                         {user.status}
                       </Badge>
                     </TableCell>
@@ -471,7 +483,8 @@ export default function AdminUsersPage() {
                 <CardContent className="p-4">
                   <p className="font-medium">{selectedUser.email}</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    {selectedUser._count.documents} document(s) will also be deleted
+                    {selectedUser._count.documents} document(s) will also be
+                    deleted
                   </p>
                 </CardContent>
               </Card>
@@ -481,7 +494,11 @@ export default function AdminUsersPage() {
             <Button variant="ghost" onClick={() => setIsDeleteOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteUser} disabled={updating}>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteUser}
+              disabled={updating}
+            >
               Delete User
             </Button>
           </DialogFooter>

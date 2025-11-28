@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Spinner } from '@/components/ui/spinner';
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableHeader,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableRow,
   TableCell,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,7 @@ import {
   DialogFooter,
   DialogDescription,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
 interface Document {
   id: string;
@@ -47,9 +47,11 @@ function AdminDocumentsContent() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>(
-    searchParams.get('status') || 'all'
+    searchParams.get("status") || "all",
   );
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null,
+  );
   const [updating, setUpdating] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -61,17 +63,17 @@ function AdminDocumentsContent() {
     try {
       setLoading(true);
       const url =
-        statusFilter && statusFilter !== 'all'
+        statusFilter && statusFilter !== "all"
           ? `/api/admin/documents?status=${statusFilter}`
-          : '/api/admin/documents';
+          : "/api/admin/documents";
 
       const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch documents');
+      if (!res.ok) throw new Error("Failed to fetch documents");
 
       const data = await res.json();
       setDocuments(data.documents);
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      console.error("Error fetching documents:", error);
     } finally {
       setLoading(false);
     }
@@ -81,18 +83,18 @@ function AdminDocumentsContent() {
     try {
       setUpdating(true);
       const res = await fetch(`/api/admin/documents/${documentId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
 
-      if (!res.ok) throw new Error('Failed to update status');
+      if (!res.ok) throw new Error("Failed to update status");
 
       await fetchDocuments();
       setIsOpen(false);
     } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Failed to update document status');
+      console.error("Error updating status:", error);
+      alert("Failed to update document status");
     } finally {
       setUpdating(false);
     }
@@ -105,14 +107,14 @@ function AdminDocumentsContent() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ONLINE':
-        return 'success';
-      case 'PENDING':
-        return 'warning';
-      case 'DELETED':
-        return 'danger';
+      case "ONLINE":
+        return "success";
+      case "PENDING":
+        return "warning";
+      case "DELETED":
+        return "danger";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -135,7 +137,9 @@ function AdminDocumentsContent() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Document Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Document Management
+          </h1>
           <p className="text-gray-600 mt-2">Review and manage all documents</p>
         </div>
       </div>
@@ -144,33 +148,35 @@ function AdminDocumentsContent() {
       <Card>
         <CardContent className="p-4">
           <div className="flex gap-4 items-center">
-            <span className="text-sm font-medium text-gray-700">Filter by status:</span>
+            <span className="text-sm font-medium text-gray-700">
+              Filter by status:
+            </span>
             <div className="flex gap-2">
               <Button
                 size="sm"
-                variant={statusFilter === 'all' ? 'default' : 'outline'}
-                onClick={() => setStatusFilter('all')}
+                variant={statusFilter === "all" ? "default" : "outline"}
+                onClick={() => setStatusFilter("all")}
               >
                 All ({documents.length})
               </Button>
               <Button
                 size="sm"
-                variant={statusFilter === 'PENDING' ? 'secondary' : 'outline'}
-                onClick={() => setStatusFilter('PENDING')}
+                variant={statusFilter === "PENDING" ? "secondary" : "outline"}
+                onClick={() => setStatusFilter("PENDING")}
               >
                 Pending
               </Button>
               <Button
                 size="sm"
-                variant={statusFilter === 'ONLINE' ? 'default' : 'outline'}
-                onClick={() => setStatusFilter('ONLINE')}
+                variant={statusFilter === "ONLINE" ? "default" : "outline"}
+                onClick={() => setStatusFilter("ONLINE")}
               >
                 Online
               </Button>
               <Button
                 size="sm"
-                variant={statusFilter === 'DELETED' ? 'destructive' : 'outline'}
-                onClick={() => setStatusFilter('DELETED')}
+                variant={statusFilter === "DELETED" ? "destructive" : "outline"}
+                onClick={() => setStatusFilter("DELETED")}
               >
                 Deleted
               </Button>
@@ -210,16 +216,24 @@ function AdminDocumentsContent() {
                     <TableCell>
                       <div>
                         <p className="text-sm">{doc.uploadedBy.email}</p>
-                        <Badge variant="outline">
-                          {doc.uploadedBy.role}
-                        </Badge>
+                        <Badge variant="outline">{doc.uploadedBy.role}</Badge>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{formatFileSize(doc.fileSize)}</span>
+                      <span className="text-sm">
+                        {formatFileSize(doc.fileSize)}
+                      </span>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusColor(doc.status) === 'success' ? 'default' : getStatusColor(doc.status) === 'warning' ? 'secondary' : 'destructive'}>
+                      <Badge
+                        variant={
+                          getStatusColor(doc.status) === "success"
+                            ? "default"
+                            : getStatusColor(doc.status) === "warning"
+                              ? "secondary"
+                              : "destructive"
+                        }
+                      >
                         {doc.status}
                       </Badge>
                     </TableCell>
@@ -255,7 +269,9 @@ function AdminDocumentsContent() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium text-gray-600">Title</p>
-                <p className="text-lg font-semibold">{selectedDocument.title}</p>
+                <p className="text-lg font-semibold">
+                  {selectedDocument.title}
+                </p>
               </div>
 
               <div>
@@ -289,12 +305,25 @@ function AdminDocumentsContent() {
 
               <div>
                 <p className="text-sm font-medium text-gray-600">Uploaded By</p>
-                <p className="text-gray-900">{selectedDocument.uploadedBy.email}</p>
+                <p className="text-gray-900">
+                  {selectedDocument.uploadedBy.email}
+                </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-600">Current Status</p>
-                <Badge className="mt-1" variant={getStatusColor(selectedDocument.status) === 'success' ? 'default' : getStatusColor(selectedDocument.status) === 'warning' ? 'secondary' : 'destructive'}>
+                <p className="text-sm font-medium text-gray-600">
+                  Current Status
+                </p>
+                <Badge
+                  className="mt-1"
+                  variant={
+                    getStatusColor(selectedDocument.status) === "success"
+                      ? "default"
+                      : getStatusColor(selectedDocument.status) === "warning"
+                        ? "secondary"
+                        : "destructive"
+                  }
+                >
                   {selectedDocument.status}
                 </Badge>
               </div>
@@ -304,33 +333,33 @@ function AdminDocumentsContent() {
                   Change Status
                 </p>
                 <div className="flex gap-2">
-                  {selectedDocument.status !== 'ONLINE' && (
+                  {selectedDocument.status !== "ONLINE" && (
                     <Button
                       variant="default"
                       onClick={() =>
-                        handleStatusChange(selectedDocument.id, 'ONLINE')
+                        handleStatusChange(selectedDocument.id, "ONLINE")
                       }
                       disabled={updating}
                     >
                       ✅ Approve
                     </Button>
                   )}
-                  {selectedDocument.status !== 'PENDING' && (
+                  {selectedDocument.status !== "PENDING" && (
                     <Button
                       variant="secondary"
                       onClick={() =>
-                        handleStatusChange(selectedDocument.id, 'PENDING')
+                        handleStatusChange(selectedDocument.id, "PENDING")
                       }
                       disabled={updating}
                     >
                       ⏳ Set Pending
                     </Button>
                   )}
-                  {selectedDocument.status !== 'DELETED' && (
+                  {selectedDocument.status !== "DELETED" && (
                     <Button
                       variant="destructive"
                       onClick={() =>
-                        handleStatusChange(selectedDocument.id, 'DELETED')
+                        handleStatusChange(selectedDocument.id, "DELETED")
                       }
                       disabled={updating}
                     >
@@ -354,7 +383,13 @@ function AdminDocumentsContent() {
 
 export default function AdminDocumentsPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-96"><Spinner className="size-8" /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center h-96">
+          <Spinner className="size-8" />
+        </div>
+      }
+    >
       <AdminDocumentsContent />
     </Suspense>
   );

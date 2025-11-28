@@ -1,53 +1,59 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Spinner } from '@/components/ui/spinner';
-import { Field, FieldLabel, FieldError } from '@/components/ui/field';
-import { Boxes } from '@/components/ui/background-boxes';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
+import { Boxes } from "@/components/ui/background-boxes";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('/api-client/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api-client/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Failed to sign in');
+        setError(data.error || "Failed to sign in");
         setLoading(false);
         return;
       }
 
       // Redirect to dashboard on successful login
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (err) {
-      console.error('Error signing in:', err);
-      setError('An unexpected error occurred');
+      console.error("Error signing in:", err);
+      setError("An unexpected error occurred");
       setLoading(false);
     }
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = '/api-client/auth/google';
+    window.location.href = "/api-client/auth/google";
   };
 
   return (
@@ -60,7 +66,9 @@ export default function LoginPage() {
               EmployAI
             </h1>
           </div>
-          <CardTitle className="text-xl text-center text-gray-900">Welcome back</CardTitle>
+          <CardTitle className="text-xl text-center text-gray-900">
+            Welcome back
+          </CardTitle>
           <CardDescription className="text-center text-gray-600">
             Sign in to your account to continue
           </CardDescription>
@@ -96,18 +104,14 @@ export default function LoginPage() {
               {error && <FieldError>{error}</FieldError>}
             </Field>
 
-            <Button
-              type="submit"
-              className="w-full h-11"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full h-11" disabled={loading}>
               {loading ? (
                 <>
-                  <Spinner/>
+                  <Spinner />
                   <span>Signing in...</span>
                 </>
               ) : (
-                'Sign In'
+                "Sign In"
               )}
             </Button>
 
@@ -116,7 +120,9 @@ export default function LoginPage() {
                 <span className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-amber-50 px-2 text-gray-500">Or continue with</span>
+                <span className="bg-amber-50 px-2 text-gray-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -151,8 +157,11 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
-              Don't have an account?{' '}
-              <Link href="/sign-up" className="font-semibold text-gray-900 hover:text-gray-700">
+              Don't have an account?{" "}
+              <Link
+                href="/sign-up"
+                className="font-semibold text-gray-900 hover:text-gray-700"
+              >
                 Sign up
               </Link>
             </p>

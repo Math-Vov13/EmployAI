@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Spinner } from '@/components/ui/spinner';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableHeader,
@@ -14,7 +14,7 @@ import {
   TableHead,
   TableRow,
   TableCell,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,7 @@ import {
   DialogFooter,
   DialogDescription,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
 interface Tag {
   id: string;
@@ -44,11 +44,11 @@ export default function AdminTagsPage() {
 
   // Create Tag Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [createName, setCreateName] = useState('');
+  const [createName, setCreateName] = useState("");
 
   // Edit Tag Modal
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editName, setEditName] = useState('');
+  const [editName, setEditName] = useState("");
 
   // Delete Confirmation Modal
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -61,13 +61,13 @@ export default function AdminTagsPage() {
   const fetchTags = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/tags');
-      if (!res.ok) throw new Error('Failed to fetch tags');
+      const res = await fetch("/api/tags");
+      if (!res.ok) throw new Error("Failed to fetch tags");
 
       const data = await res.json();
       setTags(data.tags);
     } catch (error) {
-      console.error('Error fetching tags:', error);
+      console.error("Error fetching tags:", error);
     } finally {
       setLoading(false);
     }
@@ -75,13 +75,13 @@ export default function AdminTagsPage() {
 
   const fetchDocuments = async () => {
     try {
-      const res = await fetch('/api/admin/documents');
-      if (!res.ok) throw new Error('Failed to fetch documents');
+      const res = await fetch("/api/admin/documents");
+      if (!res.ok) throw new Error("Failed to fetch documents");
 
       const data = await res.json();
       setDocuments(data.documents);
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      console.error("Error fetching documents:", error);
     }
   };
 
@@ -92,23 +92,23 @@ export default function AdminTagsPage() {
   const handleCreateTag = async () => {
     try {
       setUpdating(true);
-      const res = await fetch('/api/admin/tags', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: createName }),
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to create tag');
+        throw new Error(error.error || "Failed to create tag");
       }
 
       await fetchTags();
       setIsCreateOpen(false);
-      setCreateName('');
+      setCreateName("");
     } catch (error) {
-      console.error('Error creating tag:', error);
-      alert(error instanceof Error ? error.message : 'Failed to create tag');
+      console.error("Error creating tag:", error);
+      alert(error instanceof Error ? error.message : "Failed to create tag");
     } finally {
       setUpdating(false);
     }
@@ -120,22 +120,22 @@ export default function AdminTagsPage() {
     try {
       setUpdating(true);
       const res = await fetch(`/api/admin/tags/${selectedTag.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: editName }),
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to update tag');
+        throw new Error(error.error || "Failed to update tag");
       }
 
       await fetchTags();
       await fetchDocuments();
       setIsEditOpen(false);
     } catch (error) {
-      console.error('Error updating tag:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update tag');
+      console.error("Error updating tag:", error);
+      alert(error instanceof Error ? error.message : "Failed to update tag");
     } finally {
       setUpdating(false);
     }
@@ -147,19 +147,19 @@ export default function AdminTagsPage() {
     try {
       setUpdating(true);
       const res = await fetch(`/api/admin/tags/${selectedTag.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to delete tag');
+        throw new Error(error.error || "Failed to delete tag");
       }
 
       await fetchTags();
       setIsDeleteOpen(false);
     } catch (error) {
-      console.error('Error deleting tag:', error);
-      alert(error instanceof Error ? error.message : 'Failed to delete tag');
+      console.error("Error deleting tag:", error);
+      alert(error instanceof Error ? error.message : "Failed to delete tag");
     } finally {
       setUpdating(false);
     }
@@ -190,11 +190,11 @@ export default function AdminTagsPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Tag Management</h1>
-          <p className="text-gray-600 mt-2">Manage document tags and categories</p>
+          <p className="text-gray-600 mt-2">
+            Manage document tags and categories
+          </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>
-          ➕ Create Tag
-        </Button>
+        <Button onClick={() => setIsCreateOpen(true)}>➕ Create Tag</Button>
       </div>
 
       {/* Statistics */}
@@ -242,9 +242,7 @@ export default function AdminTagsPage() {
                             {tag.name}
                           </Badge>
                           {usageCount > 0 && (
-                            <Badge variant="secondary">
-                              {usageCount} docs
-                            </Badge>
+                            <Badge variant="secondary">{usageCount} docs</Badge>
                           )}
                         </div>
                         <p className="text-xs text-gray-500">
@@ -305,17 +303,15 @@ export default function AdminTagsPage() {
                   return (
                     <TableRow key={tag.id}>
                       <TableCell>
-                        <Badge variant="outline">
-                          {tag.name}
-                        </Badge>
+                        <Badge variant="outline">{tag.name}</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{usageCount}</span>
+                          <span className="text-sm font-medium">
+                            {usageCount}
+                          </span>
                           {usageCount > 0 && (
-                            <Badge variant="default">
-                              In use
-                            </Badge>
+                            <Badge variant="default">In use</Badge>
                           )}
                         </div>
                       </TableCell>
@@ -397,10 +393,10 @@ export default function AdminTagsPage() {
           {selectedTag && (
             <div className="space-y-4 py-4">
               <div>
-                <p className="text-sm font-medium text-gray-600 mb-2">Current Name</p>
-                <Badge variant="outline">
-                  {selectedTag.name}
-                </Badge>
+                <p className="text-sm font-medium text-gray-600 mb-2">
+                  Current Name
+                </p>
+                <Badge variant="outline">{selectedTag.name}</Badge>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-tag-name">New Tag Name</Label>
@@ -416,8 +412,9 @@ export default function AdminTagsPage() {
                 <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-3">
                     <p className="text-sm text-blue-800">
-                      ℹ️ This tag is used by {getTagUsageCount(selectedTag.name)}{' '}
-                      document(s). Renaming will update all documents.
+                      ℹ️ This tag is used by{" "}
+                      {getTagUsageCount(selectedTag.name)} document(s). Renaming
+                      will update all documents.
                     </p>
                   </CardContent>
                 </Card>
@@ -457,11 +454,12 @@ export default function AdminTagsPage() {
                         {selectedTag.name}
                       </Badge>
                       <p className="text-sm text-gray-700">
-                        This tag is being used by{' '}
+                        This tag is being used by{" "}
                         {getTagUsageCount(selectedTag.name)} document(s).
                       </p>
                       <p className="text-sm text-gray-700 mt-2">
-                        Please remove this tag from all documents before deleting it.
+                        Please remove this tag from all documents before
+                        deleting it.
                       </p>
                     </CardContent>
                   </Card>
@@ -469,14 +467,12 @@ export default function AdminTagsPage() {
               ) : (
                 <div>
                   <p className="mb-4">
-                    Are you sure you want to delete this tag? This action cannot be
-                    undone.
+                    Are you sure you want to delete this tag? This action cannot
+                    be undone.
                   </p>
                   <Card className="bg-gray-50">
                     <CardContent className="p-4">
-                      <Badge variant="outline">
-                        {selectedTag.name}
-                      </Badge>
+                      <Badge variant="outline">{selectedTag.name}</Badge>
                     </CardContent>
                   </Card>
                 </div>
@@ -485,10 +481,16 @@ export default function AdminTagsPage() {
           )}
           <DialogFooter>
             <Button variant="ghost" onClick={() => setIsDeleteOpen(false)}>
-              {getTagUsageCount(selectedTag?.name || '') > 0 ? 'Close' : 'Cancel'}
+              {getTagUsageCount(selectedTag?.name || "") > 0
+                ? "Close"
+                : "Cancel"}
             </Button>
             {selectedTag && getTagUsageCount(selectedTag.name) === 0 && (
-              <Button variant="destructive" onClick={handleDeleteTag} disabled={updating}>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteTag}
+                disabled={updating}
+              >
                 Delete Tag
               </Button>
             )}

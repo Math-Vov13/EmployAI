@@ -1,49 +1,53 @@
-'use client';
+"use client";
 
-import { usePathname, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const navItems = [
   {
-    label: 'Dashboard',
-    href: '/admin',
-    icon: '📊',
+    label: "Dashboard",
+    href: "/admin",
+    icon: "📊",
   },
   {
-    label: 'Documents',
-    href: '/admin/documents',
-    icon: '',
+    label: "Documents",
+    href: "/admin/documents",
+    icon: "",
   },
   {
-    label: 'Users',
-    href: '/admin/users',
-    icon: '👥',
+    label: "Users",
+    href: "/admin/users",
+    icon: "👥",
   },
   {
-    label: 'Tags',
-    href: '/admin/tags',
-    icon: '🏷️',
+    label: "Tags",
+    href: "/admin/tags",
+    icon: "🏷️",
   },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
   const handleBackToDashboard = () => {
-    router.push('/dashboard');
+    router.push("/dashboard");
   };
 
   return (
@@ -56,9 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="text-3xl">👨‍💼</div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">EmployAI</h1>
-              <Badge variant="secondary">
-                Admin
-              </Badge>
+              <Badge variant="secondary">Admin</Badge>
             </div>
           </div>
         </div>
@@ -72,15 +74,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div
                   className={`w-full p-3 rounded-lg transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-blue-50 border border-blue-500'
-                      : 'hover:bg-gray-50 border border-transparent'
+                      ? "bg-blue-50 border border-blue-500"
+                      : "hover:bg-gray-50 border border-transparent"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{item.icon}</span>
                     <span
                       className={`font-medium ${
-                        isActive ? 'text-blue-600' : 'text-gray-700'
+                        isActive ? "text-blue-600" : "text-gray-700"
                       }`}
                     >
                       {item.label}
@@ -101,7 +103,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             📱 User Dashboard
           </Button>
-          <Button variant="destructive" className="w-full" onClick={handleLogout}>
+          <Button
+            variant="destructive"
+            className="w-full"
+            onClick={handleLogout}
+          >
             🚪 Logout
           </Button>
         </div>

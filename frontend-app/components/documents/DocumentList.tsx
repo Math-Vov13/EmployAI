@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { DocumentCard } from './DocumentCard';
-import { Spinner } from '@/components/ui/spinner';
+import { DocumentCard } from "./DocumentCard";
+import { Spinner } from "@/components/ui/spinner";
 
 type Document = {
   id: string;
@@ -34,7 +34,7 @@ export function DocumentList({
   onDownload,
   onDelete,
   showActions = true,
-  emptyMessage = 'No documents found',
+  emptyMessage = "No documents found",
 }: DocumentListProps) {
   if (loading) {
     return (
@@ -54,8 +54,8 @@ export function DocumentList({
         </h3>
         <p className="text-gray-500">
           {showActions
-            ? 'Upload your first document to get started'
-            : 'Check back later for new documents'}
+            ? "Upload your first document to get started"
+            : "Check back later for new documents"}
         </p>
       </div>
     );

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { format } from 'date-fns';
+import { useEffect, useRef } from "react";
+import { format } from "date-fns";
 
 export interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -17,7 +17,7 @@ export function MessageList({ messages }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -43,24 +43,24 @@ export function MessageList({ messages }: MessageListProps) {
       {messages.map((message, index) => (
         <div
           key={index}
-          className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
         >
           <div
             className={`max-w-[80%] rounded-lg p-4 ${
-              message.role === 'user'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-900'
+              message.role === "user"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-900"
             }`}
           >
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-semibold">
-                {message.role === 'user' ? '👤 You' : '🤖 AI Assistant'}
+                {message.role === "user" ? "👤 You" : "🤖 AI Assistant"}
               </span>
               <span className="text-xs opacity-70">
-                {format(message.timestamp, 'HH:mm')}
+                {format(message.timestamp, "HH:mm")}
               </span>
             </div>
-            <div className="text-sm whitespace-pre-wrap break-words">
+            <div className="text-sm whitespace-pre-wrap wrap-break-words">
               {message.content}
             </div>
           </div>

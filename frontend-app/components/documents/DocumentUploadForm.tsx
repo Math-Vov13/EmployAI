@@ -1,12 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { getAllowedFileExtensions, formatFileSize, getMaxFileSize } from '@/app/lib/storage/file-validation';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  getAllowedFileExtensions,
+  formatFileSize,
+  getMaxFileSize,
+} from "@/app/lib/storage/file-validation";
 
 interface Tag {
   id: string;
@@ -19,14 +29,14 @@ interface DocumentUploadFormProps {
 
 export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingTags, setLoadingTags] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Fetch tags on mount
   useEffect(() => {
@@ -35,13 +45,13 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
 
   const fetchTags = async () => {
     try {
-      const response = await fetch('/api/tags');
+      const response = await fetch("/api/tags");
       if (response.ok) {
         const data = await response.json();
         setTags(data.tags);
       }
     } catch (err) {
-      console.error('Error fetching tags:', err);
+      console.error("Error fetching tags:", err);
     } finally {
       setLoadingTags(false);
     }
@@ -53,7 +63,7 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
       setFile(selectedFile);
       // Auto-fill title from filename if title is empty
       if (!title) {
-        const fileNameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, '');
+        const fileNameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, "");
         setTitle(fileNameWithoutExt);
       }
     }
@@ -61,16 +71,16 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     if (!file) {
-      setError('Please select a file');
+      setError("Please select a file");
       return;
     }
 
     if (selectedTags.size === 0) {
-      setError('Please select at least one tag');
+      setError("Please select at least one tag");
       return;
     }
 
@@ -78,33 +88,37 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('tags', JSON.stringify(Array.from(selectedTags)));
+      formData.append("file", file);
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("tags", JSON.stringify(Array.from(selectedTags)));
 
-      const response = await fetch('/api/documents', {
-        method: 'POST',
+      const response = await fetch("/api/documents", {
+        method: "POST",
         body: formData,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Failed to upload document');
+        setError(data.error || "Failed to upload document");
         setLoading(false);
         return;
       }
 
-      setSuccess('Document uploaded successfully! It will be reviewed by an admin.');
+      setSuccess(
+        "Document uploaded successfully! It will be reviewed by an admin.",
+      );
       setFile(null);
-      setTitle('');
-      setDescription('');
+      setTitle("");
+      setDescription("");
       setSelectedTags(new Set());
 
       // Reset file input
-      const fileInput = document.getElementById('file-input') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
+      const fileInput = document.getElementById(
+        "file-input",
+      ) as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
 
       if (onSuccess) {
         setTimeout(() => {
@@ -112,8 +126,8 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
         }, 2000);
       }
     } catch (err) {
-      console.error('Error uploading document:', err);
-      setError('An unexpected error occurred');
+      console.error("Error uploading document:", err);
+      setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -128,7 +142,10 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* File Input */}
           <div>
-            <label htmlFor="file-input" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="file-input"
+              className="block text-sm font-medium mb-2"
+            >
               Select File
             </label>
             <input
@@ -151,7 +168,8 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
               </p>
             )}
             <p className="text-xs text-gray-500 mt-1">
-              Max size: {formatFileSize(getMaxFileSize())}. Allowed: PDF, Word, Text, Images
+              Max size: {formatFileSize(getMaxFileSize())}. Allowed: PDF, Word,
+              Text, Images
             </p>
           </div>
 
@@ -172,7 +190,10 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium mb-2"
+            >
               Description *
             </label>
             <Textarea
@@ -197,9 +218,9 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
                   key={tag.id}
                   className={`px-3 py-2 rounded-md border cursor-pointer transition-colors ${
                     selectedTags.has(tag.name)
-                      ? 'bg-blue-50 border-blue-500 text-blue-700'
-                      : 'bg-white border-gray-300 hover:border-gray-400'
-                  } ${loading || loadingTags ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      ? "bg-blue-50 border-blue-500 text-blue-700"
+                      : "bg-white border-gray-300 hover:border-gray-400"
+                  } ${loading || loadingTags ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <input
                     type="checkbox"
@@ -243,11 +264,12 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
             disabled={loading}
             className="w-full font-semibold"
           >
-            {loading ? 'Uploading...' : 'Upload Document'}
+            {loading ? "Uploading..." : "Upload Document"}
           </Button>
 
           <p className="text-xs text-gray-500 text-center">
-            Uploaded documents will be reviewed by an admin before becoming visible to other users.
+            Uploaded documents will be reviewed by an admin before becoming
+            visible to other users.
           </p>
         </form>
       </CardContent>

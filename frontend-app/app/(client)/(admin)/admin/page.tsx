@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Spinner } from '@/components/ui/spinner';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 
 interface DashboardStats {
   users: {
@@ -51,15 +51,15 @@ export default function AdminDashboard() {
       setLoading(true);
 
       // Fetch users
-      const usersRes = await fetch('/api/admin/users');
+      const usersRes = await fetch("/api/admin/users");
       const usersData = await usersRes.json();
 
       // Fetch documents
-      const docsRes = await fetch('/api/admin/documents');
+      const docsRes = await fetch("/api/admin/documents");
       const docsData = await docsRes.json();
 
       // Fetch tags
-      const tagsRes = await fetch('/api/tags');
+      const tagsRes = await fetch("/api/tags");
       const tagsData = await tagsRes.json();
 
       // Calculate statistics
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
         online: usersData.counts.ONLINE,
         offline: usersData.counts.OFFLINE,
         standby: usersData.counts.STANDBY,
-        admins: usersData.users.filter((u: any) => u.role === 'ADMIN').length,
+        admins: usersData.users.filter((u: any) => u.role === "ADMIN").length,
       };
 
       const docStats = {
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
       // Get 5 most recent documents
       setRecentDocuments(docsData.documents.slice(0, 5));
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error("Error fetching dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -106,7 +106,9 @@ export default function AdminDashboard() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome to the EmployAI admin panel</p>
+        <p className="text-gray-600 mt-2">
+          Welcome to the EmployAI admin panel
+        </p>
       </div>
 
       {/* Statistics Cards */}
@@ -137,8 +139,12 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm font-medium">Total Documents</p>
-                <p className="text-3xl font-bold mt-2">{stats?.documents.total}</p>
+                <p className="text-green-100 text-sm font-medium">
+                  Total Documents
+                </p>
+                <p className="text-3xl font-bold mt-2">
+                  {stats?.documents.total}
+                </p>
                 <div className="flex gap-2 mt-3 flex-wrap">
                   <Badge className="bg-white/20 text-white border-white/30">
                     {stats?.documents.online} Online
@@ -155,13 +161,17 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-orange-100 text-sm font-medium">Pending Approvals</p>
-                <p className="text-3xl font-bold mt-2">{stats?.documents.pending}</p>
+                <p className="text-orange-100 text-sm font-medium">
+                  Pending Approvals
+                </p>
+                <p className="text-3xl font-bold mt-2">
+                  {stats?.documents.pending}
+                </p>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="bg-white/20 text-white mt-3 hover:bg-white/30"
-                  onClick={() => router.push('/admin/documents?status=PENDING')}
+                  onClick={() => router.push("/admin/documents?status=PENDING")}
                 >
                   Review Now
                 </Button>
@@ -176,13 +186,15 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium">Total Tags</p>
+                <p className="text-purple-100 text-sm font-medium">
+                  Total Tags
+                </p>
                 <p className="text-3xl font-bold mt-2">{stats?.tags.total}</p>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="bg-white/20 text-white mt-3 hover:bg-white/30"
-                  onClick={() => router.push('/admin/tags')}
+                  onClick={() => router.push("/admin/tags")}
                 >
                   Manage Tags
                 </Button>
@@ -202,7 +214,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Button
               variant="outline"
-              onClick={() => router.push('/admin/documents')}
+              onClick={() => router.push("/admin/documents")}
               className="h-20 flex-col"
             >
               <div className="text-2xl mb-1">📄</div>
@@ -210,7 +222,7 @@ export default function AdminDashboard() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => router.push('/admin/users')}
+              onClick={() => router.push("/admin/users")}
               className="h-20 flex-col"
             >
               <div className="text-2xl mb-1">👥</div>
@@ -218,7 +230,7 @@ export default function AdminDashboard() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => router.push('/admin/tags')}
+              onClick={() => router.push("/admin/tags")}
               className="h-20 flex-col"
             >
               <div className="text-2xl mb-1">🏷️</div>
@@ -226,7 +238,7 @@ export default function AdminDashboard() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push("/dashboard")}
               className="h-20 flex-col"
             >
               <div className="text-2xl mb-1">📱</div>
@@ -244,7 +256,7 @@ export default function AdminDashboard() {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => router.push('/admin/documents')}
+              onClick={() => router.push("/admin/documents")}
             >
               View All
             </Button>
@@ -277,11 +289,11 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-3">
                         <Badge
                           variant={
-                            doc.status === 'ONLINE'
-                              ? 'default'
-                              : doc.status === 'PENDING'
-                                ? 'secondary'
-                                : 'outline'
+                            doc.status === "ONLINE"
+                              ? "default"
+                              : doc.status === "PENDING"
+                                ? "secondary"
+                                : "outline"
                           }
                         >
                           {doc.status}
@@ -304,21 +316,27 @@ export default function AdminDashboard() {
         <Card>
           <CardContent className="p-6 text-center">
             <div className="text-3xl mb-2">🟢</div>
-            <p className="text-2xl font-bold text-gray-900">{stats?.users.online}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats?.users.online}
+            </p>
             <p className="text-gray-600 mt-1">Online Users</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <div className="text-3xl mb-2">🟠</div>
-            <p className="text-2xl font-bold text-gray-900">{stats?.users.standby}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats?.users.standby}
+            </p>
             <p className="text-gray-600 mt-1">Standby Users</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <div className="text-3xl mb-2">⚫</div>
-            <p className="text-2xl font-bold text-gray-900">{stats?.users.offline}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats?.users.offline}
+            </p>
             <p className="text-gray-600 mt-1">Offline Users</p>
           </CardContent>
         </Card>

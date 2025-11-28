@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { DocumentList } from '@/components/documents/DocumentList';
-import { DocumentUploadForm } from '@/components/documents/DocumentUploadForm';
-import { DocumentFilters } from '@/components/documents/DocumentFilters';
+} from "@/components/ui/dialog";
+import { DocumentList } from "@/components/documents/DocumentList";
+import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
+import { DocumentFilters } from "@/components/documents/DocumentFilters";
 
 interface Document {
   id: string;
@@ -41,8 +41,8 @@ export default function DashboardPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTag, setSelectedTag] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -53,13 +53,13 @@ export default function DashboardPage() {
 
   const fetchSession = async () => {
     try {
-      const response = await fetch('/api/auth/session');
+      const response = await fetch("/api/auth/session");
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       }
     } catch (err) {
-      console.error('Error fetching session:', err);
+      console.error("Error fetching session:", err);
     }
   };
 
@@ -68,7 +68,7 @@ export default function DashboardPage() {
     try {
       const url = selectedTag
         ? `/api/documents?tag=${encodeURIComponent(selectedTag)}`
-        : '/api/documents';
+        : "/api/documents";
 
       const response = await fetch(url);
       if (response.ok) {
@@ -76,7 +76,7 @@ export default function DashboardPage() {
         setDocuments(data.documents);
       }
     } catch (err) {
-      console.error('Error fetching documents:', err);
+      console.error("Error fetching documents:", err);
     } finally {
       setLoading(false);
     }
@@ -84,13 +84,13 @@ export default function DashboardPage() {
 
   const fetchTags = async () => {
     try {
-      const response = await fetch('/api/tags');
+      const response = await fetch("/api/tags");
       if (response.ok) {
         const data = await response.json();
         setTags(data.tags);
       }
     } catch (err) {
-      console.error('Error fetching tags:', err);
+      console.error("Error fetching tags:", err);
     }
   };
 
@@ -99,52 +99,53 @@ export default function DashboardPage() {
       const response = await fetch(`/api/documents/${id}/download`);
       if (response.ok) {
         const data = await response.json();
-        window.open(data.downloadUrl, '_blank');
+        window.open(data.downloadUrl, "_blank");
       } else {
-        alert('Failed to generate download link');
+        alert("Failed to generate download link");
       }
     } catch (err) {
-      console.error('Error downloading document:', err);
-      alert('Failed to download document');
+      console.error("Error downloading document:", err);
+      alert("Failed to download document");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) {
+    if (!confirm("Are you sure you want to delete this document?")) {
       return;
     }
 
     try {
       const response = await fetch(`/api/documents/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
         // Refresh documents list
         fetchDocuments();
-        alert('Document deleted successfully');
+        alert("Document deleted successfully");
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to delete document');
+        alert(data.error || "Failed to delete document");
       }
     } catch (err) {
-      console.error('Error deleting document:', err);
-      alert('Failed to delete document');
+      console.error("Error deleting document:", err);
+      alert("Failed to delete document");
     }
   };
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
     } catch (err) {
-      console.error('Error logging out:', err);
+      console.error("Error logging out:", err);
     }
   };
 
-  const filteredDocuments = documents.filter((doc) =>
-    doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    doc.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredDocuments = documents.filter(
+    (doc) =>
+      doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -176,11 +177,10 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Documents
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Documents</h2>
           <p className="text-gray-600">
-            Browse and manage your documents. Upload new files or download existing ones.
+            Browse and manage your documents. Upload new files or download
+            existing ones.
           </p>
         </div>
 
