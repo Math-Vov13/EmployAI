@@ -51,15 +51,15 @@ export default function AdminDashboard() {
       setLoading(true);
 
       // Fetch users
-      const usersRes = await fetch("/api/admin/users");
+      const usersRes = await fetch("/api-client/admin/users");
       const usersData = await usersRes.json();
 
       // Fetch documents
-      const docsRes = await fetch("/api/admin/documents");
+      const docsRes = await fetch("/api-client/admin/documents");
       const docsData = await docsRes.json();
 
       // Fetch tags
-      const tagsRes = await fetch("/api/tags");
+      const tagsRes = await fetch("/api-client/admin/tags");
       const tagsData = await tagsRes.json();
 
       // Calculate statistics
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Users */}
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
+        <Card className="bg-linear-to-br from-blue-500 to-blue-600 text-white border-0">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Total Documents */}
-        <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
+        <Card className="bg-linear-to-br from-green-500 to-green-600 text-white border-0">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Pending Approvals */}
-        <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
+        <Card className="bg-linear-to-br from-orange-500 to-orange-600 text-white border-0">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -182,7 +182,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Total Tags */}
-        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
+        <Card className="bg-linear-to-br from-purple-500 to-purple-600 text-white border-0">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
