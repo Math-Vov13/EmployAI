@@ -14,10 +14,7 @@ export async function DELETE(
     const { user_id, role_id } = await params;
 
     if (!ObjectId.isValid(user_id)) {
-      return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     // For this system, we'll interpret "removing a role" as downgrading to USER

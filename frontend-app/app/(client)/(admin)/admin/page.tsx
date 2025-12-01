@@ -75,9 +75,12 @@ export default function AdminDashboard() {
       const documents = docsData.documents || [];
       const docStats = {
         total: documents.length,
-        online: documents.filter((d: any) => d.metadata?.status === "APPROVED").length,
-        pending: documents.filter((d: any) => d.metadata?.status === "PENDING").length,
-        deleted: documents.filter((d: any) => d.metadata?.status === "REJECTED").length,
+        online: documents.filter((d: any) => d.metadata?.status === "APPROVED")
+          .length,
+        pending: documents.filter((d: any) => d.metadata?.status === "PENDING")
+          .length,
+        deleted: documents.filter((d: any) => d.metadata?.status === "REJECTED")
+          .length,
       };
 
       setStats({

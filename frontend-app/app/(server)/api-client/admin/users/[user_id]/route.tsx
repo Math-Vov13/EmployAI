@@ -15,10 +15,7 @@ export async function GET(
     const { user_id } = await params;
 
     if (!ObjectId.isValid(user_id)) {
-      return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const usersCollection = await getUsersCollection();
@@ -54,10 +51,7 @@ export async function PUT(
     const { user_id } = await params;
 
     if (!ObjectId.isValid(user_id)) {
-      return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const body = await request.json();
@@ -118,10 +112,7 @@ export async function DELETE(
     const { user_id } = await params;
 
     if (!ObjectId.isValid(user_id)) {
-      return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const usersCollection = await getUsersCollection();

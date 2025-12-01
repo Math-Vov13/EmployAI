@@ -191,7 +191,10 @@ export async function DELETE(
     try {
       await bucket.delete(document.fileId);
     } catch (gridfsError) {
-      console.error(`Failed to delete file from GridFS: ${document.fileId}`, gridfsError);
+      console.error(
+        `Failed to delete file from GridFS: ${document.fileId}`,
+        gridfsError,
+      );
       // Continue even if GridFS delete fails
     }
 

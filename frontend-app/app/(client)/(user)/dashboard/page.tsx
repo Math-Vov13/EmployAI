@@ -91,7 +91,11 @@ export default function DashboardPage() {
 
         // Apply tag filter on client side if needed
         if (selectedTag && selectedTag !== "all") {
-          setDocuments(mappedDocuments.filter((doc: Document) => doc.tags.includes(selectedTag)));
+          setDocuments(
+            mappedDocuments.filter((doc: Document) =>
+              doc.tags.includes(selectedTag),
+            ),
+          );
         } else {
           setDocuments(mappedDocuments);
         }
@@ -118,10 +122,11 @@ export default function DashboardPage() {
       if (response.ok) {
         // Get the blob from response
         const blob = await response.blob();
-        const filename = response.headers.get("Content-Disposition")
-          ?.split("filename=")[1]
-          ?.replace(/"/g, "")
-          || "download";
+        const filename =
+          response.headers
+            .get("Content-Disposition")
+            ?.split("filename=")[1]
+            ?.replace(/"/g, "") || "download";
 
         // Create download link
         const url = window.URL.createObjectURL(blob);
