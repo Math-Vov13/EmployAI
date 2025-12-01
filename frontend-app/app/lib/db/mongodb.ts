@@ -1,6 +1,7 @@
 import { MongoClient, Db, Collection, GridFSBucket } from "mongodb";
 import { UserDocument } from "./models/User";
 import { DocumentDocument } from "./models/Document";
+import { ChatDocument } from "./models/Chat";
 
 if (!process.env.MONGODB_URI) {
   throw new Error("MONGODB_URI is not defined in environment variables");
@@ -49,4 +50,9 @@ export async function getDatabase(): Promise<Db> {
 export async function getGridFSBucket(): Promise<GridFSBucket> {
   const { db } = await connectToDatabase();
   return new GridFSBucket(db, { bucketName: "documents" });
+}
+
+export async function getChatsCollection(): Promise<Collection<ChatDocument>> {
+  const { db } = await connectToDatabase();
+  return db.collection<ChatDocument>("chats");
 }

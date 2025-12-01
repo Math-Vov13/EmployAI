@@ -1,12 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession, getCurrentUser } from "./session";
+import { extractTokenFromHeader, verifyToken } from "./token";
+
+/**
+ * Get authentication context from either session or token
+ * Tries session first, then falls back to JWT token from Authorization header
+ */
+async function getAuthContext(request: NextRequest) {
+  // Try session first
+  const session = await getSession();
+  if (session.isLoggedIn) {
+    return {
+      isAuthenticated: true,
+      userId: session.userId,
+      email: session.email,
+      role: session.role,
+      name: session.name,
+      googleId: session.googleId,
+      authType: "session" as const,
+    };
+  }
+
+  // Try token if session not found
+  const authHeader = request.headers.get("authorization");
+  const token = extractTokenFromHeader(authHeader);
+
+  if (token) {
+    const payload = verifyToken(token);
+    if (payload) {
+      return {
+        isAuthenticated: true,
+        userId: payload.userId,
+        email: payload.email,
+        role: payload.role,
+        authType: "token" as const,
+      };
+    }
+  }
+
+  return {
+    isAuthenticated: false,
+    authType: null,
+  };
+}
 
 export async function requireAuth(request: NextRequest) {
-  const session = await getSession();
+  const auth = await getAuthContext(request);
 
-  if (!session.isLoggedIn) {
+  if (!auth.isAuthenticated) {
     return NextResponse.json(
-      { error: "Unauthorized - login" },
+      { error: "Unauthorized - login required" },
       { status: 401 },
     );
   }
@@ -15,18 +58,18 @@ export async function requireAuth(request: NextRequest) {
 }
 
 export async function requireAdmin(request: NextRequest) {
-  const session = await getSession();
+  const auth = await getAuthContext(request);
 
-  if (!session.isLoggedIn) {
+  if (!auth.isAuthenticated) {
     return NextResponse.json(
-      { error: "Unauthorized - login" },
+      { error: "Unauthorized - login required" },
       { status: 401 },
     );
   }
 
-  if (session.role !== "ADMIN") {
+  if (auth.role !== "ADMIN") {
     return NextResponse.json(
-      { error: "Forbidden - Admin Access" },
+      { error: "Forbidden - Admin Access Required" },
       { status: 403 },
     );
   }
@@ -38,22 +81,22 @@ export async function requireOwnership(
   request: NextRequest,
   resourceUserId: string,
 ) {
-  const currentUser = await getCurrentUser();
+  const auth = await getAuthContext(request);
 
-  if (!currentUser) {
+  if (!auth.isAuthenticated) {
     return NextResponse.json(
-      { error: "Unauthorized - login" },
+      { error: "Unauthorized - login required" },
       { status: 401 },
     );
   }
 
-  if (currentUser.role === "ADMIN") {
+  if (auth.role === "ADMIN") {
     return null;
   }
 
-  if (currentUser.userId !== resourceUserId) {
+  if (auth.userId !== resourceUserId) {
     return NextResponse.json(
-      { error: "Forbidden - Unique acces a vos ressources" },
+      { error: "Forbidden - Can only access your own resources" },
       { status: 403 },
     );
   }
@@ -61,4 +104,4 @@ export async function requireOwnership(
   return null;
 }
 
-export { getCurrentUser };
+export { getCurrentUser, getAuthContext };
