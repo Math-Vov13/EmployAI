@@ -1,4 +1,11 @@
-import { describe, test, expect, beforeAll, beforeEach, afterEach } from "@jest/globals";
+import {
+  describe,
+  test,
+  expect,
+  beforeAll,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 import {
   generateToken,
   verifyToken,
@@ -15,7 +22,7 @@ let consoleErrorSpy: jest.SpyInstance;
 describe("Token Utilities", () => {
   beforeEach(() => {
     // Suppress console.error for tests that expect errors
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
