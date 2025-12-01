@@ -49,7 +49,7 @@ export function DocumentFilters({
             <SelectValue placeholder="All tags" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All tags</SelectItem>
+            <SelectItem value="all">All tags</SelectItem>
             {tags.map((tag) => (
               <SelectItem key={tag.id} value={tag.name}>
                 {tag.name}

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/app/lib/auth/middleware";
-import { getDocumentsCollection } from "@/app/lib/db/mongodb";
+import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
 import { ObjectId } from "mongodb";
-import { generatePresignedUrl } from "@/app/lib/storage/s3-client";
+import { Readable } from "stream";
 
 export async function GET(
   request: NextRequest,
@@ -48,31 +48,32 @@ export async function GET(
       );
     }
 
-    const presignedUrl = await generatePresignedUrl(document.s3Key);
+    // Stream file from GridFS
+    const bucket = await getGridFSBucket();
 
-    if (!presignedUrl) {
+    try {
+      const downloadStream = bucket.openDownloadStream(document.fileId);
+
+      // Convert MongoDB stream to Web ReadableStream
+      const webStream = Readable.toWeb(downloadStream) as ReadableStream<Uint8Array>;
+
+      // Return file as streaming response
+      return new NextResponse(webStream, {
+        headers: {
+          "Content-Type": document.mimetype || "application/octet-stream",
+          "Content-Disposition": `attachment; filename="${encodeURIComponent(document.filename)}"`,
+          "Content-Length": document.size.toString(),
+        },
+      });
+    } catch (gridfsError) {
+      console.error("Error downloading file from GridFS:", gridfsError);
       return NextResponse.json(
-        { error: "Failed to generate download URL" },
+        { error: "Failed to download file" },
         { status: 500 },
       );
     }
-
-    return NextResponse.json(
-      {
-        success: true,
-        downloadUrl: presignedUrl,
-        expiresIn: 3600, // 1h
-        document: {
-          id: document._id?.toString(),
-          title: document.title,
-          mimetype: document.mimetype,
-          size: document.size,
-        },
-      },
-      { status: 200 },
-    );
   } catch (error) {
-    console.error("Error generating download URL:", error);
+    console.error("Error generating download:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

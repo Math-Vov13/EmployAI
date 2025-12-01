@@ -61,11 +61,8 @@ export default function AdminTagsPage() {
   const fetchTags = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/tags");
-      if (!res.ok) throw new Error("Failed to fetch tags");
-
-      const data = await res.json();
-      setTags(data.tags);
+      // Tags API not yet implemented, use empty array for now
+      setTags([]);
     } catch (error) {
       console.error("Error fetching tags:", error);
     } finally {
@@ -75,11 +72,16 @@ export default function AdminTagsPage() {
 
   const fetchDocuments = async () => {
     try {
-      const res = await fetch("/api/admin/documents");
+      const res = await fetch("/api-client/documents");
       if (!res.ok) throw new Error("Failed to fetch documents");
 
       const data = await res.json();
-      setDocuments(data.documents);
+
+      // Map documents to include tags from metadata
+      const mappedDocuments = (data.documents || []).map((doc: any) => ({
+        tags: doc.metadata?.tags || [],
+      }));
+      setDocuments(mappedDocuments);
     } catch (error) {
       console.error("Error fetching documents:", error);
     }
@@ -92,18 +94,8 @@ export default function AdminTagsPage() {
   const handleCreateTag = async () => {
     try {
       setUpdating(true);
-      const res = await fetch("/api/admin/tags", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: createName }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to create tag");
-      }
-
-      await fetchTags();
+      // Tags API not yet implemented
+      alert("Tag management is not yet available. This feature is coming soon.");
       setIsCreateOpen(false);
       setCreateName("");
     } catch (error) {
@@ -119,19 +111,8 @@ export default function AdminTagsPage() {
 
     try {
       setUpdating(true);
-      const res = await fetch(`/api/admin/tags/${selectedTag.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to update tag");
-      }
-
-      await fetchTags();
-      await fetchDocuments();
+      // Tags API not yet implemented
+      alert("Tag management is not yet available. This feature is coming soon.");
       setIsEditOpen(false);
     } catch (error) {
       console.error("Error updating tag:", error);
@@ -146,16 +127,8 @@ export default function AdminTagsPage() {
 
     try {
       setUpdating(true);
-      const res = await fetch(`/api/admin/tags/${selectedTag.id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to delete tag");
-      }
-
-      await fetchTags();
+      // Tags API not yet implemented
+      alert("Tag management is not yet available. This feature is coming soon.");
       setIsDeleteOpen(false);
     } catch (error) {
       console.error("Error deleting tag:", error);

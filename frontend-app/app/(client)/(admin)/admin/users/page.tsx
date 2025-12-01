@@ -77,10 +77,14 @@ export default function AdminUsersPage() {
 
   const fetchCurrentUser = async () => {
     try {
-      const res = await fetch("/api/auth/session");
+      const res = await fetch("/api-client/users/me");
       if (res.ok) {
         const data = await res.json();
-        setCurrentUser(data.user);
+        setCurrentUser({
+          id: data.user.id,
+          email: data.user.email,
+          role: data.user.role,
+        });
       }
     } catch (error) {
       console.error("Error fetching current user:", error);
@@ -90,11 +94,25 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/users");
+      const res = await fetch("/api-client/admin/users");
       if (!res.ok) throw new Error("Failed to fetch users");
 
       const data = await res.json();
-      setUsers(data.users);
+
+      // Map users to expected format
+      const mappedUsers = (data.users || []).map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        role: user.role || "USER",
+        status: "ONLINE",
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        _count: {
+          documents: 0,
+        },
+      }));
+
+      setUsers(mappedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {
@@ -105,22 +123,8 @@ export default function AdminUsersPage() {
   const handleCreateUser = async () => {
     try {
       setUpdating(true);
-      const res = await fetch("/api/admin/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: createEmail,
-          role: createRole,
-          status: createStatus,
-        }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to create user");
-      }
-
-      await fetchUsers();
+      // User creation via admin not yet implemented - users must register via sign-up
+      alert("Direct user creation is not available. Please direct users to the sign-up page at /sign-up");
       setIsCreateOpen(false);
       setCreateEmail("");
       setCreateRole("USER");
@@ -138,12 +142,11 @@ export default function AdminUsersPage() {
 
     try {
       setUpdating(true);
-      const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
-        method: "PATCH",
+      const res = await fetch(`/api-client/admin/users/${selectedUser.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           role: editRole,
-          status: editStatus,
         }),
       });
 
@@ -154,6 +157,7 @@ export default function AdminUsersPage() {
 
       await fetchUsers();
       setIsEditOpen(false);
+      alert("User updated successfully");
     } catch (error) {
       console.error("Error updating user:", error);
       alert(error instanceof Error ? error.message : "Failed to update user");
@@ -167,7 +171,7 @@ export default function AdminUsersPage() {
 
     try {
       setUpdating(true);
-      const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
+      const res = await fetch(`/api-client/admin/users/${selectedUser.id}`, {
         method: "DELETE",
       });
 
@@ -178,6 +182,7 @@ export default function AdminUsersPage() {
 
       await fetchUsers();
       setIsDeleteOpen(false);
+      alert("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user:", error);
       alert(error instanceof Error ? error.message : "Failed to delete user");

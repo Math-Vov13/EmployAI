@@ -15,7 +15,7 @@ const navItems = [
   {
     label: "Documents",
     href: "/admin/documents",
-    icon: "",
+    icon: "📄",
   },
   {
     label: "Users",
@@ -39,8 +39,8 @@ export default function AdminLayout({
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      router.push("/login");
+      await fetch("/api-client/auth/logout", { method: "POST" });
+      router.push("/sign-in");
     } catch (error) {
       console.error("Logout failed:", error);
     }

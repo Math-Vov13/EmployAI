@@ -45,11 +45,8 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
 
   const fetchTags = async () => {
     try {
-      const response = await fetch("/api/tags");
-      if (response.ok) {
-        const data = await response.json();
-        setTags(data.tags);
-      }
+      // Tags API not yet implemented, use empty array for now
+      setTags([]);
     } catch (err) {
       console.error("Error fetching tags:", err);
     } finally {
@@ -79,10 +76,11 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
       return;
     }
 
-    if (selectedTags.size === 0) {
-      setError("Please select at least one tag");
-      return;
-    }
+    // Tags validation removed since tags are not yet implemented
+    // if (selectedTags.size === 0) {
+    //   setError("Please select at least one tag");
+    //   return;
+    // }
 
     setLoading(true);
 
@@ -90,10 +88,15 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", title);
-      formData.append("description", description);
-      formData.append("tags", JSON.stringify(Array.from(selectedTags)));
 
-      const response = await fetch("/api/documents", {
+      // Add metadata as JSON string
+      const metadata = {
+        description: description,
+        tags: Array.from(selectedTags),
+      };
+      formData.append("metadata", JSON.stringify(metadata));
+
+      const response = await fetch("/api-client/documents", {
         method: "POST",
         body: formData,
       });
@@ -207,41 +210,43 @@ export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
             />
           </div>
 
-          {/* Tags */}
-          <div>
-            <label htmlFor="tags" className="block text-sm font-medium mb-2">
-              Tags * (Select multiple)
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <label
-                  key={tag.id}
-                  className={`px-3 py-2 rounded-md border cursor-pointer transition-colors ${
-                    selectedTags.has(tag.name)
-                      ? "bg-blue-50 border-blue-500 text-blue-700"
-                      : "bg-white border-gray-300 hover:border-gray-400"
-                  } ${loading || loadingTags ? "opacity-50 cursor-not-allowed" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    className="sr-only"
-                    checked={selectedTags.has(tag.name)}
-                    onChange={(e) => {
-                      const newTags = new Set(selectedTags);
-                      if (e.target.checked) {
-                        newTags.add(tag.name);
-                      } else {
-                        newTags.delete(tag.name);
-                      }
-                      setSelectedTags(newTags);
-                    }}
-                    disabled={loading || loadingTags}
-                  />
-                  <span className="text-sm">{tag.name}</span>
-                </label>
-              ))}
+          {/* Tags - Hidden for now since tags are not implemented */}
+          {tags.length > 0 && (
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium mb-2">
+                Tags * (Select multiple)
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <label
+                    key={tag.id}
+                    className={`px-3 py-2 rounded-md border cursor-pointer transition-colors ${
+                      selectedTags.has(tag.name)
+                        ? "bg-blue-50 border-blue-500 text-blue-700"
+                        : "bg-white border-gray-300 hover:border-gray-400"
+                    } ${loading || loadingTags ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={selectedTags.has(tag.name)}
+                      onChange={(e) => {
+                        const newTags = new Set(selectedTags);
+                        if (e.target.checked) {
+                          newTags.add(tag.name);
+                        } else {
+                          newTags.delete(tag.name);
+                        }
+                        setSelectedTags(newTags);
+                      }}
+                      disabled={loading || loadingTags}
+                    />
+                    <span className="text-sm">{tag.name}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Error Message */}
           {error && (

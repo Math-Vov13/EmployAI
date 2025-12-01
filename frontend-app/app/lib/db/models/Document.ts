@@ -4,11 +4,11 @@ import { z } from "zod";
 export interface DocumentDocument {
   _id?: ObjectId;
   title: string;
-  s3Key: string; // A VOIR
-  s3Url: string; // A VOIR
+  fileId: ObjectId; // GridFS file ID
+  filename: string; // Original filename
   mimetype: string;
-  size: number; 
-  metadata: Record<string, any>; 
+  size: number;
+  metadata: Record<string, any>;
   creatorId: ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -17,6 +17,7 @@ export interface DocumentDocument {
 export interface DocumentResponse {
   id: string;
   title: string;
+  filename: string;
   mimetype: string;
   size: number;
   metadata: Record<string, any>;
@@ -39,6 +40,7 @@ export function toDocumentResponse(doc: DocumentDocument): DocumentResponse {
   return {
     id: doc._id?.toString() || "",
     title: doc.title,
+    filename: doc.filename,
     mimetype: doc.mimetype,
     size: doc.size,
     metadata: doc.metadata || {},

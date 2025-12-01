@@ -38,7 +38,7 @@ export function ChatInterface({
         content: msg.content,
       }));
 
-      const response = await fetch("/api/chat/summarize", {
+      const response = await fetch("/api-client/chat/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

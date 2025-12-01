@@ -41,7 +41,7 @@ export default function DashboardPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTag, setSelectedTag] = useState("");
+  const [selectedTag, setSelectedTag] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<any>(null);
 
@@ -53,7 +53,7 @@ export default function DashboardPage() {
 
   const fetchSession = async () => {
     try {
-      const response = await fetch("/api/auth/session");
+      const response = await fetch("/api-client/users/me");
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
@@ -66,14 +66,35 @@ export default function DashboardPage() {
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      const url = selectedTag
-        ? `/api/documents?tag=${encodeURIComponent(selectedTag)}`
-        : "/api/documents";
+      const url = "/api-client/documents";
 
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
-        setDocuments(data.documents);
+
+        // Map server response to expected Document interface
+        const mappedDocuments = (data.documents || []).map((doc: any) => ({
+          id: doc.id,
+          title: doc.title,
+          description: doc.metadata?.description || "",
+          fileName: doc.filename || "unknown",
+          fileSize: doc.size || 0,
+          mimeType: doc.mimetype || "",
+          status: doc.metadata?.status || "PENDING",
+          tags: doc.metadata?.tags || [],
+          createdAt: doc.createdAt,
+          uploadedBy: {
+            email: doc.creatorId || "user@example.com",
+            role: "USER",
+          },
+        }));
+
+        // Apply tag filter on client side if needed
+        if (selectedTag && selectedTag !== "all") {
+          setDocuments(mappedDocuments.filter((doc: Document) => doc.tags.includes(selectedTag)));
+        } else {
+          setDocuments(mappedDocuments);
+        }
       }
     } catch (err) {
       console.error("Error fetching documents:", err);
@@ -84,11 +105,8 @@ export default function DashboardPage() {
 
   const fetchTags = async () => {
     try {
-      const response = await fetch("/api/tags");
-      if (response.ok) {
-        const data = await response.json();
-        setTags(data.tags);
-      }
+      // Tags API not yet implemented, use empty array for now
+      setTags([]);
     } catch (err) {
       console.error("Error fetching tags:", err);
     }
@@ -96,12 +114,26 @@ export default function DashboardPage() {
 
   const handleDownload = async (id: string) => {
     try {
-      const response = await fetch(`/api/documents/${id}/download`);
+      const response = await fetch(`/api-client/documents/${id}/download`);
       if (response.ok) {
-        const data = await response.json();
-        window.open(data.downloadUrl, "_blank");
+        // Get the blob from response
+        const blob = await response.blob();
+        const filename = response.headers.get("Content-Disposition")
+          ?.split("filename=")[1]
+          ?.replace(/"/g, "")
+          || "download";
+
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = decodeURIComponent(filename);
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
       } else {
-        alert("Failed to generate download link");
+        alert("Failed to download document");
       }
     } catch (err) {
       console.error("Error downloading document:", err);
@@ -115,7 +147,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const response = await fetch(`/api/documents/${id}`, {
+      const response = await fetch(`/api-client/documents/${id}`, {
         method: "DELETE",
       });
 
@@ -135,8 +167,8 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      router.push("/login");
+      await fetch("/api-client/auth/logout", { method: "POST" });
+      router.push("/sign-in");
     } catch (err) {
       console.error("Error logging out:", err);
     }

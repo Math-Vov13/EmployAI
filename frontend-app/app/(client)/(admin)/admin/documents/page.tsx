@@ -62,16 +62,38 @@ function AdminDocumentsContent() {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const url =
-        statusFilter && statusFilter !== "all"
-          ? `/api/admin/documents?status=${statusFilter}`
-          : "/api/admin/documents";
+      const url = "/api-client/documents";
 
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch documents");
 
       const data = await res.json();
-      setDocuments(data.documents);
+
+      // Map server response to expected Document interface
+      const mappedDocuments = (data.documents || []).map((doc: any) => ({
+        id: doc.id,
+        title: doc.title,
+        description: doc.metadata?.description || "",
+        fileName: doc.filename || "unknown",
+        fileSize: doc.size || 0,
+        mimeType: doc.mimetype || "",
+        status: doc.metadata?.status || "PENDING",
+        tags: doc.metadata?.tags || [],
+        uploadedBy: {
+          id: doc.creatorId,
+          email: "user@example.com",
+          role: "USER",
+        },
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+      }));
+
+      // Apply status filter on client side
+      if (statusFilter && statusFilter !== "all") {
+        setDocuments(mappedDocuments.filter((doc: Document) => doc.status === statusFilter));
+      } else {
+        setDocuments(mappedDocuments);
+      }
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
@@ -82,10 +104,14 @@ function AdminDocumentsContent() {
   const handleStatusChange = async (documentId: string, newStatus: string) => {
     try {
       setUpdating(true);
-      const res = await fetch(`/api/admin/documents/${documentId}/status`, {
+
+      // Use the PATCH endpoint for updating document metadata
+      const res = await fetch(`/api-client/documents/${documentId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          metadata: { status: newStatus }
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to update status");
@@ -168,17 +194,17 @@ function AdminDocumentsContent() {
               </Button>
               <Button
                 size="sm"
-                variant={statusFilter === "ONLINE" ? "default" : "outline"}
-                onClick={() => setStatusFilter("ONLINE")}
+                variant={statusFilter === "APPROVED" ? "default" : "outline"}
+                onClick={() => setStatusFilter("APPROVED")}
               >
-                Online
+                Approved
               </Button>
               <Button
                 size="sm"
-                variant={statusFilter === "DELETED" ? "destructive" : "outline"}
-                onClick={() => setStatusFilter("DELETED")}
+                variant={statusFilter === "REJECTED" ? "destructive" : "outline"}
+                onClick={() => setStatusFilter("REJECTED")}
               >
-                Deleted
+                Rejected
               </Button>
             </div>
           </div>
@@ -332,12 +358,12 @@ function AdminDocumentsContent() {
                 <p className="text-sm font-medium text-gray-600 mb-3">
                   Change Status
                 </p>
-                <div className="flex gap-2">
-                  {selectedDocument.status !== "ONLINE" && (
+                <div className="flex gap-2 flex-wrap">
+                  {selectedDocument.status !== "APPROVED" && (
                     <Button
                       variant="default"
                       onClick={() =>
-                        handleStatusChange(selectedDocument.id, "ONLINE")
+                        handleStatusChange(selectedDocument.id, "APPROVED")
                       }
                       disabled={updating}
                     >
@@ -355,15 +381,15 @@ function AdminDocumentsContent() {
                       ⏳ Set Pending
                     </Button>
                   )}
-                  {selectedDocument.status !== "DELETED" && (
+                  {selectedDocument.status !== "REJECTED" && (
                     <Button
                       variant="destructive"
                       onClick={() =>
-                        handleStatusChange(selectedDocument.id, "DELETED")
+                        handleStatusChange(selectedDocument.id, "REJECTED")
                       }
                       disabled={updating}
                     >
-                      🗑️ Delete
+                      ❌ Reject
                     </Button>
                   )}
                 </div>

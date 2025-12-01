@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, getCurrentUser } from "@/app/lib/auth/middleware";
-import { getDocumentsCollection } from "@/app/lib/db/mongodb";
+import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
 import {
   documentMetadataSchema,
   toDocumentResponse,
 } from "@/app/lib/db/models/Document";
 import { ObjectId } from "mongodb";
-import { deleteFileFromS3 } from "@/app/lib/storage/s3-client";
 
 export async function GET(
   request: NextRequest,
@@ -175,7 +174,7 @@ export async function DELETE(
 
     const documentsCollection = await getDocumentsCollection();
 
-    // recup clé s3
+    // Get document to retrieve fileId
     const document = await documentsCollection.findOne({
       _id: new ObjectId(id),
     });
@@ -187,13 +186,16 @@ export async function DELETE(
       );
     }
 
-    // del s3
-    const s3DeleteSuccess = await deleteFileFromS3(document.s3Key);
-
-    if (!s3DeleteSuccess) {
-      console.error(`Failed to delete file from S3: ${document.s3Key}`);
+    // Delete file from GridFS
+    const bucket = await getGridFSBucket();
+    try {
+      await bucket.delete(document.fileId);
+    } catch (gridfsError) {
+      console.error(`Failed to delete file from GridFS: ${document.fileId}`, gridfsError);
+      // Continue even if GridFS delete fails
     }
-    // del mongo
+
+    // Delete document record from MongoDB
     const deleteResult = await documentsCollection.deleteOne({
       _id: new ObjectId(id),
     });

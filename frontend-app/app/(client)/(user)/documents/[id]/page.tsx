@@ -48,7 +48,7 @@ export default function DocumentDetailPage() {
 
   const fetchDocument = async () => {
     try {
-      const response = await fetch(`/api/documents/${id}`);
+      const response = await fetch(`/api-client/documents/${id}`);
       if (response.ok) {
         const data = await response.json();
         setDocument(data.document);
@@ -66,7 +66,7 @@ export default function DocumentDetailPage() {
 
   const handleDownload = async () => {
     try {
-      const response = await fetch(`/api/documents/${id}/download`);
+      const response = await fetch(`/api-client/documents/${id}/download`);
       if (response.ok) {
         const data = await response.json();
         window.open(data.downloadUrl, "_blank");

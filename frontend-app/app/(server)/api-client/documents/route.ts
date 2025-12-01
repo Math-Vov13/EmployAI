@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin, getCurrentUser } from "@/app/lib/auth/middleware";
-import { getDocumentsCollection } from "@/app/lib/db/mongodb";
+import { requireAdmin, requireAuth, getCurrentUser } from "@/app/lib/auth/middleware";
+import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
 import {
   documentUploadSchema,
   toDocumentResponse,
@@ -11,11 +11,6 @@ import {
   validateFile,
   formatFileSize,
 } from "@/app/lib/storage/file-validation";
-import {
-  generateFileKey,
-  uploadFileToS3,
-  validateS3Config,
-} from "@/app/lib/storage/s3-client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,10 +24,20 @@ export async function GET(request: NextRequest) {
 
     const documentsCollection = await getDocumentsCollection();
 
-    const filter =
-      currentUser.role === "ADMIN"
-        ? {}
-        : { creatorId: new ObjectId(currentUser.userId) };
+    // Filter logic:
+    // - Admins: see all documents (any status)
+    // - Regular users: see APPROVED documents + their own documents (any status)
+    let filter;
+    if (currentUser.role === "ADMIN") {
+      filter = {};
+    } else {
+      filter = {
+        $or: [
+          { "metadata.status": "APPROVED" },
+          { creatorId: new ObjectId(currentUser.userId) },
+        ],
+      };
+    }
 
     const documents = await documentsCollection
       .find(filter)
@@ -60,25 +65,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const adminCheck = await requireAdmin(request);
-    if (adminCheck) {
-      return adminCheck;
-    } // verif admin
+    // Allow any authenticated user to upload (not just admins)
+    const authError = await requireAuth(request);
+    if (authError) return authError;
 
     const currentUser = await getCurrentUser();
     if (!currentUser) {
       return NextResponse.json(
         { error: "Unauthorized - login required" },
         { status: 401 },
-      );
-    }
-
-    // s3?
-    const s3ConfigValidation = validateS3Config();
-    if (!s3ConfigValidation.valid) {
-      return NextResponse.json(
-        { error: s3ConfigValidation.error || "S3 configuration error" },
-        { status: 500 },
       );
     }
 
@@ -111,32 +106,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const fileBuffer = Buffer.from(arrayBuffer);
 
-    //s3
-    const fileKey = generateFileKey(currentUser.userId, file.name);
-    // s3
-    const uploadResult = await uploadFileToS3(fileKey, fileBuffer, file.type);
+    // Upload to GridFS
+    const bucket = await getGridFSBucket();
+    const uploadStream = bucket.openUploadStream(file.name, {
+      metadata: {
+        originalName: file.name,
+        uploadedBy: currentUser.userId,
+        contentType: file.type,
+      },
+    });
 
-    if (!uploadResult.success) {
-      return NextResponse.json(
-        { error: uploadResult.error || "Failed to upload file" },
-        { status: 500 },
-      );
-    }
+    // Write file to GridFS
+    const fileId = await new Promise<ObjectId>((resolve, reject) => {
+      uploadStream.on('error', reject);
+      uploadStream.on('finish', () => {
+        resolve(uploadStream.id as ObjectId);
+      });
+      uploadStream.end(fileBuffer);
+    });
 
-    // mongodb
+    // Create document record in MongoDB
     const documentsCollection = await getDocumentsCollection();
     const now = new Date();
 
+    // Set document status based on user role
+    // Admins: documents are auto-approved
+    // Regular users: documents need review (PENDING)
+    const documentStatus = currentUser.role === "ADMIN" ? "APPROVED" : "PENDING";
+
+    const metadata = uploadData.data.metadata || {};
+    metadata.status = documentStatus;
+
     const newDocument: DocumentDocument = {
       title: uploadData.data.title,
-      s3Key: fileKey,
-      s3Url: uploadResult.fileUrl,
+      fileId: fileId,
+      filename: file.name,
       mimetype: file.type,
       size: file.size,
-      metadata: uploadData.data.metadata || {},
+      metadata: metadata,
       creatorId: new ObjectId(currentUser.userId),
       createdAt: now,
       updatedAt: now,

@@ -32,7 +32,7 @@ export default function ChatPage() {
 
   const fetchDocument = async () => {
     try {
-      const response = await fetch(`/api/documents/${documentId}`);
+      const response = await fetch(`/api-client/documents/${documentId}`);
       if (response.ok) {
         const data = await response.json();
         setDocument(data.document);
