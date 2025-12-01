@@ -95,7 +95,9 @@ export default function AdminTagsPage() {
     try {
       setUpdating(true);
       // Tags API not yet implemented
-      alert("Tag management is not yet available. This feature is coming soon.");
+      alert(
+        "Tag management is not yet available. This feature is coming soon.",
+      );
       setIsCreateOpen(false);
       setCreateName("");
     } catch (error) {
@@ -112,7 +114,9 @@ export default function AdminTagsPage() {
     try {
       setUpdating(true);
       // Tags API not yet implemented
-      alert("Tag management is not yet available. This feature is coming soon.");
+      alert(
+        "Tag management is not yet available. This feature is coming soon.",
+      );
       setIsEditOpen(false);
     } catch (error) {
       console.error("Error updating tag:", error);
@@ -128,7 +132,9 @@ export default function AdminTagsPage() {
     try {
       setUpdating(true);
       // Tags API not yet implemented
-      alert("Tag management is not yet available. This feature is coming soon.");
+      alert(
+        "Tag management is not yet available. This feature is coming soon.",
+      );
       setIsDeleteOpen(false);
     } catch (error) {
       console.error("Error deleting tag:", error);

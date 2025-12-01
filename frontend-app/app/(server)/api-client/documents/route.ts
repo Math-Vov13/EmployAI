@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin, requireAuth, getCurrentUser } from "@/app/lib/auth/middleware";
+import {
+  requireAdmin,
+  requireAuth,
+  getCurrentUser,
+} from "@/app/lib/auth/middleware";
 import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
 import {
   documentUploadSchema,
@@ -122,8 +126,8 @@ export async function POST(request: NextRequest) {
 
     // Write file to GridFS
     const fileId = await new Promise<ObjectId>((resolve, reject) => {
-      uploadStream.on('error', reject);
-      uploadStream.on('finish', () => {
+      uploadStream.on("error", reject);
+      uploadStream.on("finish", () => {
         resolve(uploadStream.id as ObjectId);
       });
       uploadStream.end(fileBuffer);
@@ -136,7 +140,8 @@ export async function POST(request: NextRequest) {
     // Set document status based on user role
     // Admins: documents are auto-approved
     // Regular users: documents need review (PENDING)
-    const documentStatus = currentUser.role === "ADMIN" ? "APPROVED" : "PENDING";
+    const documentStatus =
+      currentUser.role === "ADMIN" ? "APPROVED" : "PENDING";
 
     const metadata = uploadData.data.metadata || {};
     metadata.status = documentStatus;

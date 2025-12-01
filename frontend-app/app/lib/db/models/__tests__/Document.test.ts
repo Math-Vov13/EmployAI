@@ -193,7 +193,8 @@ describe("Document Model", () => {
         _id: new ObjectId("507f1f77bcf86cd799439011"),
         title: "Employee Handbook",
         s3Key: "users/user123/abc123-handbook.pdf",
-        s3Url: "https://s3.amazonaws.com/bucket/users/user123/abc123-handbook.pdf",
+        s3Url:
+          "https://s3.amazonaws.com/bucket/users/user123/abc123-handbook.pdf",
         mimetype: "application/pdf",
         size: 1024000,
         metadata: {

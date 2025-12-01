@@ -90,7 +90,11 @@ function AdminDocumentsContent() {
 
       // Apply status filter on client side
       if (statusFilter && statusFilter !== "all") {
-        setDocuments(mappedDocuments.filter((doc: Document) => doc.status === statusFilter));
+        setDocuments(
+          mappedDocuments.filter(
+            (doc: Document) => doc.status === statusFilter,
+          ),
+        );
       } else {
         setDocuments(mappedDocuments);
       }
@@ -110,7 +114,7 @@ function AdminDocumentsContent() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          metadata: { status: newStatus }
+          metadata: { status: newStatus },
         }),
       });
 
@@ -201,7 +205,9 @@ function AdminDocumentsContent() {
               </Button>
               <Button
                 size="sm"
-                variant={statusFilter === "REJECTED" ? "destructive" : "outline"}
+                variant={
+                  statusFilter === "REJECTED" ? "destructive" : "outline"
+                }
                 onClick={() => setStatusFilter("REJECTED")}
               >
                 Rejected

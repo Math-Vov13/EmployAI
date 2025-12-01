@@ -55,7 +55,9 @@ export async function GET(
       const downloadStream = bucket.openDownloadStream(document.fileId);
 
       // Convert MongoDB stream to Web ReadableStream
-      const webStream = Readable.toWeb(downloadStream) as ReadableStream<Uint8Array>;
+      const webStream = Readable.toWeb(
+        downloadStream,
+      ) as ReadableStream<Uint8Array>;
 
       // Return file as streaming response
       return new NextResponse(webStream, {

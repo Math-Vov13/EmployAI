@@ -68,17 +68,22 @@ async function createAdminUser() {
     if (existingUser) {
       console.error(`❌ Error: User with email ${email} already exists`);
 
-      const shouldUpdate = await question("\nDo you want to update this user to ADMIN role? (yes/no): ");
+      const shouldUpdate = await question(
+        "\nDo you want to update this user to ADMIN role? (yes/no): ",
+      );
 
-      if (shouldUpdate.toLowerCase() === "yes" || shouldUpdate.toLowerCase() === "y") {
+      if (
+        shouldUpdate.toLowerCase() === "yes" ||
+        shouldUpdate.toLowerCase() === "y"
+      ) {
         await usersCollection.updateOne(
           { email: email.toLowerCase() },
           {
             $set: {
               role: "ADMIN",
               updatedAt: new Date(),
-            }
-          }
+            },
+          },
         );
         console.log("✅ User role updated to ADMIN successfully!");
       }

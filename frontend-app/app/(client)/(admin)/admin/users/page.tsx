@@ -124,7 +124,9 @@ export default function AdminUsersPage() {
     try {
       setUpdating(true);
       // User creation via admin not yet implemented - users must register via sign-up
-      alert("Direct user creation is not available. Please direct users to the sign-up page at /sign-up");
+      alert(
+        "Direct user creation is not available. Please direct users to the sign-up page at /sign-up",
+      );
       setIsCreateOpen(false);
       setCreateEmail("");
       setCreateRole("USER");
