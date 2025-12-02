@@ -42,7 +42,7 @@ export function verifyToken(token: string): TokenPayload | null {
 export function extractTokenFromHeader(
   authHeader: string | null,
 ): string | null {
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader?.startsWith("Bearer ")) {
     return null;
   }
   return authHeader.substring(7);

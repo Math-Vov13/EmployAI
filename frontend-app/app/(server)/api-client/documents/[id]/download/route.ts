@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/app/lib/auth/middleware";
 import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
 import { ObjectId } from "mongodb";
-import { Readable } from "stream";
+import { Readable } from "node:stream";
 
 export async function GET(
   request: NextRequest,

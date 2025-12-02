@@ -136,7 +136,7 @@ export default function DashboardPage() {
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        a.remove();
       } else {
         alert("Failed to download document");
       }

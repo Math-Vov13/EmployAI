@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { format } from "date-fns";
 
 export interface Message {
@@ -40,9 +40,9 @@ export function MessageList({ messages }: MessageListProps) {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      {messages.map((message, index) => (
+      {messages.map((message, _) => (
         <div
-          key={index}
+          key={useId()}
           className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
         >
           <div

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useSearchParams } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
@@ -19,7 +19,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogFooter,
-  DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
 
@@ -42,7 +41,6 @@ interface Document {
 }
 
 function AdminDocumentsContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);

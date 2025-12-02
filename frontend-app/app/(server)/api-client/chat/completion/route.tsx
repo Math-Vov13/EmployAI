@@ -1,7 +1,7 @@
 import { testAgent } from "@/mastra/agents/docs_agent";
 import { requireAuth } from "@/app/lib/auth/middleware";
 import { getCurrentUser } from "@/app/lib/auth/session";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import z from "zod";
 import { NextRequest } from "next/server";
 

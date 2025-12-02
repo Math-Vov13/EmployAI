@@ -39,7 +39,7 @@ const MIME_TYPE_NAMES: Record<string, string> = {
  * Get max file size from environment or use default (50MB)
  */
 export function getMaxFileSize(): number {
-  const maxSizeMB = parseInt(process.env.MAX_FILE_SIZE_MB || "50", 10);
+  const maxSizeMB = Number.parseInt(process.env.MAX_FILE_SIZE_MB || "50", 10);
   return maxSizeMB * 1024 * 1024; // Convert to bytes
 }
 
