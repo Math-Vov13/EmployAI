@@ -1,16 +1,9 @@
+import { afterEach, beforeEach, describe, expect, test } from "@jest/globals";
 import {
-  describe,
-  test,
-  expect,
-  beforeAll,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
-import {
-  generateToken,
-  verifyToken,
   extractTokenFromHeader,
+  generateToken,
   TokenPayload,
+  verifyToken,
 } from "../token";
 
 // Set JWT_SECRET for testing

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/app/lib/auth/middleware";
 import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
 import { ObjectId } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
 import { Readable } from "stream";
 
 export async function GET(

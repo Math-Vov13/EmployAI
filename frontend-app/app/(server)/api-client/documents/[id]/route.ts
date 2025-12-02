@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin, getCurrentUser } from "@/app/lib/auth/middleware";
-import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
+import { getCurrentUser, requireAdmin } from "@/app/lib/auth/middleware";
 import {
   documentMetadataSchema,
   toDocumentResponse,
 } from "@/app/lib/db/models/Document";
+import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
 import { ObjectId } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,

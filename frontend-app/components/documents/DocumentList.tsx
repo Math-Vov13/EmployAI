@@ -1,7 +1,7 @@
 "use client";
 
-import { DocumentCard } from "./DocumentCard";
 import { Spinner } from "@/components/ui/spinner";
+import { DocumentCard } from "./DocumentCard";
 
 type Document = {
   id: string;

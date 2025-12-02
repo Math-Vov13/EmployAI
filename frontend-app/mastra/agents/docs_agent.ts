@@ -1,5 +1,5 @@
+import { gateway } from "@ai-sdk/gateway";
 import { Agent } from "@mastra/core/agent";
-import { fastembed } from "@mastra/fastembed";
 import { Memory } from "@mastra/memory";
 import { MongoDBStore, MongoDBVector } from "@mastra/mongodb";
 
@@ -36,11 +36,11 @@ export const testAgent = new Agent({
   instructions: `
         You are a test agent designed to assist with OpenAI-related queries. Provide accurate and concise information based on user questions.
 `,
-  model: "openai/gpt-4.1-mini",
+  model: gateway(process.env.AGENT_MODEL!),
   memory: new Memory({
     storage: mongoStore,
     vector: mongoVector,
-    embedder: fastembed,
+    embedder: gateway.textEmbeddingModel(process.env.EMBEDDING_MODEL!),
     options: {
       lastMessages: 10,
       semanticRecall: {

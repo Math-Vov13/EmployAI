@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { format } from "date-fns";
+import { useEffect, useRef } from "react";
 
 export interface Message {
   role: "user" | "assistant";

@@ -1,7 +1,7 @@
-import { MongoClient, Db, Collection, GridFSBucket } from "mongodb";
-import { UserDocument } from "./models/User";
-import { DocumentDocument } from "./models/Document";
+import { Collection, Db, GridFSBucket, MongoClient } from "mongodb";
 import { ChatDocument } from "./models/Chat";
+import { DocumentDocument } from "./models/Document";
+import { UserDocument } from "./models/User";
 
 if (!process.env.MONGODB_URI) {
   throw new Error("MONGODB_URI is not defined in environment variables");

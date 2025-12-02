@@ -1,11 +1,11 @@
-import { describe, test, expect } from "@jest/globals";
+import { describe, expect, test } from "@jest/globals";
 import { ObjectId } from "mongodb";
 import {
+  ChatDocument,
+  ChatMessage,
   chatMessageSchema,
   createChatSchema,
   toChatResponse,
-  ChatDocument,
-  ChatMessage,
 } from "../Chat";
 
 describe("Chat Model", () => {

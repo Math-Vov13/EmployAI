@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { DocumentFilters } from "@/components/documents/DocumentFilters";
+import { DocumentList } from "@/components/documents/DocumentList";
+import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,9 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DocumentList } from "@/components/documents/DocumentList";
-import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
-import { DocumentFilters } from "@/components/documents/DocumentFilters";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface Document {
   id: string;

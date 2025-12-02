@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { userLoginSchema, toUserResponse } from "@/app/lib/db/models/User";
 import { verifyPassword } from "@/app/lib/auth/password";
-import { getUsersCollection } from "@/app/lib/db/mongodb";
 import { createSession } from "@/app/lib/auth/session";
+import { toUserResponse, userLoginSchema } from "@/app/lib/db/models/User";
+import { getUsersCollection } from "@/app/lib/db/mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
 import {
   exchangeCodeForTokens,
   getGoogleUserInfo,
 } from "@/app/lib/auth/google-oauth";
+import { generateRandomPassword, hashPassword } from "@/app/lib/auth/password";
 import { createSession } from "@/app/lib/auth/session";
-import { getUsersCollection } from "@/app/lib/db/mongodb";
 import { UserDocument } from "@/app/lib/db/models/User";
-import { hashPassword, generateRandomPassword } from "@/app/lib/auth/password";
+import { getUsersCollection } from "@/app/lib/db/mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageList, Message } from "./MessageList";
+import { useState } from "react";
 import { MessageInput } from "./MessageInput";
+import { Message, MessageList } from "./MessageList";
 
 interface ChatInterfaceProps {
   documentId: string;

@@ -1,9 +1,8 @@
+import { getCurrentUser, requireAuth } from "@/app/lib/auth/middleware";
 import { testAgent } from "@/mastra/agents/docs_agent";
-import { requireAuth } from "@/app/lib/auth/middleware";
-import { getCurrentUser } from "@/app/lib/auth/session";
 import { randomUUID } from "crypto";
-import z from "zod";
 import { NextRequest } from "next/server";
+import z from "zod";
 
 const requestSchema = z.object({
   prompt: z.string().min(1, "Prompt is required"),
@@ -32,7 +31,18 @@ export async function POST(request: NextRequest) {
   const resourceId = "user-456";
 
   // Error 400
-  const requestBody = await request.json();
+  let requestBody;
+  try {
+    requestBody = await request.json();
+  } catch {
+    return new Response(
+      JSON.stringify({ error: "Invalid JSON in request body" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  }
   const parsed = requestSchema.safeParse(requestBody);
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: parsed.error.message }), {
