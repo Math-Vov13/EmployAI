@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ChatDialog } from "@/components/chat/ChatDialog";
+import { FiMessageSquare } from "react-icons/fi";
 
 interface Document {
   id: string;
@@ -37,6 +39,7 @@ interface Tag {
 export default function DashboardPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -192,7 +195,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <h1 className="text-5xl font-bold">
                 EmployAI
               </h1>
               {user && (
@@ -230,6 +233,30 @@ export default function DashboardPage() {
           onSearchChange={setSearchQuery}
         />
 
+        {/* Chat Button - Near Documents List */}
+        <div className="mb-4">
+          <Button
+            variant="default"
+            size="lg"
+            onClick={() => setIsChatOpen(true)}
+            disabled={filteredDocuments.length === 0}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          >
+            <FiMessageSquare className="mr-2" />
+            Chat with AI Assistant
+            {filteredDocuments.length > 0 && (
+              <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                {filteredDocuments.length} doc{filteredDocuments.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </Button>
+          {filteredDocuments.length === 0 && (
+            <p className="text-sm text-gray-500 mt-2">
+              Upload a document to start chatting with the AI assistant
+            </p>
+          )}
+        </div>
+
         {/* Documents List */}
         <DocumentList
           documents={filteredDocuments}
@@ -256,6 +283,18 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Chat Dialog */}
+      <ChatDialog
+        open={isChatOpen}
+        onOpenChange={setIsChatOpen}
+        documents={filteredDocuments.map((doc) => ({
+          id: doc.id,
+          title: doc.title,
+          description: doc.description,
+          fileName: doc.fileName,
+        }))}
+      />
     </div>
   );
 }

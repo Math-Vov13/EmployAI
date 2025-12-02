@@ -10,7 +10,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { format } from "date-fns";
-import Link from "next/link";
+import { FiFile, FiFileText, FiImage, FiPaperclip } from "react-icons/fi";
 
 type Document = {
   id: string;
@@ -47,11 +47,14 @@ export function DocumentCard({
       : document.createdAt;
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.includes("pdf")) return "📄";
-    if (mimeType.includes("word") || mimeType.includes("document")) return "📝";
-    if (mimeType.includes("text")) return "📃";
-    if (mimeType.includes("image")) return "🖼️";
-    return "📎";
+    if (mimeType.includes("pdf")) return <FiFile className="text-red-600" />;
+    if (mimeType.includes("word") || mimeType.includes("document"))
+      return <FiFileText className="text-blue-600" />;
+    if (mimeType.includes("text"))
+      return <FiFileText className="text-gray-600" />;
+    if (mimeType.includes("image"))
+      return <FiImage className="text-purple-600" />;
+    return <FiPaperclip className="text-gray-500" />;
   };
 
   const getStatusColor = (status: string) => {
@@ -72,7 +75,7 @@ export function DocumentCard({
       <CardHeader className="flex gap-3">
         <div className="flex flex-col gap-1 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">{getFileIcon(document.mimeType)}</span>
+            <div className="text-2xl">{getFileIcon(document.mimeType)}</div>
             <div className="flex-1">
               <Link href={`/documents/${document.id}`}>
                 <h4 className="text-lg font-semibold hover:text-blue-600 transition-colors">
@@ -121,11 +124,6 @@ export function DocumentCard({
           >
             Download
           </Button>
-          <Link href={`/chat/${document.id}`} className="flex-1">
-            <Button size="sm" variant="secondary" className="w-full">
-              Chat
-            </Button>
-          </Link>
           {onDelete && (
             <Button
               size="sm"

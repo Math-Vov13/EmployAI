@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FiXCircle } from "react-icons/fi";
 
 interface Document {
   id: string;
@@ -95,7 +96,9 @@ export default function DocumentDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="text-center py-8">
-            <p className="text-xl mb-4">❌</p>
+            <div className="text-4xl mb-4 text-red-500 flex justify-center">
+              <FiXCircle />
+            </div>
             <p className="text-gray-700 mb-4">
               {error || "Document not found"}
             </p>

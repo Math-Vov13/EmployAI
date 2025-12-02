@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
+import { FiPlus, FiInfo, FiAlertTriangle } from "react-icons/fi";
 
 interface Tag {
   id: string;
@@ -172,7 +173,9 @@ export default function AdminTagsPage() {
             Manage document tags and categories
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>➕ Create Tag</Button>
+        <Button onClick={() => setIsCreateOpen(true)}>
+          <FiPlus className="mr-2" /> Create Tag
+        </Button>
       </div>
 
       {/* Statistics */}
@@ -389,10 +392,10 @@ export default function AdminTagsPage() {
               {getTagUsageCount(selectedTag.name) > 0 && (
                 <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-3">
-                    <p className="text-sm text-blue-800">
-                      ℹ️ This tag is used by{" "}
-                      {getTagUsageCount(selectedTag.name)} document(s). Renaming
-                      will update all documents.
+                    <p className="text-sm text-blue-800 flex items-start gap-2">
+                      <FiInfo className="mt-0.5 flex-shrink-0" /> This tag is
+                      used by {getTagUsageCount(selectedTag.name)} document(s).
+                      Renaming will update all documents.
                     </p>
                   </CardContent>
                 </Card>
@@ -423,8 +426,8 @@ export default function AdminTagsPage() {
             <div className="py-4">
               {getTagUsageCount(selectedTag.name) > 0 ? (
                 <div>
-                  <p className="mb-4 text-red-600 font-medium">
-                    ⚠️ Cannot delete this tag
+                  <p className="mb-4 text-red-600 font-medium flex items-center gap-2">
+                    <FiAlertTriangle /> Cannot delete this tag
                   </p>
                   <Card className="bg-red-50 border-red-200">
                     <CardContent className="p-4">

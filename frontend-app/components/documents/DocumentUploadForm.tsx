@@ -4,6 +4,7 @@ import {
   formatFileSize,
   getAllowedFileExtensions,
   getMaxFileSize,
+  validateFile,
 } from "@/app/lib/storage/file-validation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -32,6 +33,9 @@ export function DocumentUploadForm({
   const [loadingTags, setLoadingTags] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>(
+    [],
+  );
 
   // Fetch tags on mount
   useEffect(() => {
@@ -51,7 +55,25 @@ export function DocumentUploadForm({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
+    setFileValidationErrors([]);
+    setError("");
+
     if (selectedFile) {
+      // Validate the file immediately
+      const validation = validateFile(
+        selectedFile.name,
+        selectedFile.type,
+        selectedFile.size,
+      );
+
+      if (!validation.valid) {
+        setFileValidationErrors(validation.errors);
+        setFile(null);
+        // Clear the file input
+        e.target.value = "";
+        return;
+      }
+
       setFile(selectedFile);
       // Auto-fill title from filename if title is empty
       if (!title) {
@@ -65,9 +87,17 @@ export function DocumentUploadForm({
     e.preventDefault();
     setError("");
     setSuccess("");
+    setFileValidationErrors([]);
 
     if (!file) {
       setError("Please select a file");
+      return;
+    }
+
+    // Double-check file validation before submission
+    const validation = validateFile(file.name, file.type, file.size);
+    if (!validation.valid) {
+      setFileValidationErrors(validation.errors);
       return;
     }
 
@@ -165,9 +195,19 @@ export function DocumentUploadForm({
                 Selected: {file.name} ({formatFileSize(file.size)})
               </p>
             )}
+            {fileValidationErrors.length > 0 && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm mt-2">
+                <p className="font-semibold mb-1">File validation failed:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  {fileValidationErrors.map((err, idx) => (
+                    <li key={idx}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <p className="text-xs text-gray-500 mt-1">
-              Max size: {formatFileSize(getMaxFileSize())}. Allowed: PDF, Word,
-              Text, Images
+              Max size: {formatFileSize(getMaxFileSize())}. Allowed: PDF, Word
+              (.doc/.docx), Text (.txt)
             </p>
           </div>
 
@@ -261,7 +301,7 @@ export function DocumentUploadForm({
           <Button
             type="submit"
             size="lg"
-            disabled={loading}
+            disabled={loading || fileValidationErrors.length > 0 || !file}
             className="w-full font-semibold"
           >
             {loading ? "Uploading..." : "Upload Document"}

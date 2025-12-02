@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { FiCheckCircle, FiClock, FiXCircle } from "react-icons/fi";
 
 interface Document {
   id: string;
@@ -371,7 +372,7 @@ function AdminDocumentsContent() {
                       }
                       disabled={updating}
                     >
-                      ✅ Approve
+                      <FiCheckCircle className="mr-2" /> Approve
                     </Button>
                   )}
                   {selectedDocument.status !== "PENDING" && (
@@ -382,7 +383,7 @@ function AdminDocumentsContent() {
                       }
                       disabled={updating}
                     >
-                      ⏳ Set Pending
+                      <FiClock className="mr-2" /> Set Pending
                     </Button>
                   )}
                   {selectedDocument.status !== "REJECTED" && (
@@ -393,7 +394,7 @@ function AdminDocumentsContent() {
                       }
                       disabled={updating}
                     >
-                      ❌ Reject
+                      <FiXCircle className="mr-2" /> Reject
                     </Button>
                   )}
                 </div>

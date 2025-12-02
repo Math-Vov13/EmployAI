@@ -36,8 +36,27 @@ export async function createSession(
   name: string,
   role: "USER" | "ADMIN",
   googleId?: string,
+  rememberMe: boolean = false,
 ) {
-  const session = await getSession();
+  const cookieStore = await cookies();
+
+  // Calculate maxAge based on rememberMe
+  // rememberMe = true: 7 days (604800 seconds)
+  // rememberMe = false: session cookie (expires when browser closes)
+  const maxAge = rememberMe ? 7 * 24 * 60 * 60 : undefined;
+
+  const session = await getIronSession<SessionData>(cookieStore, {
+    password: process.env.SESSION_SECRET!,
+    cookieName: "employai_session",
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: maxAge,
+      path: "/",
+    },
+  });
+
   session.userId = userId;
   session.email = email;
   session.name = name;

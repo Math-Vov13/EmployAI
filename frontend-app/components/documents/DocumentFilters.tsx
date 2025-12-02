@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FiSearch } from "react-icons/fi";
 
 interface Tag {
   id: string;
@@ -32,9 +33,9 @@ export function DocumentFilters({
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-6">
       <div className="flex-1 relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-          🔍
-        </span>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <FiSearch />
+        </div>
         <Input
           placeholder="Search documents..."
           value={searchQuery}

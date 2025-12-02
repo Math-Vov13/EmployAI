@@ -39,7 +39,10 @@ export default function Home() {
               size="lg"
               className="min-w-[200px]"
             >
-              <Link href="/admin" className="font-[family-name:--font-figtree]">
+              <Link
+                href="/admin/sign-in"
+                className="font-[family-name:--font-figtree]"
+              >
                 I am an administrator
               </Link>
             </Button>
