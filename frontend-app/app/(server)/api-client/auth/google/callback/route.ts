@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       console.error("Google OAuth error:", error);
       return NextResponse.redirect(
         new URL(
-          `/login?error=${encodeURIComponent("Google authentication failed")}`,
+          `/sign-in?error=${encodeURIComponent("Google authentication failed")}`,
           request.url,
         ),
       );
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     if (!code) {
       return NextResponse.redirect(
         new URL(
-          `/login?error=${encodeURIComponent("Missing authorization code")}`,
+          `/sign-in?error=${encodeURIComponent("Missing authorization code")}`,
           request.url,
         ),
       );
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     if (!googleUser.verified_email) {
       return NextResponse.redirect(
         new URL(
-          `/login?error=${encodeURIComponent("Email not verified with Google")}`,
+          `/sign-in?error=${encodeURIComponent("Email not verified with Google")}`,
           request.url,
         ),
       );
@@ -83,12 +83,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Google OAuth users get persistent 7-day sessions by default
+    // (they can sign in easily with Google anyway, so Remember Me makes sense)
     await createSession(
       user._id!.toString(),
       user.email,
       user.name,
       user.role,
       googleUser.id,
+      true, // rememberMe = true for OAuth users
     );
 
     return NextResponse.redirect(new URL("/dashboard", request.url));
@@ -96,7 +99,7 @@ export async function GET(request: NextRequest) {
     console.error("Google OAuth callback error:", error);
     return NextResponse.redirect(
       new URL(
-        `/login?error=${encodeURIComponent("Authentication failed. Please try again.")}`,
+        `/sign-in?error=${encodeURIComponent("Authentication failed. Please try again.")}`,
         request.url,
       ),
     );

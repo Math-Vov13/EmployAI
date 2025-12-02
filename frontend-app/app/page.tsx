@@ -8,12 +8,12 @@ export default function Home() {
     <div className="flex min-h-screen items-center justify-center bg-amber-50 relative overflow-hidden">
       <Boxes />
       <Card className="relative z-10 max-w-2xl mx-4 bg-amber-50">
-        <CardContent className="flex flex-col items-center justify-center gap-8 py-12 text-center font-[family-name:--font-figtree]">
+        <CardContent className="flex flex-col items-center justify-center gap-8 py-12 text-center">
           <div className="flex flex-col items-center gap-3">
-            <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl md:text-7xl font-(family-name:--font-poppins)">
+            <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl md:text-7xl">
               EmployAI
             </h1>
-            <p className="text-lg text-gray-600 sm:text-xl font-(family-name:--font-poppins)">
+            <p className="text-lg text-gray-600 sm:text-xl">
               Access your documents seamlessly
             </p>
           </div>
@@ -26,12 +26,7 @@ export default function Home() {
               size="lg"
               className="min-w-[200px]"
             >
-              <Link
-                href="/sign-in"
-                className="font-[family-name:--font-figtree]"
-              >
-                Sign in
-              </Link>
+              <Link href="/sign-in">Sign in</Link>
             </Button>
             <Button
               asChild
@@ -39,12 +34,7 @@ export default function Home() {
               size="lg"
               className="min-w-[200px]"
             >
-              <Link
-                href="/admin/sign-in"
-                className="font-[family-name:--font-figtree]"
-              >
-                I am an administrator
-              </Link>
+              <Link href="/admin/sign-in">I am an administrator</Link>
             </Button>
           </div>
         </CardContent>

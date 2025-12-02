@@ -1,15 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getUsersCollection } from "@/app/lib/db/mongodb";
 import { createSession } from "@/app/lib/auth/session";
+import { getUsersCollection } from "@/app/lib/db/mongodb";
+import { completeSignInSchema } from "@/app/lib/validations/auth";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, rememberMe = false } = body;
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    // Validate input using schema
+    const validation = completeSignInSchema.safeParse(body);
+    if (!validation.success) {
+      const firstError = validation.error.issues[0]?.message || "Invalid input";
+      return NextResponse.json({ error: firstError }, { status: 400 });
     }
+
+    const { email, rememberMe = false } = validation.data;
 
     const usersCollection = await getUsersCollection();
     const user = await usersCollection.findOne({

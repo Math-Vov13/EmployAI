@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -15,10 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import { ChatInterface } from "./ChatInterface";
+import { useEffect, useState } from "react";
 import { FiFile, FiInfo } from "react-icons/fi";
+import { ChatInterface } from "./ChatInterface";
 
 interface Document {
   id: string;

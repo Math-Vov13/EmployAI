@@ -122,9 +122,13 @@ export default function AdminUsersPage() {
   const handleCreateUser = async () => {
     try {
       setUpdating(true);
-      // User creation via admin not yet implemented - users must register via sign-up
+      // User creation via admin panel not yet implemented
+      // Users must be created manually in the database or via seed script
       alert(
-        "Direct user creation is not available. Please direct users to the sign-up page at /sign-up",
+        "Direct user creation is not available yet. To add users:\n\n" +
+          "1. Use the seed script: npm run seed:admin\n" +
+          "2. Or manually add users to the MongoDB database\n" +
+          "3. Contact system administrator for assistance",
       );
       setIsCreateOpen(false);
       setCreateEmail("");

@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { FiPlus, FiInfo, FiAlertTriangle } from "react-icons/fi";
+import { FiAlertTriangle, FiInfo, FiPlus } from "react-icons/fi";
 
 interface Tag {
   id: string;

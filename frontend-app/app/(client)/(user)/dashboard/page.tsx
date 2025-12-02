@@ -1,5 +1,6 @@
 "use client";
 
+import { ChatDialog } from "@/components/chat/ChatDialog";
 import { DocumentFilters } from "@/components/documents/DocumentFilters";
 import { DocumentList } from "@/components/documents/DocumentList";
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
@@ -12,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ChatDialog } from "@/components/chat/ChatDialog";
 import { FiMessageSquare } from "react-icons/fi";
 
 interface Document {
@@ -195,9 +195,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-5xl font-bold">
-                EmployAI
-              </h1>
+              <h1 className="text-5xl font-bold">EmployAI</h1>
               {user && (
                 <p className="text-sm text-gray-600">Welcome, {user.email}</p>
               )}
@@ -246,7 +244,8 @@ export default function DashboardPage() {
             Chat with AI Assistant
             {filteredDocuments.length > 0 && (
               <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                {filteredDocuments.length} doc{filteredDocuments.length !== 1 ? "s" : ""}
+                {filteredDocuments.length} doc
+                {filteredDocuments.length !== 1 ? "s" : ""}
               </span>
             )}
           </Button>

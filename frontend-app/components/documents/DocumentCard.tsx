@@ -10,6 +10,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { format } from "date-fns";
+import Link from "next/link";
 import { FiFile, FiFileText, FiImage, FiPaperclip } from "react-icons/fi";
 
 type Document = {

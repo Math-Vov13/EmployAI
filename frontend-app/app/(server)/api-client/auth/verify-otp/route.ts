@@ -1,17 +1,19 @@
+import { otpVerificationSchema } from "@/app/lib/validations/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { otpStore } from "../send-otp/route";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, code } = body;
 
-    if (!email || !code) {
-      return NextResponse.json(
-        { error: "Email and code are required" },
-        { status: 400 },
-      );
+    // Validate input using schema
+    const validation = otpVerificationSchema.safeParse(body);
+    if (!validation.success) {
+      const firstError = validation.error.issues[0]?.message || "Invalid input";
+      return NextResponse.json({ error: firstError }, { status: 400 });
     }
+
+    const { email, code } = validation.data;
 
     const record = otpStore.get(email.toLowerCase());
 

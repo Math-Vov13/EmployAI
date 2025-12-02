@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
       response as any,
       {
         password: process.env.SESSION_SECRET!,
-        cookieName: "employai_session",
+        cookieName: process.env.SESSION_COOKIE_NAME!,
       },
     );
 
@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
     const isAdmin = session.role === "ADMIN";
 
     // Public pages (accessible to everyone)
-    const publicPages = ["/", "/sign-in", "/sign-up"];
+    const publicPages = ["/", "/sign-in"];
 
     // Admin auth pages
     if (pathname.startsWith("/admin/sign-in")) {
@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Regular auth pages
-    if (pathname === "/sign-in" || pathname === "/sign-up") {
+    if (pathname === "/sign-in") {
       // If already logged in, redirect based on role
       if (isLoggedIn) {
         if (isAdmin) {

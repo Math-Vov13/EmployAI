@@ -1,5 +1,7 @@
 "use client";
 
+import { validateEmail, validatePassword } from "@/app/lib/validations/auth";
+import { OTPVerification } from "@/components/auth/OTPVerification";
 import { Boxes } from "@/components/ui/background-boxes";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,29 +11,71 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { OTPVerification } from "@/components/auth/OTPVerification";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Step = "credentials" | "otp" | "complete";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>("credentials");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [generalError, setGeneralError] = useState("");
+
+  // Check for OAuth errors in URL
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      setGeneralError(decodeURIComponent(errorParam));
+    }
+  }, [searchParams]);
+
+  const validateEmailField = (email: string): boolean => {
+    const result = validateEmail(email);
+    if (!result.success) {
+      setEmailError(result.error!);
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  const validatePasswordField = (password: string): boolean => {
+    const result = validatePassword(password);
+    if (!result.success) {
+      setPasswordError(result.error!);
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Clear all errors
+    setEmailError("");
+    setPasswordError("");
+    setGeneralError("");
+
+    // Validate fields
+    const isEmailValid = validateEmailField(email);
+    const isPasswordValid = validatePasswordField(password);
+
+    if (!isEmailValid || !isPasswordValid) {
+      return;
+    }
+
     setLoading(true);
-    setError("");
 
     try {
       // Step 1: Verify credentials (without creating session)
@@ -44,7 +88,14 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Invalid credentials");
+        // Map server errors to specific fields
+        if (data.error?.toLowerCase().includes("email")) {
+          setEmailError(data.error);
+        } else if (data.error?.toLowerCase().includes("password")) {
+          setPasswordError(data.error);
+        } else {
+          setPasswordError(data.error || "Invalid email or password");
+        }
         return;
       }
 
@@ -56,14 +107,14 @@ export default function LoginPage() {
       });
 
       if (!otpResponse.ok) {
-        setError("Failed to send verification code");
+        setGeneralError("Failed to send verification code");
         return;
       }
 
       setStep("otp");
     } catch (err) {
       console.error("Error signing in:", err);
-      setError("An unexpected error occurred");
+      setGeneralError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -71,7 +122,7 @@ export default function LoginPage() {
 
   const handleOTPVerified = async () => {
     setLoading(true);
-    setError("");
+    setGeneralError("");
 
     try {
       // Step 3: Complete user sign-in
@@ -84,18 +135,18 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Failed to complete sign-in");
+        setGeneralError(data.error || "Failed to complete sign-in");
+        setLoading(false);
         return;
       }
 
       setStep("complete");
-      // Redirect to dashboard
+      // Use window.location.href to force full page reload with new session cookies
       setTimeout(() => {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }, 1000);
     } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
+      setGeneralError("An error occurred. Please try again.");
       setLoading(false);
     }
   };
@@ -134,6 +185,12 @@ export default function LoginPage() {
         <CardContent>
           {step === "credentials" && (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {generalError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {generalError}
+                </div>
+              )}
+
               <Field>
                 <FieldLabel htmlFor="email">Email address</FieldLabel>
                 <Input
@@ -141,11 +198,14 @@ export default function LoginPage() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError("");
+                  }}
                   disabled={loading}
-                  className="h-11 text-base"
+                  className={`h-11 text-base ${emailError ? "border-red-500" : ""}`}
                 />
+                {emailError && <FieldError>{emailError}</FieldError>}
               </Field>
 
               <Field>
@@ -155,26 +215,26 @@ export default function LoginPage() {
                   type="password"
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (passwordError) setPasswordError("");
+                  }}
                   disabled={loading}
-                  className="h-11 text-base"
+                  className={`h-11 text-base ${passwordError ? "border-red-500" : ""}`}
                 />
-                {error && <FieldError>{error}</FieldError>}
+                {passwordError && <FieldError>{passwordError}</FieldError>}
               </Field>
 
-              <div className="flex items-center">
-                <input
+              <div className="flex items-center space-x-2">
+                <Checkbox
                   id="remember-me"
-                  type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
                   disabled={loading}
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-700"
+                  className="text-sm text-gray-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Remember me for 7 days
                 </label>
@@ -229,18 +289,6 @@ export default function LoginPage() {
                 </svg>
                 Sign in with Google
               </Button>
-
-              <div className="mt-6 text-center text-sm text-gray-600">
-                <p>
-                  Don't have an account?{" "}
-                  <Link
-                    href="/sign-up"
-                    className="font-semibold text-gray-900 hover:text-gray-700"
-                  >
-                    Sign up
-                  </Link>
-                </p>
-              </div>
             </form>
           )}
 

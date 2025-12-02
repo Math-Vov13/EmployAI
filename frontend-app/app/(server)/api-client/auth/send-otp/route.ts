@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Only initialize Resend if API key is provided
+const resend =
+  process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "re_..."
+    ? new Resend(process.env.RESEND_API_KEY)
+    : null;
 
 // OTP storage (in-memory for now)
 interface OTPRecord {
@@ -71,10 +75,7 @@ export async function POST(request: NextRequest) {
 
     // Send OTP via email (Resend)
     try {
-      if (
-        process.env.RESEND_API_KEY &&
-        process.env.RESEND_API_KEY !== "re_..."
-      ) {
+      if (resend) {
         await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || "noreply@employai.com",
           to: email,

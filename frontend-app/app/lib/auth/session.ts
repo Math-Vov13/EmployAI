@@ -5,6 +5,12 @@ if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET n est pas definie en env");
 }
 
+if (!process.env.SESSION_COOKIE_NAME) {
+  throw new Error("SESSION_COOKIE_NAME n est pas definie en env");
+}
+
+const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME;
+
 export interface SessionData {
   userId: string;
   email: string;
@@ -19,7 +25,7 @@ export async function getSession(): Promise<IronSession<SessionData>> {
 
   return getIronSession<SessionData>(cookieStore, {
     password: process.env.SESSION_SECRET!,
-    cookieName: "employai_session",
+    cookieName: SESSION_COOKIE_NAME,
     cookieOptions: {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
@@ -47,7 +53,7 @@ export async function createSession(
 
   const session = await getIronSession<SessionData>(cookieStore, {
     password: process.env.SESSION_SECRET!,
-    cookieName: "employai_session",
+    cookieName: SESSION_COOKIE_NAME,
     cookieOptions: {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
