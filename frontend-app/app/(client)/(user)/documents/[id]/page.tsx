@@ -17,15 +17,15 @@ import { FiXCircle } from "react-icons/fi";
 interface Document {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   fileName: string;
   fileSize: number;
   mimeType: string;
   status: string;
-  tags: string[];
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
-  uploadedBy: {
+  uploadedBy?: {
     id: string;
     email: string;
     role: string;
@@ -69,10 +69,22 @@ export default function DocumentDetailPage() {
     try {
       const response = await fetch(`/api-client/documents/${id}/download`);
       if (response.ok) {
-        const data = await response.json();
-        window.open(data.downloadUrl, "_blank");
+        // Get the file as a blob
+        const blob = await response.blob();
+
+        // Create a download link
+        const url = window.URL.createObjectURL(blob);
+        const link = window.document.createElement("a");
+        link.href = url;
+        link.download = document?.fileName || "download";
+        window.document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        window.document.body.removeChild(link);
       } else {
-        alert("Failed to generate download link");
+        alert("Failed to download document");
       }
     } catch (err) {
       console.error("Error downloading document:", err);
@@ -138,24 +150,30 @@ export default function DocumentDetailPage() {
 
           <CardContent className="px-6 pb-6">
             {/* Description */}
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-gray-600 mb-2">
-                Description
-              </h3>
-              <p className="text-gray-700">{document.description}</p>
-            </div>
+            {document.description && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                  Description
+                </h3>
+                <p className="text-gray-700">{document.description}</p>
+              </div>
+            )}
 
             {/* Tags */}
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-gray-600 mb-2">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {document.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
-                    {tag}
-                  </Badge>
-                ))}
+            {document.tags && document.tags.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                  Tags
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {document.tags.map((tag) => (
+                    <Badge key={tag} variant="outline">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* File Information */}
             <div className="mb-6 bg-gray-50 p-4 rounded-lg">
@@ -189,12 +207,14 @@ export default function DocumentDetailPage() {
             </div>
 
             {/* Uploaded By */}
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-gray-600 mb-2">
-                Uploaded By
-              </h3>
-              <p className="text-gray-700">{document.uploadedBy.email}</p>
-            </div>
+            {document.uploadedBy && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                  Uploaded By
+                </h3>
+                <p className="text-gray-700">{document.uploadedBy.email}</p>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-4">

@@ -38,15 +38,8 @@ export async function GET(
       );
     }
 
-    const isOwner = document.creatorId.toString() === currentUser.userId;
-    const isAdmin = currentUser.role === "ADMIN";
-
-    if (!isOwner && !isAdmin) {
-      return NextResponse.json(
-        { error: "Forbidden - You do not have access to this document" },
-        { status: 403 },
-      );
-    }
+    // All authenticated users can download documents
+    // No ownership or admin check needed for downloading
 
     // Stream file from GridFS
     const bucket = await getGridFSBucket();

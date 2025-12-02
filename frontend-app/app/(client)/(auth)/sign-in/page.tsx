@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Step = "credentials" | "otp" | "complete";
 
@@ -96,6 +97,7 @@ export default function LoginPage() {
         } else {
           setPasswordError(data.error || "Invalid email or password");
         }
+        toast.error(data.error || "Invalid email or password");
         return;
       }
 
@@ -108,13 +110,16 @@ export default function LoginPage() {
 
       if (!otpResponse.ok) {
         setGeneralError("Failed to send verification code");
+        toast.error("Failed to send verification code");
         return;
       }
 
+      toast.success("Verification code sent to your email");
       setStep("otp");
     } catch (err) {
       console.error("Error signing in:", err);
       setGeneralError("An unexpected error occurred");
+      toast.error("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -136,10 +141,12 @@ export default function LoginPage() {
 
       if (!response.ok) {
         setGeneralError(data.error || "Failed to complete sign-in");
+        toast.error(data.error || "Failed to complete sign-in");
         setLoading(false);
         return;
       }
 
+      toast.success("Welcome back! Redirecting to dashboard...");
       setStep("complete");
       // Use window.location.href to force full page reload with new session cookies
       setTimeout(() => {
@@ -147,6 +154,7 @@ export default function LoginPage() {
       }, 1000);
     } catch (err) {
       setGeneralError("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.");
       setLoading(false);
     }
   };

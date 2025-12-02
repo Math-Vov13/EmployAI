@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LayoutDashboard, Paperclip, User, Tag, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -9,22 +10,22 @@ const navItems = [
   {
     label: "Dashboard",
     href: "/admin",
-    icon: "📊",
+    icon: <LayoutDashboard/>,
   },
   {
     label: "Documents",
     href: "/admin/documents",
-    icon: "📄",
+    icon: <Paperclip />,
   },
   {
     label: "Users",
     href: "/admin/users",
-    icon: "👥",
+    icon: <User />,
   },
   {
     label: "Tags",
     href: "/admin/tags",
-    icon: "🏷️",
+    icon: <Tag />,
   },
 ];
 
@@ -56,7 +57,9 @@ export default function AdminLayout({
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="text-3xl">👨‍💼</div>
+            <div className="text-3xl">
+              <User className="border-2 border-black rounded-full"/>
+            </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">EmployAI</h1>
               <Badge variant="secondary">Admin</Badge>
@@ -73,7 +76,7 @@ export default function AdminLayout({
                 <div
                   className={`w-full p-3 rounded-lg transition-colors cursor-pointer ${
                     isActive
-                      ? "bg-blue-50 border border-blue-500"
+                      ? "bg-blue-50 border border-black/10"
                       : "hover:bg-gray-50 border border-transparent"
                   }`}
                 >
@@ -81,7 +84,7 @@ export default function AdminLayout({
                     <span className="text-xl">{item.icon}</span>
                     <span
                       className={`font-medium ${
-                        isActive ? "text-blue-600" : "text-gray-700"
+                        isActive ? "text-black" : "text-gray-700"
                       }`}
                     >
                       {item.label}
@@ -100,14 +103,15 @@ export default function AdminLayout({
             className="w-full"
             onClick={handleBackToDashboard}
           >
-            📱 User Dashboard
+            User Dashboard
           </Button>
           <Button
             variant="destructive"
             className="w-full"
             onClick={handleLogout}
           >
-            🚪 Logout
+            <LogOut/>
+            Logout
           </Button>
         </div>
       </aside>

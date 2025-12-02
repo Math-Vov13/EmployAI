@@ -6,14 +6,15 @@ import { DocumentCard } from "./DocumentCard";
 type Document = {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   fileName: string;
   fileSize: number;
   mimeType: string;
   status: string;
-  tags: string[];
+  tags?: string[];
   createdAt: Date | string;
-  uploadedBy: {
+  uploadedBy?: {
+    id?: string;
     email: string;
     role: string;
   };
@@ -26,6 +27,8 @@ interface DocumentListProps {
   onDelete?: (id: string) => void;
   showActions?: boolean;
   emptyMessage?: string;
+  currentUserId?: string;
+  currentUserRole?: string;
 }
 
 export function DocumentList({
@@ -35,6 +38,8 @@ export function DocumentList({
   onDelete,
   showActions = true,
   emptyMessage = "No documents found",
+  currentUserId,
+  currentUserRole,
 }: Readonly<DocumentListProps>) {
   if (loading) {
     return (
@@ -63,15 +68,23 @@ export function DocumentList({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {documents.map((document) => (
-        <DocumentCard
-          key={document.id}
-          document={document}
-          onDownload={onDownload}
-          onDelete={onDelete}
-          showActions={showActions}
-        />
-      ))}
+      {documents.map((document) => {
+        // Check if current user can delete this document
+        const isAdmin = currentUserRole === "ADMIN";
+        const isOwner = document.uploadedBy?.id === currentUserId;
+        const canDelete = isAdmin || isOwner;
+
+        return (
+          <DocumentCard
+            key={document.id}
+            document={document}
+            onDownload={onDownload}
+            onDelete={onDelete}
+            showActions={showActions}
+            canDelete={canDelete}
+          />
+        );
+      })}
     </div>
   );
 }

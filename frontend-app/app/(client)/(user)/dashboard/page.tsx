@@ -14,18 +14,19 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FiMessageSquare } from "react-icons/fi";
+import { toast } from "sonner";
 
 interface Document {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   fileName: string;
   fileSize: number;
   mimeType: string;
   status: string;
-  tags: string[];
+  tags?: string[];
   createdAt: string;
-  uploadedBy: {
+  uploadedBy?: {
     email: string;
     role: string;
   };
@@ -39,7 +40,6 @@ interface Tag {
 export default function DashboardPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -87,8 +87,9 @@ export default function DashboardPage() {
           tags: doc.metadata?.tags || [],
           createdAt: doc.createdAt,
           uploadedBy: {
-            email: doc.creatorId || "user@example.com",
-            role: "USER",
+            id: doc.creatorId || doc.uploadedBy?.id,
+            email: doc.uploadedBy?.email || "unknown@example.com",
+            role: doc.uploadedBy?.role || "USER",
           },
         }));
 
@@ -96,7 +97,7 @@ export default function DashboardPage() {
         if (selectedTag && selectedTag !== "all") {
           setDocuments(
             mappedDocuments.filter((doc: Document) =>
-              doc.tags.includes(selectedTag),
+              doc.tags?.includes(selectedTag),
             ),
           );
         } else {
@@ -112,10 +113,16 @@ export default function DashboardPage() {
 
   const fetchTags = async () => {
     try {
-      // Tags API not yet implemented, use empty array for now
-      setTags([]);
+      const response = await fetch("/api-client/tags");
+      if (response.ok) {
+        const data = await response.json();
+        setTags(data.tags || []);
+      } else {
+        setTags([]);
+      }
     } catch (err) {
       console.error("Error fetching tags:", err);
+      setTags([]);
     }
   };
 
@@ -140,12 +147,13 @@ export default function DashboardPage() {
         a.click();
         globalThis.URL.revokeObjectURL(url);
         a.remove();
+        toast.success("Document downloaded successfully");
       } else {
-        alert("Failed to download document");
+        toast.error("Failed to download document");
       }
     } catch (err) {
       console.error("Error downloading document:", err);
-      alert("Failed to download document");
+      toast.error("Failed to download document");
     }
   };
 
@@ -162,30 +170,32 @@ export default function DashboardPage() {
       if (response.ok) {
         // Refresh documents list
         fetchDocuments();
-        alert("Document deleted successfully");
+        toast.success("Document deleted successfully");
       } else {
         const data = await response.json();
-        alert(data.error || "Failed to delete document");
+        toast.error(data.error || "Failed to delete document");
       }
     } catch (err) {
       console.error("Error deleting document:", err);
-      alert("Failed to delete document");
+      toast.error("Failed to delete document");
     }
   };
 
   const handleLogout = async () => {
     try {
       await fetch("/api-client/auth/logout", { method: "POST" });
+      toast.success("Logged out successfully");
       router.push("/sign-in");
     } catch (err) {
       console.error("Error logging out:", err);
+      toast.error("Failed to logout");
     }
   };
 
   const filteredDocuments = documents.filter(
     (doc) =>
       doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.description.toLowerCase().includes(searchQuery.toLowerCase()),
+      doc.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -197,10 +207,14 @@ export default function DashboardPage() {
             <div>
               <h1 className="text-5xl font-bold">EmployAI</h1>
               {user && (
-                <p className="text-sm text-gray-600">Welcome, {user.email}</p>
+                <p className="text-sm text-gray-600">Welcome, {user.name}</p>
               )}
             </div>
             <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => router.push("/chat")}>
+                <FiMessageSquare />
+                Chat AI
+              </Button>
               <Button variant="default" onClick={() => setIsOpen(true)}>
                 Upload Document
               </Button>
@@ -231,31 +245,6 @@ export default function DashboardPage() {
           onSearchChange={setSearchQuery}
         />
 
-        {/* Chat Button - Near Documents List */}
-        <div className="mb-4">
-          <Button
-            variant="default"
-            size="lg"
-            onClick={() => setIsChatOpen(true)}
-            disabled={filteredDocuments.length === 0}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          >
-            <FiMessageSquare className="mr-2" />
-            Chat with AI Assistant
-            {filteredDocuments.length > 0 && (
-              <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                {filteredDocuments.length} doc
-                {filteredDocuments.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </Button>
-          {filteredDocuments.length === 0 && (
-            <p className="text-sm text-gray-500 mt-2">
-              Upload a document to start chatting with the AI assistant
-            </p>
-          )}
-        </div>
-
         {/* Documents List */}
         <DocumentList
           documents={filteredDocuments}
@@ -263,6 +252,8 @@ export default function DashboardPage() {
           onDownload={handleDownload}
           onDelete={handleDelete}
           showActions={true}
+          currentUserId={user?.id}
+          currentUserRole={user?.role}
         />
       </main>
 
@@ -282,18 +273,7 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Chat Dialog */}
-      <ChatDialog
-        open={isChatOpen}
-        onOpenChange={setIsChatOpen}
-        documents={filteredDocuments.map((doc) => ({
-          id: doc.id,
-          title: doc.title,
-          description: doc.description,
-          fileName: doc.fileName,
-        }))}
-      />
+    
     </div>
   );
 }

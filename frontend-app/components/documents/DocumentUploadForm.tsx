@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Tag {
   id: string;
@@ -44,10 +45,17 @@ export function DocumentUploadForm({
 
   const fetchTags = async () => {
     try {
-      // Tags API not yet implemented, use empty array for now
-      setTags([]);
+      const response = await fetch("/api-client/tags");
+      if (response.ok) {
+        const data = await response.json();
+        setTags(data.tags || []);
+      } else {
+        console.error("Failed to fetch tags");
+        setTags([]);
+      }
     } catch (err) {
       console.error("Error fetching tags:", err);
+      setTags([]);
     } finally {
       setLoadingTags(false);
     }
@@ -130,6 +138,7 @@ export function DocumentUploadForm({
 
       if (!response.ok) {
         setError(data.error || "Failed to upload document");
+        toast.error(data.error || "Failed to upload document");
         setLoading(false);
         return;
       }
@@ -137,13 +146,14 @@ export function DocumentUploadForm({
       setSuccess(
         "Document uploaded successfully! It will be reviewed by an admin.",
       );
+      toast.success("Document uploaded successfully! Pending admin review.");
       setFile(null);
       setTitle("");
       setDescription("");
       setSelectedTags(new Set());
 
       // Reset file input
-      const fileInput = document.getElementById(
+      const fileInput = window.document.getElementById(
         "file-input",
       ) as HTMLInputElement;
       if (fileInput) fileInput.value = "";
@@ -156,6 +166,7 @@ export function DocumentUploadForm({
     } catch (err) {
       console.error("Error uploading document:", err);
       setError("An unexpected error occurred");
+      toast.error("An unexpected error occurred");
     } finally {
       setLoading(false);
     }

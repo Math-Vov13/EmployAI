@@ -3,7 +3,11 @@ import {
   documentMetadataSchema,
   toDocumentResponse,
 } from "@/app/lib/db/models/Document";
-import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
+import {
+  getDocumentsCollection,
+  getGridFSBucket,
+  getUsersCollection,
+} from "@/app/lib/db/mongodb";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -41,20 +45,37 @@ export async function GET(
       );
     }
 
-    const isOwner = document.creatorId.toString() === currentUser.userId;
-    const isAdmin = currentUser.role === "ADMIN";
+    // All authenticated users can view documents
+    // No ownership or admin check needed for viewing
 
-    if (!isOwner && !isAdmin) {
-      return NextResponse.json(
-        { error: "Forbidden - You do not have access to this document" },
-        { status: 403 },
-      );
-    }
+    // Fetch user information for uploadedBy field
+    const usersCollection = await getUsersCollection();
+    const creator = await usersCollection.findOne({
+      _id: document.creatorId,
+    });
+
+    const documentResponse = toDocumentResponse(document);
+
+    // Add uploadedBy information
+    const enrichedDocument = {
+      ...documentResponse,
+      fileName: documentResponse.filename,
+      fileSize: documentResponse.size,
+      mimeType: documentResponse.mimetype,
+      description: documentResponse.metadata?.description || "",
+      status: documentResponse.metadata?.status || "PENDING",
+      tags: documentResponse.metadata?.tags || [],
+      uploadedBy: {
+        id: creator?._id?.toString() || documentResponse.creatorId,
+        email: creator?.email || "unknown@example.com",
+        role: creator?.role || "USER",
+      },
+    };
 
     return NextResponse.json(
       {
         success: true,
-        document: toDocumentResponse(document),
+        document: enrichedDocument,
       },
       { status: 200 },
     );

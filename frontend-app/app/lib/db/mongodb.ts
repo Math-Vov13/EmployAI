@@ -1,6 +1,7 @@
 import { Collection, Db, GridFSBucket, MongoClient } from "mongodb";
 import { ChatDocument } from "./models/Chat";
 import { DocumentDocument } from "./models/Document";
+import { TagDocument } from "./models/Tag";
 import { UserDocument } from "./models/User";
 
 if (!process.env.MONGODB_URI) {
@@ -55,4 +56,9 @@ export async function getGridFSBucket(): Promise<GridFSBucket> {
 export async function getChatsCollection(): Promise<Collection<ChatDocument>> {
   const { db } = await connectToDatabase();
   return db.collection<ChatDocument>("chats");
+}
+
+export async function getTagsCollection(): Promise<Collection<TagDocument>> {
+  const { db } = await connectToDatabase();
+  return db.collection<TagDocument>("tags");
 }

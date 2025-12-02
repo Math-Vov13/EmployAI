@@ -66,8 +66,9 @@ export default function AdminDashboard() {
       const docsRes = await fetch("/api-client/documents");
       const docsData = await docsRes.json();
 
-      // Fetch tags (placeholder - will return empty array until implemented)
-      const tagsData = { tags: [] };
+      // Fetch tags
+      const tagsRes = await fetch("/api-client/tags");
+      const tagsData = tagsRes.ok ? await tagsRes.json() : { tags: [] };
 
       // Calculate user statistics
       const users = usersData.users || [];

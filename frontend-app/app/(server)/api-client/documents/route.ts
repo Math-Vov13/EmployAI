@@ -4,7 +4,11 @@ import {
   documentUploadSchema,
   toDocumentResponse,
 } from "@/app/lib/db/models/Document";
-import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
+import {
+  getDocumentsCollection,
+  getGridFSBucket,
+  getUsersCollection,
+} from "@/app/lib/db/mongodb";
 import { validateFile } from "@/app/lib/storage/file-validation";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
@@ -41,13 +45,37 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 })
       .toArray();
 
-    const documentResponses = documents.map(toDocumentResponse);
+    // Fetch user information for all documents
+    const usersCollection = await getUsersCollection();
+    const creatorIds = [...new Set(documents.map((doc) => doc.creatorId))];
+    const creators = await usersCollection
+      .find({ _id: { $in: creatorIds } })
+      .toArray();
+
+    // Create a map of creatorId to user email
+    const creatorMap = new Map(
+      creators.map((user) => [user._id.toString(), user.email]),
+    );
+
+    // Enrich documents with creator email
+    const enrichedDocuments = documents.map((doc) => {
+      const docResponse = toDocumentResponse(doc);
+      return {
+        ...docResponse,
+        uploadedBy: {
+          id: doc.creatorId.toString(),
+          email: creatorMap.get(doc.creatorId.toString()) || "unknown@example.com",
+          role: creators.find((u) => u._id.toString() === doc.creatorId.toString())
+            ?.role || "USER",
+        },
+      };
+    });
 
     return NextResponse.json(
       {
         success: true,
-        documents: documentResponses,
-        count: documentResponses.length,
+        documents: enrichedDocuments,
+        count: enrichedDocuments.length,
       },
       { status: 200 },
     );
