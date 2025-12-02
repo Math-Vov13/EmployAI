@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/app/lib/auth/middleware";
-import { getUsersCollection } from "@/app/lib/db/mongodb";
 import { toUserResponse } from "@/app/lib/db/models/User";
+import { getUsersCollection } from "@/app/lib/db/mongodb";
 import { ObjectId } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,

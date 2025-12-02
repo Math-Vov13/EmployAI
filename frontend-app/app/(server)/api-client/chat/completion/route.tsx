@@ -1,9 +1,9 @@
-import { testAgent } from "@/mastra/agents/docs_agent";
 import { requireAuth } from "@/app/lib/auth/middleware";
 import { getCurrentUser } from "@/app/lib/auth/session";
+import { testAgent } from "@/mastra/agents/docs_agent";
+import { NextRequest } from "next/server";
 import { randomUUID } from "node:crypto";
 import z from "zod";
-import { NextRequest } from "next/server";
 
 const requestSchema = z.object({
   prompt: z.string().min(1, "Prompt is required"),

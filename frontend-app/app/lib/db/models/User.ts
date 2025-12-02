@@ -6,7 +6,7 @@ export const passwordSchema = z
   .min(12, "le MDP doit au moins contenir 12 caractères.")
   .regex(/[A-Z]/, "Le mot de passe doit avoir au moins une MAJUSCULE :)")
   .regex(/[a-z]/, "Le mot de passe doit avoir au moins une minuscule... c:")
-  .regex(/[0-9]/, "Le mot de passe doit avoir au moins un chiffre... 0-9")
+  .regex(/\d/, "Le mot de passe doit avoir au moins un chiffre... 0-9")
   .regex(
     /[^A-Za-z0-9]/,
     "Le mot de passe doit contenir au moins un caractère spécial.",

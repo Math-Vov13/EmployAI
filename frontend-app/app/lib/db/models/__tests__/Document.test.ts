@@ -1,10 +1,10 @@
-import { describe, test, expect } from "@jest/globals";
+import { describe, expect, test } from "@jest/globals";
 import { ObjectId } from "mongodb";
 import {
+  DocumentDocument,
   documentMetadataSchema,
   documentUploadSchema,
   toDocumentResponse,
-  DocumentDocument,
 } from "../Document";
 
 describe("Document Model", () => {

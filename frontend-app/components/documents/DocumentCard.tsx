@@ -1,14 +1,14 @@
 "use client";
 
+import { formatFileSize } from "@/app/lib/storage/file-validation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { formatFileSize } from "@/app/lib/storage/file-validation";
 import { format } from "date-fns";
 import Link from "next/link";
 
@@ -40,7 +40,7 @@ export function DocumentCard({
   onDownload,
   onDelete,
   showActions = true,
-}: DocumentCardProps) {
+}: Readonly<DocumentCardProps>) {
   const createdDate =
     typeof document.createdAt === "string"
       ? new Date(document.createdAt)

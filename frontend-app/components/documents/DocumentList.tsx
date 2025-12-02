@@ -1,7 +1,7 @@
 "use client";
 
-import { DocumentCard } from "./DocumentCard";
 import { Spinner } from "@/components/ui/spinner";
+import { DocumentCard } from "./DocumentCard";
 
 type Document = {
   id: string;
@@ -35,7 +35,7 @@ export function DocumentList({
   onDelete,
   showActions = true,
   emptyMessage = "No documents found",
-}: DocumentListProps) {
+}: Readonly<DocumentListProps>) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-3">

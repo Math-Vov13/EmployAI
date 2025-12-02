@@ -1,6 +1,6 @@
+import { Boxes } from "@/components/ui/background-boxes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Boxes } from "@/components/ui/background-boxes";
 import Link from "next/link";
 
 export default function Home() {

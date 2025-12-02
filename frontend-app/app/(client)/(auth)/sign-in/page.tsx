@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Boxes } from "@/components/ui/background-boxes";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -12,9 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import { Boxes } from "@/components/ui/background-boxes";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = "/api-client/auth/google";
+    globalThis.location.href = "/api-client/auth/google";
   };
 
   return (

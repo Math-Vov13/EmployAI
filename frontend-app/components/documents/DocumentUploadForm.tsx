@@ -1,22 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  getAllowedFileExtensions,
   formatFileSize,
+  getAllowedFileExtensions,
   getMaxFileSize,
 } from "@/app/lib/storage/file-validation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
 
 interface Tag {
   id: string;
@@ -27,7 +20,9 @@ interface DocumentUploadFormProps {
   onSuccess?: () => void;
 }
 
-export function DocumentUploadForm({ onSuccess }: DocumentUploadFormProps) {
+export function DocumentUploadForm({
+  onSuccess,
+}: Readonly<DocumentUploadFormProps>) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

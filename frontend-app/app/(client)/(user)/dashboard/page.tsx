@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { DocumentFilters } from "@/components/documents/DocumentFilters";
+import { DocumentList } from "@/components/documents/DocumentList";
+import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,9 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DocumentList } from "@/components/documents/DocumentList";
-import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
-import { DocumentFilters } from "@/components/documents/DocumentFilters";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface Document {
   id: string;
@@ -126,16 +126,16 @@ export default function DashboardPage() {
           response.headers
             .get("Content-Disposition")
             ?.split("filename=")[1]
-            ?.replace(/"/g, "") || "download";
+            ?.replaceAll('"', "") || "download";
 
         // Create download link
-        const url = window.URL.createObjectURL(blob);
+        const url = globalThis.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
         a.download = decodeURIComponent(filename);
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
+        globalThis.URL.revokeObjectURL(url);
         a.remove();
       } else {
         alert("Failed to download document");

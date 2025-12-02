@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageList, Message } from "./MessageList";
+import { useState } from "react";
 import { MessageInput } from "./MessageInput";
+import { Message, MessageList } from "./MessageList";
 
 interface ChatInterfaceProps {
   documentId: string;
@@ -13,7 +13,7 @@ interface ChatInterfaceProps {
 export function ChatInterface({
   documentId,
   documentTitle,
-}: ChatInterfaceProps) {
+}: Readonly<ChatInterfaceProps>) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

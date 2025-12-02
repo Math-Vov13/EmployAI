@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession, getCurrentUser } from "./session";
+import { getSession } from "./session";
 import { extractTokenFromHeader, verifyToken } from "./token";
 
 /**
@@ -104,4 +104,5 @@ export async function requireOwnership(
   return null;
 }
 
-export { getCurrentUser, getAuthContext };
+export { getCurrentUser } from "./session";
+export { getAuthContext };

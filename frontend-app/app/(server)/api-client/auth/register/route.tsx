@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { hashPassword } from "@/app/lib/auth/password";
+import { createSession } from "@/app/lib/auth/session";
 import {
-  userRegistrationSchema,
   UserDocument,
   toUserResponse,
+  userRegistrationSchema,
 } from "@/app/lib/db/models/User";
-import { hashPassword } from "@/app/lib/auth/password";
 import { getUsersCollection } from "@/app/lib/db/mongodb";
-import { createSession } from "@/app/lib/auth/session";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {

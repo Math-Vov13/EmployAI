@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { userLoginSchema } from "@/app/lib/db/models/User";
 import { verifyPassword } from "@/app/lib/auth/password";
-import { getUsersCollection } from "@/app/lib/db/mongodb";
 import { generateToken } from "@/app/lib/auth/token";
+import { userLoginSchema } from "@/app/lib/db/models/User";
+import { getUsersCollection } from "@/app/lib/db/mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api-client/auth/token

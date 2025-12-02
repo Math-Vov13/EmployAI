@@ -1,20 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser, requireAuth } from "@/app/lib/auth/middleware";
 import {
-  requireAdmin,
-  requireAuth,
-  getCurrentUser,
-} from "@/app/lib/auth/middleware";
-import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
-import {
+  DocumentDocument,
   documentUploadSchema,
   toDocumentResponse,
-  DocumentDocument,
 } from "@/app/lib/db/models/Document";
+import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
+import { validateFile } from "@/app/lib/storage/file-validation";
 import { ObjectId } from "mongodb";
-import {
-  validateFile,
-  formatFileSize,
-} from "@/app/lib/storage/file-validation";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {

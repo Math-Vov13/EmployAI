@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -7,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 
 interface Tag {
   id: string;
@@ -28,7 +28,7 @@ export function DocumentFilters({
   onTagChange,
   searchQuery,
   onSearchChange,
-}: DocumentFiltersProps) {
+}: Readonly<DocumentFiltersProps>) {
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-6">
       <div className="flex-1 relative">

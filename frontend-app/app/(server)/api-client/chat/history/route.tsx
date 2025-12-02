@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/app/lib/auth/middleware";
 import { getCurrentUser } from "@/app/lib/auth/session";
-import { getChatsCollection } from "@/app/lib/db/mongodb";
 import { toChatResponse } from "@/app/lib/db/models/Chat";
+import { getChatsCollection } from "@/app/lib/db/mongodb";
 import { ObjectId } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * GET /api-client/chat/history?documentId=xxx

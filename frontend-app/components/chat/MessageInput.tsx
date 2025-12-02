@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
@@ -12,7 +12,7 @@ interface MessageInputProps {
 export function MessageInput({
   onSendMessage,
   disabled = false,
-}: MessageInputProps) {
+}: Readonly<MessageInputProps>) {
   const [message, setMessage] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {

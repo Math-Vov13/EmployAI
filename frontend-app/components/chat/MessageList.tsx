@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
 import { format } from "date-fns";
+import { useEffect, useId, useRef } from "react";
 
 export interface Message {
   role: "user" | "assistant";
@@ -13,7 +13,8 @@ interface MessageListProps {
   messages: Message[];
 }
 
-export function MessageList({ messages }: MessageListProps) {
+export function MessageList({ messages }: Readonly<MessageListProps>) {
+  const baseId = useId();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -42,7 +43,7 @@ export function MessageList({ messages }: MessageListProps) {
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.map((message, _) => (
         <div
-          key={useId()}
+          key={baseId}
           className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
         >
           <div
