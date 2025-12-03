@@ -7,6 +7,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DocumentPreview } from "@/components/documents/DocumentPreview";
 import { Spinner } from "@/components/ui/spinner";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -149,6 +150,18 @@ export default function DocumentDetailPage() {
           </CardHeader>
 
           <CardContent className="px-6 pb-6">
+            {/* Document Preview */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-600 mb-3">
+                Preview
+              </h3>
+              <DocumentPreview
+                documentId={document.id}
+                fileName={document.fileName}
+                mimeType={document.mimeType}
+              />
+            </div>
+
             {/* Description */}
             {document.description && (
               <div className="mb-6">
