@@ -1,63 +1,78 @@
-import { requireAuth } from "@/app/lib/auth/middleware";
-import { getCurrentUser } from "@/app/lib/auth/session";
-import { toChatResponse } from "@/app/lib/db/models/Chat";
-import { getChatsCollection } from "@/app/lib/db/mongodb";
-import { ObjectId } from "mongodb";
+import { mongoStore } from "@/mastra/agents/docs_agent";
 import { NextRequest, NextResponse } from "next/server";
+import z from "zod";
 
 /**
- * GET /api-client/chat/history?documentId=xxx
- * Get chat history for a specific document
+ * GET /api-client/chat/history?id=xxx
+ * Get chat history
  */
 export async function GET(request: NextRequest) {
-  const authError = await requireAuth(request);
-  if (authError) return authError;
+  // const authError = await requireAuth(request);
+  // if (authError) return authError;
 
-  const currentUser = await getCurrentUser();
-  if (!currentUser) {
-    return NextResponse.json(
-      { error: "Unauthorized - login required" },
-      { status: 401 },
-    );
-  }
+  // const currentUser = await getCurrentUser();
+  // if (!currentUser) {
+  //   return NextResponse.json(
+  //     { error: "Unauthorized - login required" },
+  //     { status: 401 },
+  //   );
+  // }
 
   try {
     const { searchParams } = new URL(request.url);
-    const documentId = searchParams.get("documentId");
+    const historyId = searchParams.get("id");
 
-    if (!documentId) {
+    if (!historyId) {
       return NextResponse.json(
-        { error: "Document ID is required" },
+        { error: "History ID is required" },
         { status: 400 },
       );
     }
 
-    if (!ObjectId.isValid(documentId)) {
+    if (!z.uuid().safeParse(historyId).success) {
       return NextResponse.json(
-        { error: "Invalid document ID" },
+        { error: "Invalid history ID" },
         { status: 400 },
       );
     }
 
-    const chatsCollection = await getChatsCollection();
-    const chat = await chatsCollection.findOne({
-      userId: new ObjectId(currentUser.userId),
-      documentId: new ObjectId(documentId),
-    });
+    const thread = await mongoStore.getThreadById({ threadId: historyId });
+    if (!thread) {
+      return NextResponse.json(
+        { error: "Chat history not found" },
+        { status: 404 },
+      );
+    }
 
-    if (!chat) {
-      return NextResponse.json({
+    const messages = await mongoStore.getMessages({ threadId: historyId });
+    if (!messages) {
+      return NextResponse.json(
+        { error: "No messages found for this history" },
+        { status: 404 },
+      );
+    }
+
+    console.log("Mongo Store Thread:", thread);
+    console.log("Mongo Store Messages:", messages);
+
+    return new Response(
+      JSON.stringify({
         success: true,
-        chat: null,
-        messages: [],
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      chat: toChatResponse(chat),
-      messages: chat.messages,
-    });
+        threadId: thread.id,
+        length: messages.length,
+        thread: {
+          userId: thread.resourceId,
+          title: thread.title,
+          updatedAt: thread.updatedAt,
+          createdAt: thread.createdAt,
+        },
+        messages,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     console.error("Error fetching chat history:", error);
     return NextResponse.json(

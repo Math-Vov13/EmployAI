@@ -20,7 +20,7 @@ const buildMongoUri = () => {
   return baseUri;
 };
 
-const mongoStore = new MongoDBStore({
+export const mongoStore = new MongoDBStore({
   url: buildMongoUri(),
   dbName: process.env.MONGODB_DB_NAME!,
   options: {
@@ -48,7 +48,7 @@ export const testAgent = new Agent({
         messageRange: 2,
       },
       threads: {
-        generateTitle: false,
+        generateTitle: true,
       },
     },
   }),
