@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
+import { MarkdownMessage } from "@/components/chat/MarkdownMessage";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -131,6 +132,14 @@ export default function ChatPage() {
     setInputMessage("");
     setLoading(true);
 
+    // Create assistant message immediately for real-time updates
+    const assistantMessage: Message = {
+      role: "assistant",
+      content: "",
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, assistantMessage]);
+
     try {
       const response = await fetch("/api-client/chat/completion", {
         method: "POST",
@@ -142,51 +151,124 @@ export default function ChatPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get response");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `Server error: ${response.status} ${response.statusText}`,
+        );
       }
 
-      // Handle streaming response
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let assistantMessage = "";
+      if (!response.body) {
+        throw new Error("No response body received from server");
+      }
 
-      if (reader) {
+      // Handle streaming response with real-time updates
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+      let hasReceivedContent = false;
+
+      try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value);
+          const chunk = decoder.decode(value, { stream: true });
           const lines = chunk.split("\n").filter((line) => line.trim());
 
           for (const line of lines) {
             try {
               const parsed = JSON.parse(line);
-              if (parsed.text) {
-                assistantMessage += parsed.text;
+
+              // Handle different Mastra event types
+              if (parsed.type === "text-delta" && parsed.payload?.text) {
+                accumulatedText += parsed.payload.text;
+                hasReceivedContent = true;
+
+                // Update the last message in real-time
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  const lastIndex = updated.length - 1;
+                  if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+                    updated[lastIndex] = {
+                      ...updated[lastIndex],
+                      content: accumulatedText,
+                    };
+                  }
+                  return updated;
+                });
+              } else if (parsed.type === "error") {
+                // Handle error events from Mastra
+                throw new Error(parsed.payload?.message || "Agent error occurred");
+              } else if (parsed.text) {
+                // Fallback for simple text format
+                accumulatedText += parsed.text;
+                hasReceivedContent = true;
+
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  const lastIndex = updated.length - 1;
+                  if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+                    updated[lastIndex] = {
+                      ...updated[lastIndex],
+                      content: accumulatedText,
+                    };
+                  }
+                  return updated;
+                });
               }
-            } catch {
-              // If not JSON, treat as plain text
-              assistantMessage += line;
+              // Silently ignore other event types (start, step-start, etc.)
+            } catch (parseError) {
+              // If line is not JSON, it might be plain text
+              if (line.length > 0 && !line.startsWith("{")) {
+                accumulatedText += line;
+                hasReceivedContent = true;
+
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  const lastIndex = updated.length - 1;
+                  if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+                    updated[lastIndex] = {
+                      ...updated[lastIndex],
+                      content: accumulatedText,
+                    };
+                  }
+                  return updated;
+                });
+              }
             }
           }
         }
+      } catch (streamError) {
+        console.error("Error reading stream:", streamError);
+        throw new Error(
+          `Stream error: ${streamError instanceof Error ? streamError.message : "Unknown streaming error"}`,
+        );
       }
 
-      const aiMessage: Message = {
-        role: "assistant",
-        content: assistantMessage || "I apologize, but I couldn't generate a response.",
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
+      // Verify we received some content
+      if (!hasReceivedContent || accumulatedText.trim().length === 0) {
+        throw new Error("No content received from AI assistant");
+      }
     } catch (err) {
       console.error("Error sending message:", err);
-      const errorMessage: Message = {
-        role: "assistant",
-        content: "Sorry, I encountered an error. Please try again.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+
+      // Update the last assistant message with error
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+        if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+          const errorMsg =
+            err instanceof Error
+              ? err.message
+              : "Sorry, I encountered an error. Please try again.";
+
+          updated[lastIndex] = {
+            ...updated[lastIndex],
+            content: `❌ Error: ${errorMsg}\n\nPlease try again or contact support if the issue persists.`,
+          };
+        }
+        return updated;
+      });
     } finally {
       setLoading(false);
     }
@@ -429,7 +511,10 @@ export default function ChatPage() {
                         : "bg-white border border-gray-200"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    <MarkdownMessage
+                      content={message.content}
+                      isUser={message.role === "user"}
+                    />
                     <p
                       className={`text-xs mt-2 ${message.role === "user" ? "text-blue-100" : "text-gray-400"}`}
                     >
