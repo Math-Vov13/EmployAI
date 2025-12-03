@@ -1,3 +1,4 @@
+import { getCurrentUser, requireAuth } from "@/app/lib/auth/middleware";
 import { mongoStore } from "@/mastra/agents/docs_agent";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -7,16 +8,16 @@ import z from "zod";
  * Get chat history
  */
 export async function GET(request: NextRequest) {
-  // const authError = await requireAuth(request);
-  // if (authError) return authError;
+  const authError = await requireAuth(request);
+  if (authError) return authError;
 
-  // const currentUser = await getCurrentUser();
-  // if (!currentUser) {
-  //   return NextResponse.json(
-  //     { error: "Unauthorized - login required" },
-  //     { status: 401 },
-  //   );
-  // }
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return NextResponse.json(
+      { error: "Unauthorized - login required" },
+      { status: 401 },
+    );
+  }
 
   try {
     const { searchParams } = new URL(request.url);
@@ -41,6 +42,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: "Chat history not found" },
         { status: 404 },
+      );
+    }
+    if (thread.resourceId !== currentUser.userId) {
+      return NextResponse.json(
+        { error: "Forbidden - access to this chat history is denied" },
+        { status: 403 },
       );
     }
 
