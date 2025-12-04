@@ -7,8 +7,8 @@ if (!process.env.MONGODB_URI) {
   throw new Error("MONGODB_URI is not defined in environment variables");
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
-const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME || "employai";
+const MONGODB_URI = process.env.MONGODB_URI!;
+const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME!;
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;

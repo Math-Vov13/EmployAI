@@ -4,11 +4,12 @@ import {
   toDocumentResponse,
 } from "@/app/lib/db/models/Document";
 import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
+import { mongoVector } from "@/mastra/vector_store";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  request: NextRequest,
+  _: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -209,6 +210,13 @@ export async function DELETE(
         { status: 500 },
       );
     }
+
+    console.log("Document deleted with id string:", document.fileId.toString());
+    // Delete associated chunks from vector store
+    await mongoVector.deleteVectors({
+      indexName: "embeddings",
+      filter: { source_id: document.fileId.toString() },
+    });
 
     return NextResponse.json(
       {

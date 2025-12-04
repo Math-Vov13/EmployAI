@@ -10,6 +10,7 @@ services:
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://mongodb:strongpassword@mongodb:27017/employai?authSource=admin
+      - MONGODB_DB_NAME=employai
 
     networks:
       - custom_network

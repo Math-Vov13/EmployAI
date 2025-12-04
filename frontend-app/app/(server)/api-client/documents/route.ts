@@ -6,6 +6,7 @@ import {
 } from "@/app/lib/db/models/Document";
 import { getDocumentsCollection, getGridFSBucket } from "@/app/lib/db/mongodb";
 import { validateFile } from "@/app/lib/storage/file-validation";
+import { saveDocumentPipeline } from "@/mastra/documents/docs_chunk";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -159,6 +160,18 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       );
     }
+
+    // Save file to vector db
+    await saveDocumentPipeline(
+      fileId.toString(),
+      currentUser.userId,
+      fileBuffer,
+      {
+        fileName: file.name,
+        mimeType: file.type,
+        size: file.size,
+      },
+    );
 
     const createdDocument = await documentsCollection.findOne({
       _id: insertResult.insertedId,
