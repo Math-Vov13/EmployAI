@@ -3,6 +3,7 @@ import { Agent } from "@mastra/core/agent";
 import { Memory } from "@mastra/memory";
 import { MongoDBStore } from "@mastra/mongodb";
 import { vectorQueryTool } from "../tools/vectors_tool";
+import { websearchTool } from "../tools/websearch_tool";
 import { mongoVector } from "../vector_store";
 
 // Construire l'URI MongoDB avec les paramètres requis
@@ -70,5 +71,5 @@ You are a helpful AI assistant working within an enterprise environment. Your pr
       },
     },
   }),
-  tools: { vectorQueryTool },
+  tools: { vectorQueryTool, websearchTool },
 });

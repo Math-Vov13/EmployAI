@@ -1,4 +1,3 @@
-import { getCurrentUser, requireAuth } from "@/app/lib/auth/middleware";
 import { testAgent } from "@/mastra/agents/docs_agent";
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
@@ -13,19 +12,19 @@ const threadId = randomUUID();
 
 export async function POST(request: NextRequest) {
   // Error 401 (authorization)
-  const authError = await requireAuth(request);
-  if (authError) return authError;
+  // const authError = await requireAuth(request);
+  // if (authError) return authError;
 
-  const currentUser = await getCurrentUser();
-  if (!currentUser) {
-    return new Response(
-      JSON.stringify({
-        error: "Unauthorized - login required",
-      }),
-      { status: 401, headers: { "Content-Type": "application/json" } },
-    );
-  }
-
+  // const currentUser = await getCurrentUser();
+  // if (!currentUser) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       error: "Unauthorized - login required",
+  //     }),
+  //     { status: 401, headers: { "Content-Type": "application/json" } },
+  //   );
+  // }
+  const currentUser = { userId: "demo-user-id" };
   // Get User session
   const resourceId = currentUser.userId;
 
