@@ -40,8 +40,8 @@ interface Conversation {
 
 // Generate UUID v4
 function generateUUID(): string {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replaceAll(/[xy]/g, function (c) {
+    const r = Math.trunc(Math.random() * 16);
     const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
@@ -99,7 +99,7 @@ function ChatPageContent() {
       if (docToSelect) {
         setSelectedDocuments([docToSelect]);
         // Remove doc param from URL after selection
-        const newUrl = new URL(window.location.href);
+        const newUrl = new URL(globalThis.location.href);
         newUrl.searchParams.delete("doc");
         router.replace(newUrl.pathname + newUrl.search, { scroll: false });
       }
@@ -212,7 +212,7 @@ function ChatPageContent() {
   };
 
   const handleDocumentSelect = (document: Document) => {
-    if (selectedDocuments.find((d) => d.id === document.id)) {
+    if (selectedDocuments.some((d) => d.id === document.id)) {
       setSelectedDocuments(
         selectedDocuments.filter((d) => d.id !== document.id),
       );

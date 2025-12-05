@@ -137,11 +137,12 @@ export default function AdminSignInPage() {
       }
 
       setStep("complete");
-      // Use window.location.href to force full page reload with new session cookies
+      // Use globalThis.location.href to force full page reload with new session cookies
       setTimeout(() => {
-        window.location.href = "/admin";
+        globalThis.location.href = "/admin";
       }, 1000);
     } catch (err) {
+      console.error("Error completing admin sign-in:", err);
       setGeneralError("An error occurred. Please try again.");
       setLoading(false);
     }

@@ -74,9 +74,9 @@ export function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[\s_]+/g, "-") // Replace spaces and underscores with hyphens
-    .replace(/[^\w\-]+/g, "") // Remove non-word chars except hyphens
-    .replace(/\-\-+/g, "-") // Replace multiple hyphens with single hyphen
+    .replaceAll(/[\s_]+/g, "-") // Replace spaces and underscores with hyphens
+    .replaceAll(/[^\w-]+/g, "") // Remove non-word chars except hyphens
+    .replaceAll(/--+/g, "-") // Replace multiple hyphens with single hyphen
     .replace(/^-+/, "") // Trim hyphens from start
     .replace(/-+$/, ""); // Trim hyphens from end
 }

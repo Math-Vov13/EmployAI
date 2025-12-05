@@ -62,7 +62,6 @@ export default function AdminUsersPage() {
   const [createPassword, setCreatePassword] = useState("");
   const [createName, setCreateName] = useState("");
   const [createRole, setCreateRole] = useState("USER");
-  const [createStatus, setCreateStatus] = useState("ONLINE");
 
   // Edit User Modal
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -155,7 +154,6 @@ export default function AdminUsersPage() {
       setCreatePassword("");
       setCreateName("");
       setCreateRole("USER");
-      setCreateStatus("ONLINE");
       toast.success("User created successfully!");
     } catch (error) {
       console.error("Error creating user:", error);

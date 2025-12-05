@@ -153,7 +153,7 @@ export function DocumentUploadForm({
       setSelectedTags(new Set());
 
       // Reset file input
-      const fileInput = window.document.getElementById(
+      const fileInput = globalThis.document.getElementById(
         "file-input",
       ) as HTMLInputElement;
       if (fileInput) fileInput.value = "";

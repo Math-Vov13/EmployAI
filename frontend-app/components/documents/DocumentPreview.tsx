@@ -124,14 +124,14 @@ export function DocumentPreview({
       );
       if (response.ok) {
         const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = window.document.createElement("a");
+        const url = globalThis.URL.createObjectURL(blob);
+        const link = globalThis.document.createElement("a");
         link.href = url;
         link.download = fileName || "download";
-        window.document.body.appendChild(link);
+        globalThis.document.body.appendChild(link);
         link.click();
-        window.URL.revokeObjectURL(url);
-        window.document.body.removeChild(link);
+        globalThis.URL.revokeObjectURL(url);
+        link.remove();
       }
     } catch (err) {
       console.error("Error downloading:", err);

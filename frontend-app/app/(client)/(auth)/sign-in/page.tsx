@@ -148,11 +148,12 @@ function LoginForm() {
 
       toast.success("Welcome back! Redirecting to dashboard...");
       setStep("complete");
-      // Use window.location.href to force full page reload with new session cookies
+      // Use globalThis.location.href to force full page reload with new session cookies
       setTimeout(() => {
-        window.location.href = "/dashboard";
+        globalThis.location.href = "/dashboard";
       }, 1000);
     } catch (err) {
+      console.error("Error completing user sign-in:", err);
       setGeneralError("An error occurred. Please try again.");
       toast.error("An error occurred. Please try again.");
       setLoading(false);

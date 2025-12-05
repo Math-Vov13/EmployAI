@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       email: email.toLowerCase(),
     });
 
-    if (!user || user.role !== "ADMIN") {
+    if (!user || user?.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

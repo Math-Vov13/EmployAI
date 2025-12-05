@@ -6,9 +6,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useRef, useState } from "react";
 
 interface OTPVerificationProps {
-  email: string;
-  onVerified: () => void;
-  onCancel: () => void;
+  readonly email: string;
+  readonly onVerified: () => void;
+  readonly onCancel: () => void;
 }
 
 export function OTPVerification({
