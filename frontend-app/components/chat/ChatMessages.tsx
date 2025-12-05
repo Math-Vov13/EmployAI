@@ -4,10 +4,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MarkdownMessage } from "./MarkdownMessage";
 
+interface ToolCall {
+  name: string;
+  args: any;
+  timestamp: Date;
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  toolCalls?: ToolCall[];
 }
 
 interface ChatMessagesProps {
@@ -60,6 +67,27 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
                   : "bg-white border border-gray-200"
               }`}
             >
+              {message.toolCalls && message.toolCalls.length > 0 && (
+                <div className="mb-3 space-y-1">
+                  {message.toolCalls.map((tool, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2 text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
+                    >
+                      <span className="text-gray-500">🔧</span>
+                      <span className="font-mono font-semibold text-purple-600 dark:text-purple-400">
+                        {tool.name}
+                      </span>
+                      {tool.args && Object.keys(tool.args).length > 0 && (
+                        <span className="text-gray-500 truncate max-w-xs">
+                          ({JSON.stringify(tool.args).substring(0, 50)}
+                          {JSON.stringify(tool.args).length > 50 ? "..." : ""})
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
               <MarkdownMessage
                 content={message.content}
                 isUser={message.role === "user"}
