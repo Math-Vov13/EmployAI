@@ -7,6 +7,7 @@ import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter, useSearchParams } from "next/navigation";
+import { randomUUID } from "node:crypto";
 import { Suspense, useEffect, useState } from "react";
 import { FiMessageSquare, FiPlus } from "react-icons/fi";
 
@@ -38,14 +39,6 @@ interface Conversation {
   updatedAt: string;
 }
 
-// Generate UUID v4
-function generateUUID(): string {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replaceAll(/[xy]/g, function (c) {
-    const r = Math.trunc(Math.random() * 16);
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
 
 function ChatPageContent() {
   const router = useRouter();
@@ -65,7 +58,7 @@ function ChatPageContent() {
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string>(
-    conversationId || generateUUID(),
+    conversationId || randomUUID(),
   );
 
   // Fetch initial data
@@ -203,7 +196,7 @@ function ChatPageContent() {
   };
 
   const handleNewConversation = () => {
-    const newId = generateUUID();
+    const newId = randomUUID();
     setActiveConversationId(newId);
     setCurrentConversation(null);
     setMessages([]);

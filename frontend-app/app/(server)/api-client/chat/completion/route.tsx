@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
   ];
 
   if (parsed.data.documentIds && parsed.data.documentIds.length > 0) {
-    console.log("📄 Processing documents:", parsed.data.documentIds);
+    // console.log("📄 Processing documents:", parsed.data.documentIds);
     const docparsed: string[] = [];
     let fetchErrors = 0;
 
@@ -114,22 +114,22 @@ export async function POST(request: NextRequest) {
       docparsed.push(parsed.data.documentIds[i]);
 
       try {
-        console.log(
-          `Fetching document ${i + 1}/${parsed.data.documentIds.length}: ${parsed.data.documentIds[i]}`,
-        );
+        // console.log(
+        //   `Fetching document ${i + 1}/${parsed.data.documentIds.length}: ${parsed.data.documentIds[i]}`,
+        // );
         const doc_content = await getDocumentById(parsed.data.documentIds[i]);
 
         if (!doc_content) {
-          console.warn(
-            `⚠️  Document not found or not approved: ${parsed.data.documentIds[i]}`,
-          );
+          // console.warn(
+          //   `⚠️  Document not found or not approved: ${parsed.data.documentIds[i]}`,
+          // );
           fetchErrors++;
           continue;
         }
 
-        console.log(
-          `✅ Document fetched: ${doc_content.filename} (${doc_content.mimeType})`,
-        );
+        // console.log(
+        //   `✅ Document fetched: ${doc_content.filename} (${doc_content.mimeType})`,
+        // );
         const message: FileContent = {
           type: "file",
           filename: doc_content?.filename || "document.txt",
@@ -169,8 +169,8 @@ export async function POST(request: NextRequest) {
 
   // Stream response
   try {
-    console.log("🤖 Starting agent stream...");
-    console.log("Request chat:", JSON.stringify(requestChat, null, 2));
+    // console.log("🤖 Starting agent stream...");
+    // console.log("Request chat:", JSON.stringify(requestChat, null, 2));
 
     // Try with memory first, fallback to no memory if MongoDB fails
     let stream;
@@ -181,12 +181,12 @@ export async function POST(request: NextRequest) {
           resource: resourceId,
         },
       });
-      console.log("✅ Agent stream with memory created successfully");
+      // console.log("✅ Agent stream with memory created successfully");
     } catch (memoryError) {
       console.warn("⚠️  Memory failed, streaming without memory:", memoryError);
       // Fallback: stream without memory (conversation won't be persisted in Mastra)
       stream = await testAgent.stream(requestChat as MessageListInput);
-      console.log("✅ Agent stream without memory created successfully");
+      // console.log("✅ Agent stream without memory created successfully");
     }
 
     const encoder = new TextEncoder();
@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
               typeof chunk === "string" ? chunk : JSON.stringify(chunk);
             controller.enqueue(encoder.encode(`${payload}\n`));
           }
-          console.log("✅ Stream completed successfully");
+          // console.log("✅ Stream completed successfully");
         } catch (error) {
           console.error("❌ Stream error:", error);
           controller.error(error);
@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   } catch (error) {
-    console.error("❌ Completion error:", error);
+    // console.error("❌ Completion error:", error);
     console.error("Error details:", {
       message: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
