@@ -6,6 +6,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  FiCircle,
+  FiClock,
+  FiFile,
+  FiSmartphone,
+  FiTag,
+  FiUsers,
+} from "react-icons/fi";
 
 interface DashboardStats {
   users: {
@@ -58,8 +66,9 @@ export default function AdminDashboard() {
       const docsRes = await fetch("/api-client/documents");
       const docsData = await docsRes.json();
 
-      // Fetch tags (placeholder - will return empty array until implemented)
-      const tagsData = { tags: [] };
+      // Fetch tags
+      const tagsRes = await fetch("/api-client/tags");
+      const tagsData = tagsRes.ok ? await tagsRes.json() : { tags: [] };
 
       // Calculate user statistics
       const users = usersData.users || [];
@@ -143,7 +152,9 @@ export default function AdminDashboard() {
                   </Badge>
                 </div>
               </div>
-              <div className="text-5xl opacity-20">👥</div>
+              <div className="text-5xl opacity-20">
+                <FiUsers />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -165,7 +176,9 @@ export default function AdminDashboard() {
                   </Badge>
                 </div>
               </div>
-              <div className="text-5xl opacity-20">📄</div>
+              <div className="text-5xl opacity-20">
+                <FiFile />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -190,7 +203,9 @@ export default function AdminDashboard() {
                   Review Now
                 </Button>
               </div>
-              <div className="text-5xl opacity-20">⏳</div>
+              <div className="text-5xl opacity-20">
+                <FiClock />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -213,7 +228,9 @@ export default function AdminDashboard() {
                   Manage Tags
                 </Button>
               </div>
-              <div className="text-5xl opacity-20">🏷️</div>
+              <div className="text-5xl opacity-20">
+                <FiTag />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -231,7 +248,9 @@ export default function AdminDashboard() {
               onClick={() => router.push("/admin/documents")}
               className="h-20 flex-col"
             >
-              <div className="text-2xl mb-1">📄</div>
+              <div className="text-2xl mb-1">
+                <FiFile />
+              </div>
               <div>Manage Documents</div>
             </Button>
             <Button
@@ -239,7 +258,9 @@ export default function AdminDashboard() {
               onClick={() => router.push("/admin/users")}
               className="h-20 flex-col"
             >
-              <div className="text-2xl mb-1">👥</div>
+              <div className="text-2xl mb-1">
+                <FiUsers />
+              </div>
               <div>Manage Users</div>
             </Button>
             <Button
@@ -247,7 +268,9 @@ export default function AdminDashboard() {
               onClick={() => router.push("/admin/tags")}
               className="h-20 flex-col"
             >
-              <div className="text-2xl mb-1">🏷️</div>
+              <div className="text-2xl mb-1">
+                <FiTag />
+              </div>
               <div>Manage Tags</div>
             </Button>
             <Button
@@ -255,7 +278,9 @@ export default function AdminDashboard() {
               onClick={() => router.push("/dashboard")}
               className="h-20 flex-col"
             >
-              <div className="text-2xl mb-1">📱</div>
+              <div className="text-2xl mb-1">
+                <FiSmartphone />
+              </div>
               <div>User View</div>
             </Button>
           </div>
@@ -290,7 +315,9 @@ export default function AdminDashboard() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="text-2xl">📄</div>
+                        <div className="text-2xl">
+                          <FiFile />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-gray-900 truncate">
                             {doc.title}
@@ -329,7 +356,9 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl mb-2">🟢</div>
+            <div className="text-3xl mb-2 text-green-500">
+              <FiCircle className="mx-auto" />
+            </div>
             <p className="text-2xl font-bold text-gray-900">
               {stats?.users.online}
             </p>
@@ -338,7 +367,9 @@ export default function AdminDashboard() {
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl mb-2">🟠</div>
+            <div className="text-3xl mb-2 text-orange-500">
+              <FiCircle className="mx-auto" />
+            </div>
             <p className="text-2xl font-bold text-gray-900">
               {stats?.users.standby}
             </p>
@@ -347,7 +378,9 @@ export default function AdminDashboard() {
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl mb-2">⚫</div>
+            <div className="text-3xl mb-2 text-gray-500">
+              <FiCircle className="mx-auto" />
+            </div>
             <p className="text-2xl font-bold text-gray-900">
               {stats?.users.offline}
             </p>

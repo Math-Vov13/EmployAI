@@ -5,6 +5,12 @@ if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET n est pas definie en env");
 }
 
+if (!process.env.SESSION_COOKIE_NAME) {
+  throw new Error("SESSION_COOKIE_NAME n est pas definie en env");
+}
+
+const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME;
+
 export interface SessionData {
   userId: string;
   email: string;
@@ -19,7 +25,7 @@ export async function getSession(): Promise<IronSession<SessionData>> {
 
   return getIronSession<SessionData>(cookieStore, {
     password: process.env.SESSION_SECRET!,
-    cookieName: "employai_session",
+    cookieName: SESSION_COOKIE_NAME,
     cookieOptions: {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
@@ -36,8 +42,27 @@ export async function createSession(
   name: string,
   role: "USER" | "ADMIN",
   googleId?: string,
+  rememberMe: boolean = false,
 ) {
-  const session = await getSession();
+  const cookieStore = await cookies();
+
+  // Calculate maxAge based on rememberMe
+  // rememberMe = true: 7 days (604800 seconds)
+  // rememberMe = false: session cookie (expires when browser closes)
+  const maxAge = rememberMe ? 7 * 24 * 60 * 60 : undefined;
+
+  const session = await getIronSession<SessionData>(cookieStore, {
+    password: process.env.SESSION_SECRET!,
+    cookieName: SESSION_COOKIE_NAME,
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: maxAge,
+      path: "/",
+    },
+  });
+
   session.userId = userId;
   session.email = email;
   session.name = name;

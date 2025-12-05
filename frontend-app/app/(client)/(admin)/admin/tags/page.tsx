@@ -22,10 +22,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
+import { FiAlertTriangle, FiInfo, FiPlus } from "react-icons/fi";
+import { toast } from "sonner";
 
 interface Tag {
   id: string;
   name: string;
+  slug: string;
+  description?: string;
+  color?: string;
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -60,10 +66,17 @@ export default function AdminTagsPage() {
   const fetchTags = async () => {
     try {
       setLoading(true);
-      // Tags API not yet implemented, use empty array for now
-      setTags([]);
+      const response = await fetch("/api-client/tags");
+      if (response.ok) {
+        const data = await response.json();
+        setTags(data.tags || []);
+      } else {
+        console.error("Failed to fetch tags");
+        setTags([]);
+      }
     } catch (error) {
       console.error("Error fetching tags:", error);
+      setTags([]);
     } finally {
       setLoading(false);
     }
@@ -93,15 +106,26 @@ export default function AdminTagsPage() {
   const handleCreateTag = async () => {
     try {
       setUpdating(true);
-      // Tags API not yet implemented
-      alert(
-        "Tag management is not yet available. This feature is coming soon.",
-      );
+      const response = await fetch("/api-client/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: createName.trim() }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to create tag");
+      }
+
+      await fetchTags();
       setIsCreateOpen(false);
       setCreateName("");
+      toast.success("Tag created successfully!");
     } catch (error) {
       console.error("Error creating tag:", error);
-      alert(error instanceof Error ? error.message : "Failed to create tag");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create tag",
+      );
     } finally {
       setUpdating(false);
     }
@@ -112,14 +136,25 @@ export default function AdminTagsPage() {
 
     try {
       setUpdating(true);
-      // Tags API not yet implemented
-      alert(
-        "Tag management is not yet available. This feature is coming soon.",
-      );
+      const response = await fetch(`/api-client/tags/${selectedTag.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editName.trim() }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to update tag");
+      }
+
+      await fetchTags();
       setIsEditOpen(false);
+      toast.success("Tag updated successfully!");
     } catch (error) {
       console.error("Error updating tag:", error);
-      alert(error instanceof Error ? error.message : "Failed to update tag");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update tag",
+      );
     } finally {
       setUpdating(false);
     }
@@ -130,14 +165,23 @@ export default function AdminTagsPage() {
 
     try {
       setUpdating(true);
-      // Tags API not yet implemented
-      alert(
-        "Tag management is not yet available. This feature is coming soon.",
-      );
+      const response = await fetch(`/api-client/tags/${selectedTag.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to delete tag");
+      }
+
+      await fetchTags();
       setIsDeleteOpen(false);
+      toast.success("Tag deleted successfully!");
     } catch (error) {
       console.error("Error deleting tag:", error);
-      alert(error instanceof Error ? error.message : "Failed to delete tag");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete tag",
+      );
     } finally {
       setUpdating(false);
     }
@@ -172,7 +216,9 @@ export default function AdminTagsPage() {
             Manage document tags and categories
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>➕ Create Tag</Button>
+        <Button onClick={() => setIsCreateOpen(true)}>
+          <FiPlus className="mr-2" /> Create Tag
+        </Button>
       </div>
 
       {/* Statistics */}
@@ -200,62 +246,6 @@ export default function AdminTagsPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Tags Display */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-wrap gap-3">
-            {tags.map((tag) => {
-              const usageCount = getTagUsageCount(tag.name);
-              return (
-                <Card
-                  key={tag.id}
-                  className="hover:shadow-md transition-shadow"
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge className="text-base px-3 py-1">
-                            {tag.name}
-                          </Badge>
-                          {usageCount > 0 && (
-                            <Badge variant="secondary">{usageCount} docs</Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500">
-                          Created {new Date(tag.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openEditModal(tag)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => openDeleteModal(tag)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-          {tags.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No tags found</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Tags Table */}
       <Card>
@@ -389,8 +379,8 @@ export default function AdminTagsPage() {
               {getTagUsageCount(selectedTag.name) > 0 && (
                 <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-3">
-                    <p className="text-sm text-blue-800">
-                      ℹ️ This tag is used by{" "}
+                    <p className="text-sm text-blue-800 flex items-start gap-2">
+                      <FiInfo className="mt-0.5 shrink-0" /> This tag is used by{" "}
                       {getTagUsageCount(selectedTag.name)} document(s). Renaming
                       will update all documents.
                     </p>
@@ -423,8 +413,8 @@ export default function AdminTagsPage() {
             <div className="py-4">
               {getTagUsageCount(selectedTag.name) > 0 ? (
                 <div>
-                  <p className="mb-4 text-red-600 font-medium">
-                    ⚠️ Cannot delete this tag
+                  <p className="mb-4 text-red-600 font-medium flex items-center gap-2">
+                    <FiAlertTriangle /> Cannot delete this tag
                   </p>
                   <Card className="bg-red-50 border-red-200">
                     <CardContent className="p-4">

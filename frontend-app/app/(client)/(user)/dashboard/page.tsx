@@ -12,18 +12,20 @@ import {
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FiMessageSquare } from "react-icons/fi";
+import { toast } from "sonner";
 
 interface Document {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   fileName: string;
   fileSize: number;
   mimeType: string;
   status: string;
-  tags: string[];
+  tags?: string[];
   createdAt: string;
-  uploadedBy: {
+  uploadedBy?: {
     email: string;
     role: string;
   };
@@ -84,8 +86,9 @@ export default function DashboardPage() {
           tags: doc.metadata?.tags || [],
           createdAt: doc.createdAt,
           uploadedBy: {
-            email: doc.creatorId || "user@example.com",
-            role: "USER",
+            id: doc.creatorId || doc.uploadedBy?.id,
+            email: doc.uploadedBy?.email || "unknown@example.com",
+            role: doc.uploadedBy?.role || "USER",
           },
         }));
 
@@ -93,7 +96,7 @@ export default function DashboardPage() {
         if (selectedTag && selectedTag !== "all") {
           setDocuments(
             mappedDocuments.filter((doc: Document) =>
-              doc.tags.includes(selectedTag),
+              doc.tags?.includes(selectedTag),
             ),
           );
         } else {
@@ -109,10 +112,16 @@ export default function DashboardPage() {
 
   const fetchTags = async () => {
     try {
-      // Tags API not yet implemented, use empty array for now
-      setTags([]);
+      const response = await fetch("/api-client/tags");
+      if (response.ok) {
+        const data = await response.json();
+        setTags(data.tags || []);
+      } else {
+        setTags([]);
+      }
     } catch (err) {
       console.error("Error fetching tags:", err);
+      setTags([]);
     }
   };
 
@@ -137,12 +146,13 @@ export default function DashboardPage() {
         a.click();
         globalThis.URL.revokeObjectURL(url);
         a.remove();
+        toast.success("Document downloaded successfully");
       } else {
-        alert("Failed to download document");
+        toast.error("Failed to download document");
       }
     } catch (err) {
       console.error("Error downloading document:", err);
-      alert("Failed to download document");
+      toast.error("Failed to download document");
     }
   };
 
@@ -159,30 +169,32 @@ export default function DashboardPage() {
       if (response.ok) {
         // Refresh documents list
         fetchDocuments();
-        alert("Document deleted successfully");
+        toast.success("Document deleted successfully");
       } else {
         const data = await response.json();
-        alert(data.error || "Failed to delete document");
+        toast.error(data.error || "Failed to delete document");
       }
     } catch (err) {
       console.error("Error deleting document:", err);
-      alert("Failed to delete document");
+      toast.error("Failed to delete document");
     }
   };
 
   const handleLogout = async () => {
     try {
       await fetch("/api-client/auth/logout", { method: "POST" });
+      toast.success("Logged out successfully");
       router.push("/sign-in");
     } catch (err) {
       console.error("Error logging out:", err);
+      toast.error("Failed to logout");
     }
   };
 
   const filteredDocuments = documents.filter(
     (doc) =>
       doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.description.toLowerCase().includes(searchQuery.toLowerCase()),
+      doc.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -192,14 +204,16 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                EmployAI
-              </h1>
+              <h1 className="text-5xl font-bold">EmployAI</h1>
               {user && (
-                <p className="text-sm text-gray-600">Welcome, {user.email}</p>
+                <p className="text-sm text-gray-600">Welcome, {user.name}</p>
               )}
             </div>
             <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => router.push("/chat")}>
+                <FiMessageSquare />
+                Chat AI
+              </Button>
               <Button variant="default" onClick={() => setIsOpen(true)}>
                 Upload Document
               </Button>
@@ -237,6 +251,8 @@ export default function DashboardPage() {
           onDownload={handleDownload}
           onDelete={handleDelete}
           showActions={true}
+          currentUserId={user?.id}
+          currentUserRole={user?.role}
         />
       </main>
 

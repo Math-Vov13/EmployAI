@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface User {
   id: string;
@@ -58,8 +59,9 @@ export default function AdminUsersPage() {
   // Create User Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createEmail, setCreateEmail] = useState("");
+  const [createPassword, setCreatePassword] = useState("");
+  const [createName, setCreateName] = useState("");
   const [createRole, setCreateRole] = useState("USER");
-  const [createStatus, setCreateStatus] = useState("ONLINE");
 
   // Edit User Modal
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -122,17 +124,42 @@ export default function AdminUsersPage() {
   const handleCreateUser = async () => {
     try {
       setUpdating(true);
-      // User creation via admin not yet implemented - users must register via sign-up
-      alert(
-        "Direct user creation is not available. Please direct users to the sign-up page at /sign-up",
-      );
+      const res = await fetch("/api-client/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: createEmail,
+          password: createPassword,
+          name: createName,
+          role: createRole,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // Handle validation errors
+        if (data.details) {
+          const errorMessages = data.details
+            .map((detail: any) => detail.message)
+            .join("\n");
+          throw new Error(errorMessages);
+        }
+        throw new Error(data.error || "Failed to create user");
+      }
+
+      await fetchUsers();
       setIsCreateOpen(false);
       setCreateEmail("");
+      setCreatePassword("");
+      setCreateName("");
       setCreateRole("USER");
-      setCreateStatus("ONLINE");
+      toast.success("User created successfully!");
     } catch (error) {
       console.error("Error creating user:", error);
-      alert(error instanceof Error ? error.message : "Failed to create user");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create user",
+      );
     } finally {
       setUpdating(false);
     }
@@ -158,10 +185,12 @@ export default function AdminUsersPage() {
 
       await fetchUsers();
       setIsEditOpen(false);
-      alert("User updated successfully");
+      toast.success("User updated successfully");
     } catch (error) {
       console.error("Error updating user:", error);
-      alert(error instanceof Error ? error.message : "Failed to update user");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update user",
+      );
     } finally {
       setUpdating(false);
     }
@@ -183,10 +212,12 @@ export default function AdminUsersPage() {
 
       await fetchUsers();
       setIsDeleteOpen(false);
-      alert("User deleted successfully");
+      toast.success("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user:", error);
-      alert(error instanceof Error ? error.message : "Failed to delete user");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete user",
+      );
     } finally {
       setUpdating(false);
     }
@@ -368,13 +399,13 @@ export default function AdminUsersPage() {
 
       {/* Create User Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New User</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="create-email">Email</Label>
+              <Label htmlFor="create-email">Email *</Label>
               <Input
                 id="create-email"
                 type="email"
@@ -384,7 +415,38 @@ export default function AdminUsersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="create-role">Role</Label>
+              <Label htmlFor="create-name">Name *</Label>
+              <Input
+                id="create-name"
+                type="text"
+                placeholder="John Doe"
+                value={createName}
+                onChange={(e) => setCreateName(e.target.value)}
+              />
+              <p className="text-xs text-gray-500">Minimum 2 characters</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-password">Password *</Label>
+              <Input
+                id="create-password"
+                type="password"
+                placeholder="Enter secure password"
+                value={createPassword}
+                onChange={(e) => setCreatePassword(e.target.value)}
+              />
+              <div className="text-xs text-gray-500 space-y-1">
+                <p>Password requirements:</p>
+                <ul className="list-disc list-inside pl-2">
+                  <li>At least 12 characters</li>
+                  <li>At least 1 uppercase letter</li>
+                  <li>At least 1 lowercase letter</li>
+                  <li>At least 1 digit</li>
+                  <li>At least 1 special character</li>
+                </ul>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-role">Role *</Label>
               <Select value={createRole} onValueChange={setCreateRole}>
                 <SelectTrigger id="create-role">
                   <SelectValue placeholder="Select role" />
@@ -395,19 +457,6 @@ export default function AdminUsersPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="create-status">Status</Label>
-              <Select value={createStatus} onValueChange={setCreateStatus}>
-                <SelectTrigger id="create-status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ONLINE">Online</SelectItem>
-                  <SelectItem value="STANDBY">Standby</SelectItem>
-                  <SelectItem value="OFFLINE">Offline</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setIsCreateOpen(false)}>
@@ -415,9 +464,11 @@ export default function AdminUsersPage() {
             </Button>
             <Button
               onClick={handleCreateUser}
-              disabled={!createEmail || updating}
+              disabled={
+                !createEmail || !createPassword || !createName || updating
+              }
             >
-              Create User
+              {updating ? "Creating..." : "Create User"}
             </Button>
           </DialogFooter>
         </DialogContent>

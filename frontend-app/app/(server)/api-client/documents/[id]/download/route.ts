@@ -38,14 +38,17 @@ export async function GET(
       );
     }
 
-    const isOwner = document.creatorId.toString() === currentUser.userId;
-    const isAdmin = currentUser.role === "ADMIN";
-
-    if (!isOwner && !isAdmin) {
-      return NextResponse.json(
-        { error: "Forbidden - You do not have access to this document" },
-        { status: 403 },
-      );
+    // Authorization check:
+    // - Admins can download any document
+    // - Regular users can ONLY download APPROVED documents
+    if (currentUser.role !== "ADMIN") {
+      const documentStatus = document.metadata?.status || "PENDING";
+      if (documentStatus !== "APPROVED") {
+        return NextResponse.json(
+          { error: "Document not found or not yet approved" },
+          { status: 404 },
+        );
+      }
     }
 
     // Stream file from GridFS

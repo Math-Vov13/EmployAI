@@ -1,13 +1,11 @@
-import { requireAuth } from "@/app/lib/auth/middleware";
-import { getCurrentUser } from "@/app/lib/auth/session";
-import { toChatResponse } from "@/app/lib/db/models/Chat";
-import { getChatsCollection } from "@/app/lib/db/mongodb";
-import { ObjectId } from "mongodb";
+import { getCurrentUser, requireAuth } from "@/app/lib/auth/middleware";
+import { mongoStore } from "@/mastra/agents/docs_agent";
 import { NextRequest, NextResponse } from "next/server";
+import z from "zod";
 
 /**
- * GET /api-client/chat/history?documentId=xxx
- * Get chat history for a specific document
+ * GET /api-client/chat/history?id=xxx
+ * Get chat history
  */
 export async function GET(request: NextRequest) {
   const authError = await requireAuth(request);
@@ -23,41 +21,97 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const documentId = searchParams.get("documentId");
+    const historyId = searchParams.get("id");
 
-    if (!documentId) {
+    if (!historyId) {
       return NextResponse.json(
-        { error: "Document ID is required" },
+        { error: "History ID is required" },
         { status: 400 },
       );
     }
 
-    if (!ObjectId.isValid(documentId)) {
+    if (!z.uuid().safeParse(historyId).success) {
       return NextResponse.json(
-        { error: "Invalid document ID" },
+        { error: "Invalid history ID" },
         { status: 400 },
       );
     }
 
-    const chatsCollection = await getChatsCollection();
-    const chat = await chatsCollection.findOne({
-      userId: new ObjectId(currentUser.userId),
-      documentId: new ObjectId(documentId),
+    const thread = await mongoStore.getThreadById({ threadId: historyId });
+    if (!thread) {
+      return NextResponse.json(
+        { error: "Chat history not found" },
+        { status: 404 },
+      );
+    }
+    if (thread.resourceId !== currentUser.userId) {
+      return NextResponse.json(
+        { error: "Forbidden - access to this chat history is denied" },
+        { status: 403 },
+      );
+    }
+
+    const messages = await mongoStore.getMessages({ threadId: historyId });
+    if (!messages) {
+      return NextResponse.json(
+        { error: "No messages found for this history" },
+        { status: 404 },
+      );
+    }
+
+    // Filter out intermediate tool messages - only keep user and assistant text messages
+    const filteredMessages = messages.filter((msg: any) => {
+      // Skip tool role messages entirely
+      if (msg.role === "tool") return false;
+
+      // Skip messages with tool-call or tool-result type
+      if (msg.type === "tool-call" || msg.type === "tool-result") return false;
+
+      // Check content array for tool types
+      if (Array.isArray(msg.content)) {
+        const hasOnlyToolContent = msg.content.every(
+          (part: any) =>
+            part.type === "tool-call" || part.type === "tool-result",
+        );
+        if (hasOnlyToolContent) return false;
+      }
+
+      return true;
     });
 
-    if (!chat) {
-      return NextResponse.json({
+    // Filter out messages with empty content after processing
+    const nonEmptyMessages = filteredMessages.filter((msg: any) => {
+      if (typeof msg.content === "string") {
+        return msg.content.trim().length > 0;
+      }
+      if (Array.isArray(msg.content)) {
+        return msg.content.some((part: any) => {
+          if (typeof part === "string") return part.trim().length > 0;
+          if (part.type === "text" && part.text)
+            return part.text.trim().length > 0;
+          return false;
+        });
+      }
+      return false;
+    });
+    return new Response(
+      JSON.stringify({
         success: true,
-        chat: null,
-        messages: [],
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      chat: toChatResponse(chat),
-      messages: chat.messages,
-    });
+        threadId: thread.id,
+        length: nonEmptyMessages.length,
+        thread: {
+          userId: thread.resourceId,
+          title: thread.title,
+          updatedAt: thread.updatedAt,
+          createdAt: thread.createdAt,
+        },
+        messages: nonEmptyMessages,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     console.error("Error fetching chat history:", error);
     return NextResponse.json(

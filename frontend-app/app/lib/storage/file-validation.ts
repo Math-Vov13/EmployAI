@@ -6,9 +6,6 @@ const ALLOWED_MIME_TYPES = [
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "text/plain",
-  "image/png",
-  "image/jpeg",
-  "image/jpg",
 ];
 
 // MIME type to extension mapping
@@ -18,9 +15,6 @@ const MIME_TO_EXTENSION: Record<string, string> = {
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
     "docx",
   "text/plain": "txt",
-  "image/png": "png",
-  "image/jpeg": "jpg",
-  "image/jpg": "jpg",
 };
 
 // Human-readable file type names
@@ -30,9 +24,6 @@ const MIME_TYPE_NAMES: Record<string, string> = {
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
     "Word Document",
   "text/plain": "Text File",
-  "image/png": "PNG Image",
-  "image/jpeg": "JPEG Image",
-  "image/jpg": "JPEG Image",
 };
 
 /**
@@ -188,7 +179,7 @@ export function formatFileSize(bytes: number): string {
  * Get allowed file extensions for file input
  */
 export function getAllowedFileExtensions(): string {
-  return ".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg";
+  return ".pdf,.doc,.docx,.txt";
 }
 
 /**
