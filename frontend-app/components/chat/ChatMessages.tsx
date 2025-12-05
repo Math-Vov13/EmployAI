@@ -21,6 +21,19 @@ interface ChatMessagesProps {
   messages: Message[];
 }
 
+// Helper function to get a user-friendly tool description
+function getToolDescription(toolName: string): { icon: string; label: string } {
+  const toolMap: Record<string, { icon: string; label: string }> = {
+    vectorQueryTool: { icon: "📄", label: "Searching documents..." },
+    filteredVectorQueryTool: { icon: "📄", label: "Searching documents..." },
+    webSearchTool: { icon: "🌐", label: "Searching the web..." },
+    websearch: { icon: "🌐", label: "Searching the web..." },
+    search: { icon: "🔍", label: "Searching..." },
+  };
+
+  return toolMap[toolName] || { icon: "🌐", label: "Searching the web..." };
+}
+
 export function ChatMessages({ messages }: ChatMessagesProps) {
   if (messages.length === 0) {
     return (
@@ -68,24 +81,13 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
               }`}
             >
               {message.toolCalls && message.toolCalls.length > 0 && (
-                <div className="mb-3 space-y-1">
-                  {message.toolCalls.map((tool, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
-                    >
-                      <span className="text-gray-500">🔧</span>
-                      <span className="font-mono font-semibold text-purple-600 dark:text-purple-400">
-                        {tool.name}
-                      </span>
-                      {tool.args && Object.keys(tool.args).length > 0 && (
-                        <span className="text-gray-500 truncate max-w-xs">
-                          ({JSON.stringify(tool.args).substring(0, 50)}
-                          {JSON.stringify(tool.args).length > 50 ? "..." : ""})
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                <div className="mb-3">
+                  <div className="inline-flex items-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-full px-3 py-1.5">
+                    <span className="animate-pulse">
+                      {getToolDescription(message.toolCalls[0].name).icon}
+                    </span>
+                    <span>{getToolDescription(message.toolCalls[0].name).label}</span>
+                  </div>
                 </div>
               )}
               <MarkdownMessage
