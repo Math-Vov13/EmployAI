@@ -3,7 +3,8 @@ import { Agent } from "@mastra/core/agent";
 import { fastembed } from "@mastra/fastembed";
 import { Memory } from "@mastra/memory";
 import { MongoDBStore, MongoDBVector } from "@mastra/mongodb";
-import { vectorQueryTool } from "../tools/vectors_tool";
+import { vectorQueryTool} from "../tools/vectors_tool";
+import { websearchTool } from "../tools/websearch_tool";
 import { mongoVector } from "../vector_store";
 
 // Construire l'URI MongoDB avec les paramètres requis
@@ -17,14 +18,20 @@ const buildMongoUri = () => {
   return baseUri;
 };
 
-const mongoStore = new MongoDBStore({
+// Mastra Memory Storage:
+// This creates separate collections (e.g., "threads", "messages") for agent memory
+// This is DIFFERENT from the custom "chats" collection used for UI display
+// - Mastra collections: Internal agent conversation context
+// - Custom chats collection: User-facing chat history for the UI
+// NOTE: If MongoDB connection fails, the agent will fallback to no-memory mode
+export const mongoStore = new MongoDBStore({
   url: buildMongoUri(),
   dbName: process.env.MONGODB_DB_NAME!,
   options: {
     appName: "ClusterEmployAI",
-    serverSelectionTimeoutMS: 30000,
-    connectTimeoutMS: 30000,
-    socketTimeoutMS: 30000,
+    serverSelectionTimeoutMS: 5000, // Reduced timeout for faster failure
+    connectTimeoutMS: 5000,
+    socketTimeoutMS: 5000,
   },
 });
 
@@ -71,6 +78,6 @@ export const testAgent = new Agent({
       },
     },
   }),
-  tools: { vectorQueryTool },
+  tools: { vectorQueryTool, websearchTool },
 });
   

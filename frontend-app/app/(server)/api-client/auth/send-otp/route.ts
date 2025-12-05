@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
     // Send OTP via email (Resend)
     try {
       if (resend) {
-        await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL || "noreply@employai.com",
+        const emailResult = await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
           to: email,
           subject: "Your EmployAI Verification Code",
           html: `
@@ -109,14 +109,42 @@ export async function POST(request: NextRequest) {
             </html>
           `,
         });
-        console.log(`✅ OTP email sent to ${email}`);
+
+        console.log("\n" + "=".repeat(50));
+        console.log("📧 EMAIL SEND RESULT");
+        console.log("=".repeat(50));
+        console.log("To:", email);
+        console.log("From:", process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev");
+        console.log("Status:", emailResult.error ? "❌ FAILED" : "✅ SUCCESS");
+        if (emailResult.error) {
+          console.log("Error:", JSON.stringify(emailResult.error, null, 2));
+        } else {
+          console.log("Email ID:", emailResult.data?.id);
+        }
+        console.log("=".repeat(50) + "\n");
+
+        if (emailResult.error) {
+          throw new Error(`Resend error: ${JSON.stringify(emailResult.error)}`);
+        }
       } else {
-        console.log(
-          "⚠️  Resend API key not configured - OTP only logged to terminal",
-        );
+        console.log("\n" + "=".repeat(50));
+        console.log("⚠️  RESEND NOT CONFIGURED");
+        console.log("=".repeat(50));
+        console.log("API Key present:", !!process.env.RESEND_API_KEY);
+        console.log("API Key value:", process.env.RESEND_API_KEY?.substring(0, 10) + "...");
+        console.log("OTP only available in terminal");
+        console.log("=".repeat(50) + "\n");
       }
     } catch (error) {
-      console.error("❌ Failed to send OTP email:", error);
+      console.error("\n" + "=".repeat(50));
+      console.error("❌ EMAIL SEND ERROR");
+      console.error("=".repeat(50));
+      console.error("Error details:", error);
+      if (error instanceof Error) {
+        console.error("Message:", error.message);
+        console.error("Stack:", error.stack);
+      }
+      console.error("=".repeat(50) + "\n");
       // Don't fail if email sending fails, OTP is still valid in terminal
     }
 

@@ -9088,6 +9088,11 @@ serialize-error@^7.0.1:
   dependencies:
     type-fest "^0.13.1"
 
+serpapi@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/serpapi/-/serpapi-2.2.1.tgz#6da93ffda55eb96a977b4d39ae74b940ebc5d904"
+  integrity sha512-1HXXaIwDmYueFPauAggIkzozMi5P/a4/yRUxB8Z1kad0VQE/7ohf9a6xRQ99aXR252itDChfmJUfBdCA4phCYA==
+
 serve-static@~1.16.2:
   version "1.16.2"
   resolved "https://registry.npmjs.org/serve-static/-/serve-static-1.16.2.tgz"

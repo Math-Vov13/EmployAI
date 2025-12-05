@@ -10,7 +10,7 @@ export interface ChatMessage {
 export interface ChatDocument {
   _id?: ObjectId;
   userId: ObjectId;
-  documentId: ObjectId;
+  documentIds: ObjectId[]; // Changed to support multiple documents
   messages: ChatMessage[];
   createdAt: Date;
   updatedAt: Date;
@@ -22,7 +22,7 @@ export const chatMessageSchema = z.object({
 });
 
 export const createChatSchema = z.object({
-  documentId: z.string().min(1, "Document ID is required"),
+  documentIds: z.array(z.string()).min(1, "At least one document ID is required"),
   message: z.string().min(1, "Message is required"),
   chatHistory: z
     .array(
@@ -38,7 +38,7 @@ export const createChatSchema = z.object({
 export interface ChatResponse {
   id: string;
   userId: string;
-  documentId: string;
+  documentIds: string[]; // Changed to support multiple documents
   messages: {
     role: string;
     content: string;
@@ -52,7 +52,7 @@ export function toChatResponse(chat: ChatDocument): ChatResponse {
   return {
     id: chat._id!.toString(),
     userId: chat.userId.toString(),
-    documentId: chat.documentId.toString(),
+    documentIds: chat.documentIds.map((id) => id.toString()), // Map array of ObjectIds to strings
     messages: chat.messages.map((msg) => ({
       role: msg.role,
       content: msg.content,

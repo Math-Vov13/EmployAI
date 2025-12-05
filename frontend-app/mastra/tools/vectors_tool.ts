@@ -1,5 +1,5 @@
 import { createVectorQueryTool } from "@mastra/rag";
-import { gateway } from "ai";
+import { gateway } from "@ai-sdk/gateway";
 import { mongoVector } from "../vector_store";
 
 export const vectorQueryTool = createVectorQueryTool({

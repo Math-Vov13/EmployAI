@@ -47,6 +47,7 @@ export async function saveDocumentPipeline(
       source_id: docs_id,
       author_id: user_id,
       chunk_index: idx,
+      text: chunks[idx].text,
     })),
     ids: chunks.map((_, idx) => `${docs_id}-${Date.now()}-${idx}`),
     deleteFilter: { source_id: docs_id, author_id: user_id },
