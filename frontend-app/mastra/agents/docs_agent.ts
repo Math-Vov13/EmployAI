@@ -8,7 +8,10 @@ import { mongoVector } from "../vector_store";
 
 // Construire l'URI MongoDB avec les paramètres requis
 const buildMongoUri = () => {
-  const baseUri = process.env.MONGODB_URI!;
+  const baseUri = process.env.MONGODB_URI;
+  if (!baseUri) {
+    throw new Error("MONGODB_URI environment variable is not set");
+  }
   // Ajouter les paramètres de connexion si non présents
   const hasParams = baseUri.includes("?");
   if (!hasParams) {
@@ -25,7 +28,7 @@ const buildMongoUri = () => {
 // NOTE: If MongoDB connection fails, the agent will fallback to no-memory mode
 export const mongoStore = new MongoDBStore({
   url: buildMongoUri(),
-  dbName: process.env.MONGODB_DB_NAME!,
+  dbName: process.env.MONGODB_DB_NAME || "employai",
   options: {
     appName: "ClusterEmployAI",
     serverSelectionTimeoutMS: 5000, // Reduced timeout for faster failure
@@ -68,11 +71,11 @@ company description: EmployAI is a platform that enables businesses to create AI
 - Provide document references when applicable
 - Ask clarifying questions if the user's request is ambiguous
 `,
-  model: gateway(process.env.AGENT_MODEL!),
+  model: gateway(process.env.AGENT_MODEL || "anthropic:claude-3-5-sonnet-20241022"),
   memory: new Memory({
     storage: mongoStore,
     vector: mongoVector,
-    embedder: gateway.textEmbeddingModel(process.env.EMBEDDING_MODEL_CACHE!),
+    embedder: gateway.textEmbeddingModel(process.env.EMBEDDING_MODEL_CACHE || "openai:text-embedding-3-small"),
     options: {
       lastMessages: 10,
       semanticRecall: {

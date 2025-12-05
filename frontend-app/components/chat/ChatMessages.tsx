@@ -68,9 +68,9 @@ export function ChatMessages({ messages }: Readonly<ChatMessagesProps>) {
   return (
     <ScrollArea className="flex-1 p-4">
       <div className="max-w-4xl mx-auto space-y-4">
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <div
-            key={`${message.role}-${message.timestamp.getTime()}`}
+            key={`${message.role}-${message.timestamp.getTime()}-${index}`}
             className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div

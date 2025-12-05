@@ -298,7 +298,8 @@ function ChatPageContent() {
         const result = processStreamEvent(parsed, currentText, toolCalls);
         currentText = result.text;
         hasContent = hasContent || result.hasContent;
-      } catch (parseError) {
+      } catch {
+        // Silently skip non-JSON lines - they are expected in the stream
         console.debug("Skipping non-JSON line:", line.substring(0, 50));
       }
     }
@@ -413,115 +414,7 @@ function ChatPageContent() {
             : undefined,
       };
 
-      const response = await fetch("/api-client/chat/completion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error ||
-            `Server error: ${response.status} ${response.statusText}`,
-        );
-      }
-
-      if (!response.body) {
-        throw new Error("No response body received from server");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = "";
-      let hasReceivedContent = false;
-      const toolCalls: ToolCall[] = [];
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n").filter((line) => line.trim());
-
-          for (const line of lines) {
-            // Skip empty lines or lines that don't look like JSON
-            if (!line.trim() || !line.startsWith("{")) {
-              continue;
-            }
-
-            try {
-              const parsed = JSON.parse(line);
-
-              // Only process text-delta events for displaying content
-              if (parsed.type === "text-delta" && parsed.payload?.text) {
-                const textToAdd = parsed.payload.text;
-                accumulatedText += textToAdd;
-                hasReceivedContent = true;
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      content: accumulatedText,
-                    };
-                  }
-                  return updated;
-                });
-              } else if (parsed.type === "error") {
-                console.error("Stream error:", parsed);
-                throw new Error(
-                  parsed.payload?.message || "Agent error occurred",
-                );
-              } else if (parsed.type === "tool-call") {
-                console.log("🔧 Tool call:", parsed);
-                const toolCall: ToolCall = {
-                  name: parsed.toolName || parsed.payload?.toolName || "unknown",
-                  args: parsed.args || parsed.payload?.args || {},
-                  timestamp: new Date(),
-                };
-                toolCalls.push(toolCall);
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      toolCalls: [...toolCalls],
-                    };
-                  }
-                  return updated;
-                });
-              }
-              // Ignore all other event types (tool-result, file data, step events, etc.)
-            } catch {
-              // Silently ignore parse errors - don't add raw text to message
-              console.debug("Skipping non-JSON line:", line.substring(0, 50));
-            }
-          }
-        }
-      } catch (streamError) {
-        console.error("Error reading stream:", streamError);
-        throw new Error(
-          `Stream error: ${streamError instanceof Error ? streamError.message : "Unknown streaming error"}`,
-        );
-      }
-
-      if (!hasReceivedContent || accumulatedText.trim().length === 0) {
-        throw new Error("No content received from AI assistant");
-      }
-
-      // Refresh conversations list
+      await streamChatResponse(await sendMessageToAPI(payload));
       await fetchConversations();
     } catch (err) {
       handleSendError(err);

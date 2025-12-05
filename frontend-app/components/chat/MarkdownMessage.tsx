@@ -14,15 +14,15 @@ interface MarkdownMessageProps {
 const MarkdownCode = ({ node, className, children, ...props }: any) => {
   const match = /language-(\w+)/.exec(className || "");
   const isInline = !match;
-  return !isInline ? (
-    <code className={className} {...props}>
-      {children}
-    </code>
-  ) : (
+  return isInline ? (
     <code
       className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono"
       {...props}
     >
+      {children}
+    </code>
+  ) : (
+    <code className={className} {...props}>
       {children}
     </code>
   );

@@ -31,7 +31,7 @@ export async function saveDocumentPipeline(
   // 3. Create embeddings
   const { embeddings } = await embedMany({
     values: chunks.map((chunk) => chunk.text),
-    model: gateway.textEmbeddingModel(process.env.EMBEDDING_MODEL!),
+    model: gateway.textEmbeddingModel(process.env.EMBEDDING_MODEL || "openai:text-embedding-3-small"),
   });
 
   // 4. Save to vector store

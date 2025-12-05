@@ -86,11 +86,11 @@ export async function POST(request: NextRequest) {
     // Add document references to the agent's memory or context if needed
     // This part depends on how the agent and memory are implemented
     const docparsed: string[] = [];
-    for (let i = 0; i < parsed.data.documentIds.length; i++) {
-      if (docparsed.includes(parsed.data.documentIds[i])) continue;
-      docparsed.push(parsed.data.documentIds[i]);
+    for (const documentId of parsed.data.documentIds) {
+      if (docparsed.includes(documentId)) continue;
+      docparsed.push(documentId);
 
-      const doc_content = await getDocumentById(parsed.data.documentIds[i]);
+      const doc_content = await getDocumentById(documentId);
       if (!doc_content) continue;
 
       const message: FileContent = {
