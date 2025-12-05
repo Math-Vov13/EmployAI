@@ -114,7 +114,10 @@ export async function POST(request: NextRequest) {
         console.log("📧 EMAIL SEND RESULT");
         console.log("=".repeat(50));
         console.log("To:", email);
-        console.log("From:", process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev");
+        console.log(
+          "From:",
+          process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+        );
         console.log("Status:", emailResult.error ? "❌ FAILED" : "✅ SUCCESS");
         if (emailResult.error) {
           console.log("Error:", JSON.stringify(emailResult.error, null, 2));
@@ -131,7 +134,10 @@ export async function POST(request: NextRequest) {
         console.log("⚠️  RESEND NOT CONFIGURED");
         console.log("=".repeat(50));
         console.log("API Key present:", !!process.env.RESEND_API_KEY);
-        console.log("API Key value:", process.env.RESEND_API_KEY?.substring(0, 10) + "...");
+        console.log(
+          "API Key value:",
+          process.env.RESEND_API_KEY?.substring(0, 10) + "...",
+        );
         console.log("OTP only available in terminal");
         console.log("=".repeat(50) + "\n");
       }

@@ -4,11 +4,8 @@ import { ChatHeader } from "@/components/chat/ChatHeader";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import { FiMessageSquare, FiPlus } from "react-icons/fi";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface Document {
   id: string;
@@ -38,20 +35,9 @@ interface Conversation {
   updatedAt: string;
 }
 
-// Generate UUID v4
-function generateUUID(): string {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
-function ChatPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const conversationId = searchParams.get("c");
-  const preSelectedDocId = searchParams.get("doc"); // Document to auto-select
+export default function ConversationPage() {
+  const params = useParams();
+  const conversationId = params.conversationId as string;
 
   const [user, setUser] = useState<any>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -64,47 +50,24 @@ function ChatPageContent() {
   const [loading, setLoading] = useState(false);
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [activeConversationId, setActiveConversationId] = useState<string>(
-    conversationId || generateUUID(),
-  );
 
-  // Fetch initial data
   useEffect(() => {
     fetchUser();
     fetchDocuments();
     fetchConversations();
   }, []);
 
-  // Handle conversation ID changes from URL
   useEffect(() => {
-    if (conversationId) {
-      setActiveConversationId(conversationId);
+    if (conversationId && conversations.length > 0) {
       // Find and set current conversation
       const conv = conversations.find((c) => c.id === conversationId);
       if (conv) {
         setCurrentConversation(conv);
-        loadChatHistory(conversationId);
-      } else {
-        // New conversation with this ID
-        setCurrentConversation(null);
-        setMessages([]);
       }
+      // Load messages for this conversation
+      loadChatHistory(conversationId);
     }
-  }, [conversationId, conversations]);
-
-  // Auto-select document from URL parameter
-  useEffect(() => {
-    if (preSelectedDocId && documents.length > 0 && selectedDocuments.length === 0) {
-      const docToSelect = documents.find((d) => d.id === preSelectedDocId);
-      if (docToSelect) {
-        setSelectedDocuments([docToSelect]);
-        // Remove doc param from URL after selection
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.delete("doc");
-        router.replace(newUrl.pathname + newUrl.search, { scroll: false });
-      }
-    }
-  }, [preSelectedDocId, documents, selectedDocuments]);
+  }, [conversationId, conversations.length]);
 
   const fetchUser = async () => {
     try {
@@ -158,13 +121,34 @@ function ChatPageContent() {
         const data = await response.json();
 
         if (data.messages && data.messages.length > 0) {
-          const loadedMessages: Message[] = data.messages.map((msg: any) => {
+          // Filter out tool-call, tool-result, and tool messages - only keep text messages
+          const filteredMessages = data.messages.filter((msg: any) => {
+            // Skip tool role messages entirely
+            if (msg.role === "tool") return false;
+
+            // Skip messages with tool-call or tool-result type
+            if (msg.type === "tool-call" || msg.type === "tool-result")
+              return false;
+
+            // Check content array for tool types
+            if (Array.isArray(msg.content)) {
+              const hasOnlyToolContent = msg.content.every(
+                (part: any) =>
+                  part.type === "tool-call" || part.type === "tool-result",
+              );
+              if (hasOnlyToolContent) return false;
+            }
+
+            return true;
+          });
+
+          const loadedMessages: Message[] = filteredMessages.map((msg: any) => {
             // Mastra content can be string or array of content parts
             let content = "";
             if (typeof msg.content === "string") {
               content = msg.content;
             } else if (Array.isArray(msg.content)) {
-              // Extract text from content parts array
+              // Extract text from content parts array (skip tool-related parts)
               content = msg.content
                 .map((part: any) => {
                   if (typeof part === "string") return part;
@@ -182,33 +166,26 @@ function ChatPageContent() {
             }
 
             return {
-              role: msg.role,
+              role: msg.role === "user" ? "user" : "assistant",
               content,
               timestamp: new Date(msg.createdAt || msg.timestamp || new Date()),
             };
           });
-          setMessages(loadedMessages);
+
+          // Filter out messages with empty content
+          const nonEmptyMessages = loadedMessages.filter(
+            (msg) => msg.content.trim().length > 0,
+          );
+          setMessages(nonEmptyMessages);
         } else {
           setMessages([]);
         }
+      } else {
+        console.error("Failed to load chat history:", response.status);
       }
     } catch (err) {
       console.error("Error loading chat history:", err);
     }
-  };
-
-  const handleConversationSelect = (conversation: Conversation) => {
-    // Update URL without page reload - sidebar stays mounted!
-    router.push(`/chat?c=${conversation.id}`, { scroll: false });
-  };
-
-  const handleNewConversation = () => {
-    const newId = generateUUID();
-    setActiveConversationId(newId);
-    setCurrentConversation(null);
-    setMessages([]);
-    setSelectedDocuments([]);
-    router.push(`/chat?c=${newId}`, { scroll: false });
   };
 
   const handleDocumentSelect = (document: Document) => {
@@ -248,7 +225,7 @@ function ChatPageContent() {
     try {
       const payload = {
         prompt: inputMessage,
-        conversation_id: activeConversationId,
+        conversation_id: conversationId,
         documentIds:
           selectedDocuments.length > 0
             ? selectedDocuments.map((d) => d.id)
@@ -288,15 +265,15 @@ function ChatPageContent() {
           const lines = chunk.split("\n").filter((line) => line.trim());
 
           for (const line of lines) {
-            // Skip empty lines or lines that don't look like JSON
-            if (!line.trim() || !line.startsWith("{")) {
+            // Skip lines that don't look like JSON
+            if (!line.startsWith("{")) {
               continue;
             }
 
             try {
               const parsed = JSON.parse(line);
 
-              // Only process text-delta events for displaying content
+              // Only process text-delta events
               if (parsed.type === "text-delta" && parsed.payload?.text) {
                 const textToAdd = parsed.payload.text;
                 accumulatedText += textToAdd;
@@ -324,7 +301,8 @@ function ChatPageContent() {
               } else if (parsed.type === "tool-call") {
                 console.log("🔧 Tool call:", parsed);
                 const toolCall: ToolCall = {
-                  name: parsed.toolName || parsed.payload?.toolName || "unknown",
+                  name:
+                    parsed.toolName || parsed.payload?.toolName || "unknown",
                   args: parsed.args || parsed.payload?.args || {},
                   timestamp: new Date(),
                 };
@@ -345,7 +323,7 @@ function ChatPageContent() {
                   return updated;
                 });
               }
-              // Ignore all other event types (tool-result, file data, step events, etc.)
+              // Ignore all other event types (tool-result, file data, etc.)
             } catch (parseError) {
               // Silently ignore parse errors - don't add raw text to message
               console.debug("Skipping non-JSON line:", line.substring(0, 50));
@@ -396,102 +374,15 @@ function ChatPageContent() {
     }
   };
 
-  // Show welcome screen if no conversation selected
-  if (!conversationId) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <ChatSidebar
-          conversations={conversations}
-          currentConversation={null}
-          user={user}
-          onConversationSelect={handleConversationSelect}
-          onNewConversation={handleNewConversation}
-        />
-
-        <div className="ml-64 flex-1 flex items-center justify-center p-8">
-          <div className="max-w-2xl w-full text-center">
-            <div className="mb-8">
-              <FiMessageSquare className="mx-auto text-gray-300 text-6xl mb-4" />
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Welcome to Chat
-              </h1>
-              <p className="text-gray-600 text-lg">
-                Select a conversation from the sidebar or start a new one
-              </p>
-            </div>
-
-            <Button
-              size="lg"
-              onClick={handleNewConversation}
-              className="text-lg px-8 py-6"
-            >
-              <FiPlus className="mr-2" />
-              Start New Conversation
-            </Button>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
-              <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="text-2xl mb-2">💡</div>
-                  <p className="font-medium text-sm mb-1">
-                    Ask about your documents
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Get insights and summaries from uploaded files
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="text-2xl mb-2">🔍</div>
-                  <p className="font-medium text-sm mb-1">Search and analyze</p>
-                  <p className="text-xs text-gray-500">
-                    Find specific information across your documents
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="text-2xl mb-2">📝</div>
-                  <p className="font-medium text-sm mb-1">Get summaries</p>
-                  <p className="text-xs text-gray-500">
-                    Quick overviews of lengthy documents
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="text-2xl mb-2">🤝</div>
-                  <p className="font-medium text-sm mb-1">
-                    Interactive assistance
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Have a conversation about your content
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show chat interface when conversation is selected
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       <ChatSidebar
         conversations={conversations}
         currentConversation={currentConversation}
         user={user}
-        onConversationSelect={handleConversationSelect}
-        onNewConversation={handleNewConversation}
       />
 
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col">
         <ChatHeader
           selectedDocuments={selectedDocuments}
           documents={documents}
@@ -515,13 +406,5 @@ function ChatPageContent() {
         />
       </div>
     </div>
-  );
-}
-
-export default function ChatPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ChatPageContent />
-    </Suspense>
   );
 }

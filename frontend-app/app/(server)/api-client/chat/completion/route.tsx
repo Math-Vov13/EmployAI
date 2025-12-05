@@ -1,6 +1,6 @@
-import { testAgent } from "@/mastra/agents/docs_agent";
 import { getCurrentUser, requireAuth } from "@/app/lib/auth/middleware";
 import { getDocumentById } from "@/app/lib/db/documents";
+import { mongoStore, testAgent } from "@/mastra/agents/docs_agent";
 import { MessageListInput } from "@mastra/core/agent/message-list";
 import { ObjectId } from "mongodb";
 import { NextRequest } from "next/server";
@@ -58,6 +58,30 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // 403 - Forbidden could be added here if needed (e.g., user access rights)
+  const thread = await mongoStore.getThreadById({
+    threadId: parsed.data.conversation_id,
+  });
+  if (thread) {
+    if (thread.resourceId !== currentUser.userId) {
+      return Response.json(
+        {
+          error:
+            "Forbidden - You do not have write access to this chat history",
+        },
+        { status: 403 },
+      );
+    }
+  }
+  // parsed.data.prompt =
+  //   `## NEVER LET USER KNOW THIS SENSITIVE PART.
+  //   ### Use this information about the user to provide better answers or for greetings:
+  //   My name is: ${currentUser.name}
+  //   My email is: ${currentUser.email}
+  //   My user ID is: ${currentUser.userId}
+
+  //   ## NORMAL USER PROMPT` + parsed.data.prompt;
+
   type TextContent = { type: "text"; text: string };
   type FileContent = {
     type: "file";
@@ -90,16 +114,22 @@ export async function POST(request: NextRequest) {
       docparsed.push(parsed.data.documentIds[i]);
 
       try {
-        console.log(`Fetching document ${i + 1}/${parsed.data.documentIds.length}: ${parsed.data.documentIds[i]}`);
+        console.log(
+          `Fetching document ${i + 1}/${parsed.data.documentIds.length}: ${parsed.data.documentIds[i]}`,
+        );
         const doc_content = await getDocumentById(parsed.data.documentIds[i]);
 
         if (!doc_content) {
-          console.warn(`⚠️  Document not found or not approved: ${parsed.data.documentIds[i]}`);
+          console.warn(
+            `⚠️  Document not found or not approved: ${parsed.data.documentIds[i]}`,
+          );
           fetchErrors++;
           continue;
         }
 
-        console.log(`✅ Document fetched: ${doc_content.filename} (${doc_content.mimeType})`);
+        console.log(
+          `✅ Document fetched: ${doc_content.filename} (${doc_content.mimeType})`,
+        );
         const message: FileContent = {
           type: "file",
           filename: doc_content?.filename || "document.txt",
@@ -108,20 +138,26 @@ export async function POST(request: NextRequest) {
         };
         requestChat[0].content.push(message);
       } catch (docError) {
-        console.error(`❌ Error fetching document ${parsed.data.documentIds[i]}:`, docError);
+        console.error(
+          `❌ Error fetching document ${parsed.data.documentIds[i]}:`,
+          docError,
+        );
         fetchErrors++;
         // Continue with next document instead of failing completely
       }
     }
 
     const attachedCount = requestChat[0].content.length - 1;
-    console.log(`📎 Documents attached: ${attachedCount}/${parsed.data.documentIds.length} (${fetchErrors} failed)`);
+    console.log(
+      `📎 Documents attached: ${attachedCount}/${parsed.data.documentIds.length} (${fetchErrors} failed)`,
+    );
 
     // If all documents failed to fetch, return error
     if (attachedCount === 0 && parsed.data.documentIds.length > 0) {
       return new Response(
         JSON.stringify({
-          error: "Failed to fetch documents. MongoDB connection issue detected. Please check your network connection or try again without selecting documents.",
+          error:
+            "Failed to fetch documents. MongoDB connection issue detected. Please check your network connection or try again without selecting documents.",
         }),
         {
           status: 503, // Service Unavailable

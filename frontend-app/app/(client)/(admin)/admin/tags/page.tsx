@@ -123,7 +123,9 @@ export default function AdminTagsPage() {
       toast.success("Tag created successfully!");
     } catch (error) {
       console.error("Error creating tag:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to create tag");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create tag",
+      );
     } finally {
       setUpdating(false);
     }
@@ -150,7 +152,9 @@ export default function AdminTagsPage() {
       toast.success("Tag updated successfully!");
     } catch (error) {
       console.error("Error updating tag:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update tag");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update tag",
+      );
     } finally {
       setUpdating(false);
     }
@@ -175,7 +179,9 @@ export default function AdminTagsPage() {
       toast.success("Tag deleted successfully!");
     } catch (error) {
       console.error("Error deleting tag:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to delete tag");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete tag",
+      );
     } finally {
       setUpdating(false);
     }
@@ -374,9 +380,9 @@ export default function AdminTagsPage() {
                 <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-3">
                     <p className="text-sm text-blue-800 flex items-start gap-2">
-                      <FiInfo className="mt-0.5 shrink-0" /> This tag is
-                      used by {getTagUsageCount(selectedTag.name)} document(s).
-                      Renaming will update all documents.
+                      <FiInfo className="mt-0.5 shrink-0" /> This tag is used by{" "}
+                      {getTagUsageCount(selectedTag.name)} document(s). Renaming
+                      will update all documents.
                     </p>
                   </CardContent>
                 </Card>

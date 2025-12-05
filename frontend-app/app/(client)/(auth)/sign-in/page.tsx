@@ -16,12 +16,12 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type Step = "credentials" | "otp" | "complete";
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>("credentials");
   const [email, setEmail] = useState("");
@@ -337,5 +337,19 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-amber-50">
+          <Spinner className="size-8" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

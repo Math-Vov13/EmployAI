@@ -1,6 +1,5 @@
 "use client";
 
-import { ChatDialog } from "@/components/chat/ChatDialog";
 import { DocumentFilters } from "@/components/documents/DocumentFilters";
 import { DocumentList } from "@/components/documents/DocumentList";
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
@@ -273,7 +272,6 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
-    
     </div>
   );
 }

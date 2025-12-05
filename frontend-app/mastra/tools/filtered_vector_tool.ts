@@ -1,5 +1,5 @@
-import { createTool } from "@mastra/core/tools";
 import { gateway } from "@ai-sdk/gateway";
+import { createTool } from "@mastra/core/tools";
 import { embed } from "ai";
 import { z } from "zod";
 import { mongoVector } from "../vector_store";

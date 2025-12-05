@@ -28,16 +28,13 @@ export async function GET(request: NextRequest) {
 
     // Filter logic:
     // - Admins: see all documents (any status)
-    // - Regular users: see APPROVED documents + their own documents (any status)
+    // - Regular users: see ONLY APPROVED documents (even their own must be approved)
     let filter;
     if (currentUser.role === "ADMIN") {
       filter = {};
     } else {
       filter = {
-        $or: [
-          { "metadata.status": "APPROVED" },
-          { creatorId: new ObjectId(currentUser.userId) },
-        ],
+        "metadata.status": "APPROVED",
       };
     }
 
@@ -65,9 +62,11 @@ export async function GET(request: NextRequest) {
         ...docResponse,
         uploadedBy: {
           id: doc.creatorId.toString(),
-          email: creatorMap.get(doc.creatorId.toString()) || "unknown@example.com",
-          role: creators.find((u) => u._id.toString() === doc.creatorId.toString())
-            ?.role || "USER",
+          email:
+            creatorMap.get(doc.creatorId.toString()) || "unknown@example.com",
+          role:
+            creators.find((u) => u._id.toString() === doc.creatorId.toString())
+              ?.role || "USER",
         },
       };
     });

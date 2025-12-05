@@ -1,11 +1,10 @@
 import { gateway } from "@ai-sdk/gateway";
 import { Agent } from "@mastra/core/agent";
-import { fastembed } from "@mastra/fastembed";
 import { Memory } from "@mastra/memory";
-import { MongoDBStore, MongoDBVector } from "@mastra/mongodb";
-import { vectorQueryTool} from "../tools/vectors_tool";
+import { MongoDBStore } from "@mastra/mongodb";
+import { vectorQueryTool } from "../tools/vectors_tool";
 import { websearchTool } from "../tools/websearch_tool";
-import { mongoVector } from "../vector_store";
+import { mongoVector } from "../vector_store";
 
 // Construire l'URI MongoDB avec les paramètres requis
 const buildMongoUri = () => {
@@ -56,6 +55,13 @@ export const testAgent = new Agent({
 - Use the vector search tool to find relevant documents before answering questions
 - Prioritize accuracy over speed - verify information before responding
 
+## User data
+username: {{user_name}}
+user email: {{user_email}}
+company: EmployAI
+company website: https://employai.com
+company description: EmployAI is a platform that enables businesses to create AI-powered assistants using their own data to improve customer support, sales, and internal operations.
+
 ## Response Format
 - Keep responses clear and to the point
 - Use bullet points or numbered lists for complex information
@@ -74,10 +80,9 @@ export const testAgent = new Agent({
         messageRange: 2,
       },
       threads: {
-        generateTitle: false,
+        generateTitle: true,
       },
     },
   }),
   tools: { vectorQueryTool, websearchTool },
 });
-  

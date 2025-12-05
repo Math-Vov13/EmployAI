@@ -5,12 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState } from "react";
 import {
+  FiDownload,
   FiFile,
   FiFileText,
   FiImage,
-  FiVideo,
   FiMusic,
-  FiDownload,
+  FiVideo,
 } from "react-icons/fi";
 
 interface DocumentPreviewProps {
@@ -44,7 +44,9 @@ export function DocumentPreview({
       setLoading(true);
       setError("");
 
-      const response = await fetch(`/api-client/documents/${documentId}/download`);
+      const response = await fetch(
+        `/api-client/documents/${documentId}/download`,
+      );
       if (!response.ok) {
         throw new Error("Failed to load document");
       }
@@ -106,15 +108,20 @@ export function DocumentPreview({
   const getFileIcon = () => {
     if (isImage(mimeType)) return <FiImage className="size-16 text-blue-500" />;
     if (isPDF(mimeType)) return <FiFileText className="size-16 text-red-500" />;
-    if (isVideo(mimeType)) return <FiVideo className="size-16 text-purple-500" />;
-    if (isAudio(mimeType)) return <FiMusic className="size-16 text-green-500" />;
-    if (isTextFile(mimeType)) return <FiFileText className="size-16 text-gray-500" />;
+    if (isVideo(mimeType))
+      return <FiVideo className="size-16 text-purple-500" />;
+    if (isAudio(mimeType))
+      return <FiMusic className="size-16 text-green-500" />;
+    if (isTextFile(mimeType))
+      return <FiFileText className="size-16 text-gray-500" />;
     return <FiFile className="size-16 text-gray-400" />;
   };
 
   const handleDownload = async () => {
     try {
-      const response = await fetch(`/api-client/documents/${documentId}/download`);
+      const response = await fetch(
+        `/api-client/documents/${documentId}/download`,
+      );
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);

@@ -4,14 +4,34 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MarkdownMessage } from "./MarkdownMessage";
 
+interface ToolCall {
+  name: string;
+  args: any;
+  timestamp: Date;
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  toolCalls?: ToolCall[];
 }
 
 interface ChatMessagesProps {
   messages: Message[];
+}
+
+// Helper function to get a user-friendly tool description
+function getToolDescription(toolName: string): { icon: string; label: string } {
+  const toolMap: Record<string, { icon: string; label: string }> = {
+    vectorQueryTool: { icon: "📄", label: "Searching documents..." },
+    filteredVectorQueryTool: { icon: "📄", label: "Searching documents..." },
+    webSearchTool: { icon: "🌐", label: "Searching the web..." },
+    websearch: { icon: "🌐", label: "Searching the web..." },
+    search: { icon: "🔍", label: "Searching..." },
+  };
+
+  return toolMap[toolName] || { icon: "🌐", label: "Searching the web..." };
 }
 
 export function ChatMessages({ messages }: ChatMessagesProps) {
@@ -60,6 +80,16 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
                   : "bg-white border border-gray-200"
               }`}
             >
+              {message.toolCalls && message.toolCalls.length > 0 && (
+                <div className="mb-3">
+                  <div className="inline-flex items-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-full px-3 py-1.5">
+                    <span className="animate-pulse">
+                      {getToolDescription(message.toolCalls[0].name).icon}
+                    </span>
+                    <span>{getToolDescription(message.toolCalls[0].name).label}</span>
+                  </div>
+                </div>
+              )}
               <MarkdownMessage
                 content={message.content}
                 isUser={message.role === "user"}

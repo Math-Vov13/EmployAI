@@ -18,10 +18,7 @@ export async function PUT(
     const { id } = await params;
 
     if (!ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { error: "Invalid tag ID" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 
     const body = await request.json();
@@ -104,10 +101,7 @@ export async function DELETE(
     const { id } = await params;
 
     if (!ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { error: "Invalid tag ID" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 
     const tagsCollection = await getTagsCollection();

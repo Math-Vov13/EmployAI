@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run prettier && next build",
+    "build": "next build",
+    "build:pr": "npm run prettier && next build",
     "start": "next start",
     "lint": "eslint",
     "prettier": "prettier --write .",
@@ -20,6 +21,7 @@
     }
   },
   "dependencies": {
+    "@ai-sdk/gateway": "^2.0.18",
     "@hookform/resolvers": "^5.2.2",
     "@mastra/core": "^0.24.6",
     "@mastra/fastembed": "^0.10.7",

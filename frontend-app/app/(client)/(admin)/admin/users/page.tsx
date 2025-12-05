@@ -159,7 +159,9 @@ export default function AdminUsersPage() {
       toast.success("User created successfully!");
     } catch (error) {
       console.error("Error creating user:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to create user");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create user",
+      );
     } finally {
       setUpdating(false);
     }
@@ -188,7 +190,9 @@ export default function AdminUsersPage() {
       toast.success("User updated successfully");
     } catch (error) {
       console.error("Error updating user:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update user");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update user",
+      );
     } finally {
       setUpdating(false);
     }
@@ -213,7 +217,9 @@ export default function AdminUsersPage() {
       toast.success("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to delete user");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete user",
+      );
     } finally {
       setUpdating(false);
     }
@@ -419,9 +425,7 @@ export default function AdminUsersPage() {
                 value={createName}
                 onChange={(e) => setCreateName(e.target.value)}
               />
-              <p className="text-xs text-gray-500">
-                Minimum 2 characters
-              </p>
+              <p className="text-xs text-gray-500">Minimum 2 characters</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="create-password">Password *</Label>
@@ -462,7 +466,9 @@ export default function AdminUsersPage() {
             </Button>
             <Button
               onClick={handleCreateUser}
-              disabled={!createEmail || !createPassword || !createName || updating}
+              disabled={
+                !createEmail || !createPassword || !createName || updating
+              }
             >
               {updating ? "Creating..." : "Create User"}
             </Button>

@@ -64,15 +64,18 @@ Confirm Password: ************
 ## Features
 
 ### ✅ Email Validation
+
 - Checks if email is already registered
 - Offers to upgrade existing users to ADMIN role
 
 ### ✅ Password Security
+
 - Minimum 12 characters required
 - Automatically hashed using bcrypt
 - Password confirmation to prevent typos
 
 ### ✅ Safe Execution
+
 - Won't create duplicate admins
 - Validates all inputs before creating user
 - Clear error messages
@@ -97,7 +100,7 @@ Type `yes` to upgrade the user to admin role.
   - Uppercase letters (A-Z)
   - Lowercase letters (a-z)
   - Numbers (0-9)
-  - Special characters (!@#$%^&*)
+  - Special characters (!@#$%^&\*)
 
 ## Signing In
 
@@ -133,31 +136,40 @@ Since there's no sign-up page, regular users must be added by:
 ## Troubleshooting
 
 ### Error: MONGODB_URI not found
+
 ```
 ❌ Error: MONGODB_URI not found in environment variables
 ```
+
 **Solution**: Create a `.env` file with your MongoDB connection string:
+
 ```env
 MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/"
 MONGODB_DB_NAME="employai"
 ```
 
 ### Error: Password must be at least 12 characters
+
 ```
 ❌ Password must be at least 12 characters
 ```
+
 **Solution**: Use a longer, more secure password.
 
 ### Error: Passwords do not match
+
 ```
 ❌ Passwords do not match
 ```
+
 **Solution**: Ensure you type the same password both times.
 
 ### Error: Valid email is required
+
 ```
 ❌ Valid email is required
 ```
+
 **Solution**: Enter a properly formatted email address with @ symbol.
 
 ## Security Notes
@@ -198,6 +210,7 @@ After creating your first admin:
 ## Support
 
 For issues or questions:
+
 - Check the main README.md
 - Review AUTH_IMPLEMENTATION_SUMMARY.md
 - Contact the development team

@@ -8,7 +8,7 @@ import {
   getGridFSBucket,
   getUsersCollection,
 } from "@/app/lib/db/mongodb";
-import { mongoVector} from "@/mastra/vector_store";
+import { mongoVector } from "@/mastra/vector_store";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -46,8 +46,18 @@ export async function GET(
       );
     }
 
-    // All authenticated users can view documents
-    // No ownership or admin check needed for viewing
+    // Authorization check:
+    // - Admins can view any document
+    // - Regular users can ONLY view APPROVED documents
+    if (currentUser.role !== "ADMIN") {
+      const documentStatus = document.metadata?.status || "PENDING";
+      if (documentStatus !== "APPROVED") {
+        return NextResponse.json(
+          { error: "Document not found or not yet approved" },
+          { status: 404 },
+        );
+      }
+    }
 
     // Fetch user information for uploadedBy field
     const usersCollection = await getUsersCollection();
@@ -232,9 +242,7 @@ export async function DELETE(
       );
     }
 
-    console.log("Document deleted with id string:",
-      document.fileId.toString()
-    );
+    console.log("Document deleted with id string:", document.fileId.toString());
     await mongoVector.deleteVectors({
       indexName: "embeddings",
       filter: { source_id: document.fileId.toString() },

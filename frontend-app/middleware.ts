@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
+import { NextRequest, NextResponse } from "next/server";
 
 interface SessionData {
   userId: string;
