@@ -288,25 +288,40 @@ function ChatPageContent() {
           const lines = chunk.split("\n").filter((line) => line.trim());
 
           for (const line of lines) {
+            // Skip empty lines or lines that don't look like JSON
+            if (!line.trim() || !line.startsWith("{")) {
+              continue;
+            }
+
             try {
               const parsed = JSON.parse(line);
-              let textToAdd = "";
 
+              // Only process text-delta events for displaying content
               if (parsed.type === "text-delta" && parsed.payload?.text) {
-                textToAdd = parsed.payload.text;
-              } else if (parsed.type === "text" && parsed.payload?.text) {
-                textToAdd = parsed.payload.text;
-              } else if (parsed.text) {
-                textToAdd = parsed.text;
+                const textToAdd = parsed.payload.text;
+                accumulatedText += textToAdd;
+                hasReceivedContent = true;
+
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  const lastIndex = updated.length - 1;
+                  if (
+                    lastIndex >= 0 &&
+                    updated[lastIndex].role === "assistant"
+                  ) {
+                    updated[lastIndex] = {
+                      ...updated[lastIndex],
+                      content: accumulatedText,
+                    };
+                  }
+                  return updated;
+                });
               } else if (parsed.type === "error") {
                 console.error("Stream error:", parsed);
                 throw new Error(
                   parsed.payload?.message || "Agent error occurred",
                 );
-              } else if (
-                parsed.type === "tool-call-delta" ||
-                parsed.type === "tool-call"
-              ) {
+              } else if (parsed.type === "tool-call") {
                 console.log("🔧 Tool call:", parsed);
                 const toolCall: ToolCall = {
                   name: parsed.toolName || parsed.payload?.toolName || "unknown",
@@ -330,46 +345,10 @@ function ChatPageContent() {
                   return updated;
                 });
               }
-
-              if (textToAdd) {
-                accumulatedText += textToAdd;
-                hasReceivedContent = true;
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      content: accumulatedText,
-                    };
-                  }
-                  return updated;
-                });
-              }
+              // Ignore all other event types (tool-result, file data, step events, etc.)
             } catch (parseError) {
-              if (line.length > 0 && !line.startsWith("{")) {
-                accumulatedText += line;
-                hasReceivedContent = true;
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      content: accumulatedText,
-                    };
-                  }
-                  return updated;
-                });
-              }
+              // Silently ignore parse errors - don't add raw text to message
+              console.debug("Skipping non-JSON line:", line.substring(0, 50));
             }
           }
         }
