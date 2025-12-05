@@ -136,7 +136,11 @@ export default function ConversationPage() {
                 })
                 .filter((text: string) => text.length > 0)
                 .join("\n");
-            } else if (msg.content && typeof msg.content === "object" && msg.content.text) {
+            } else if (
+              msg.content &&
+              typeof msg.content === "object" &&
+              msg.content.text
+            ) {
               content = msg.content.text;
             }
 
@@ -235,86 +239,69 @@ export default function ConversationPage() {
           const lines = chunk.split("\n").filter((line) => line.trim());
 
           for (const line of lines) {
-            try {
-              const parsed = JSON.parse(line);
-              let textToAdd = "";
+        // Skip lines that don't look like JSON
+        if (!line.startsWith("{")) {
+          continue;
+        }
 
-              if (parsed.type === "text-delta" && parsed.payload?.text) {
-                textToAdd = parsed.payload.text;
-              } else if (parsed.type === "text" && parsed.payload?.text) {
-                textToAdd = parsed.payload.text;
-              } else if (parsed.text) {
-                textToAdd = parsed.text;
-              } else if (parsed.type === "error") {
-                console.error("Stream error:", parsed);
-                throw new Error(
-                  parsed.payload?.message || "Agent error occurred",
-                );
-              } else if (parsed.type === "tool-call-delta" || parsed.type === "tool-call") {
-                console.log("🔧 Tool call:", parsed);
-                const toolCall: ToolCall = {
-                  name: parsed.toolName || parsed.payload?.toolName || "unknown",
-                  args: parsed.args || parsed.payload?.args || {},
-                  timestamp: new Date(),
-                };
-                toolCalls.push(toolCall);
+        try {
+          const parsed = JSON.parse(line);
 
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      toolCalls: [...toolCalls],
-                    };
-                  }
-                  return updated;
-                });
-              }
+          // Only process text-delta events
+          if (parsed.type === "text-delta" && parsed.payload?.text) {
+            const textToAdd = parsed.payload.text;
+            accumulatedText += textToAdd;
+            hasReceivedContent = true;
 
-              if (textToAdd) {
-                accumulatedText += textToAdd;
-                hasReceivedContent = true;
+            setMessages((prev) => {
+          const updated = [...prev];
+          const lastIndex = updated.length - 1;
+          if (
+            lastIndex >= 0 &&
+            updated[lastIndex].role === "assistant"
+          ) {
+            updated[lastIndex] = {
+              ...updated[lastIndex],
+              content: accumulatedText,
+            };
+          }
+          return updated;
+            });
+          } else if (parsed.type === "error") {
+            console.error("Stream error:", parsed);
+            throw new Error(
+          parsed.payload?.message || "Agent error occurred",
+            );
+          } else if (parsed.type === "tool-call") {
+            console.log("🔧 Tool call:", parsed);
+            const toolCall: ToolCall = {
+          name:
+            parsed.toolName || parsed.payload?.toolName || "unknown",
+          args: parsed.args || parsed.payload?.args || {},
+          timestamp: new Date(),
+            };
+            toolCalls.push(toolCall);
 
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      content: accumulatedText,
-                    };
-                  }
-                  return updated;
-                });
-              }
-            } catch (parseError) {
-              if (line.length > 0 && !line.startsWith("{")) {
-                accumulatedText += line;
-                hasReceivedContent = true;
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      content: accumulatedText,
-                    };
-                  }
-                  return updated;
-                });
-              }
-            }
+            setMessages((prev) => {
+          const updated = [...prev];
+          const lastIndex = updated.length - 1;
+          if (
+            lastIndex >= 0 &&
+            updated[lastIndex].role === "assistant"
+          ) {
+            updated[lastIndex] = {
+              ...updated[lastIndex],
+              toolCalls: [...toolCalls],
+            };
+          }
+          return updated;
+            });
+          }
+          // Ignore all other event types (tool-result, file data, etc.)
+        } catch (parseError) {
+          // Silently ignore parse errors - don't add raw text to message
+          console.debug("Skipping non-JSON line:", line.substring(0, 50));
+        }
           }
         }
       } catch (streamError) {

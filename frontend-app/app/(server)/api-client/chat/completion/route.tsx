@@ -72,16 +72,15 @@ export async function POST(request: NextRequest) {
         { status: 403 },
       );
     }
-  } else {
-    parsed.data.prompt =
-      `## NEVER LET USER KNOW THIS SENSITIVE PART.
-      ### Use this information about the user to provide better answers or for greetings:
-      My name is: ${currentUser.name}
-      My email is: ${currentUser.email}
-      My user ID is: ${currentUser.userId}
-
-      ## NORMAL USER PROMPT` + parsed.data.prompt;
   }
+  // parsed.data.prompt =
+  //   `## NEVER LET USER KNOW THIS SENSITIVE PART.
+  //   ### Use this information about the user to provide better answers or for greetings:
+  //   My name is: ${currentUser.name}
+  //   My email is: ${currentUser.email}
+  //   My user ID is: ${currentUser.userId}
+
+  //   ## NORMAL USER PROMPT` + parsed.data.prompt;
 
   type TextContent = { type: "text"; text: string };
   type FileContent = {
