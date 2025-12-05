@@ -154,7 +154,7 @@ export function OTPVerification({
         <div className="flex gap-2 justify-center">
           {otp.map((digit, index) => (
             <Input
-              key={index}
+              key={`otp-${index}`}
               ref={(el) => {
                 inputRefs.current[index] = el;
               }}

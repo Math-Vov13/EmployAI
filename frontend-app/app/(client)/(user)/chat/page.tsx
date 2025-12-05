@@ -7,7 +7,6 @@ import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter, useSearchParams } from "next/navigation";
-import { randomUUID } from "node:crypto";
 import { Suspense, useEffect, useState } from "react";
 import { FiMessageSquare, FiPlus } from "react-icons/fi";
 
@@ -39,7 +38,6 @@ interface Conversation {
   updatedAt: string;
 }
 
-
 function ChatPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,7 +56,7 @@ function ChatPageContent() {
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string>(
-    conversationId || randomUUID(),
+    conversationId || crypto.randomUUID(),
   );
 
   // Fetch initial data
@@ -87,7 +85,11 @@ function ChatPageContent() {
 
   // Auto-select document from URL parameter
   useEffect(() => {
-    if (preSelectedDocId && documents.length > 0 && selectedDocuments.length === 0) {
+    if (
+      preSelectedDocId &&
+      documents.length > 0 &&
+      selectedDocuments.length === 0
+    ) {
       const docToSelect = documents.find((d) => d.id === preSelectedDocId);
       if (docToSelect) {
         setSelectedDocuments([docToSelect]);
@@ -196,7 +198,7 @@ function ChatPageContent() {
   };
 
   const handleNewConversation = () => {
-    const newId = randomUUID();
+    const newId = crypto.randomUUID();
     setActiveConversationId(newId);
     setCurrentConversation(null);
     setMessages([]);

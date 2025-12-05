@@ -240,7 +240,9 @@ export default function DocumentDetailPage() {
                 onClick={() => {
                   // Generate new conversation ID and redirect with document pre-selected
                   const newConversationId = crypto.randomUUID();
-                  router.push(`/chat?c=${newConversationId}&doc=${document.id}`);
+                  router.push(
+                    `/chat?c=${newConversationId}&doc=${document.id}`,
+                  );
                 }}
               >
                 Chat with AI

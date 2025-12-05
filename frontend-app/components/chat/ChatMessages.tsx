@@ -68,9 +68,9 @@ export function ChatMessages({ messages }: Readonly<ChatMessagesProps>) {
   return (
     <ScrollArea className="flex-1 p-4">
       <div className="max-w-4xl mx-auto space-y-4">
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <div
-            key={index}
+            key={`${message.role}-${message.timestamp.getTime()}`}
             className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
@@ -86,7 +86,9 @@ export function ChatMessages({ messages }: Readonly<ChatMessagesProps>) {
                     <span className="animate-pulse">
                       {getToolDescription(message.toolCalls[0].name).icon}
                     </span>
-                    <span>{getToolDescription(message.toolCalls[0].name).label}</span>
+                    <span>
+                      {getToolDescription(message.toolCalls[0].name).label}
+                    </span>
                   </div>
                 </div>
               )}

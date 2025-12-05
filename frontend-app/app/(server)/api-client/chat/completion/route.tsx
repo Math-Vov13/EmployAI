@@ -1,6 +1,6 @@
 import { getCurrentUser, requireAuth } from "@/app/lib/auth/middleware";
 import { getDocumentById } from "@/app/lib/db/documents";
-import { mongoStore, testAgent } from "@/mastra/agents/docs_agent";
+import { testAgent } from "@/mastra/agents/docs_agent";
 import { MessageListInput } from "@mastra/core/agent/message-list";
 import { ObjectId } from "mongodb";
 import { NextRequest } from "next/server";
@@ -19,6 +19,7 @@ const requestSchema = z.object({
     .optional(),
 });
 
+// Change threadID to conversation ID with Sesion User
 // const threadId = randomUUID();
 
 export async function POST(request: NextRequest) {
@@ -35,6 +36,8 @@ export async function POST(request: NextRequest) {
       { status: 401, headers: { "Content-Type": "application/json" } },
     );
   }
+  // const currentUser = { userId: "demo-user-id" };
+  // Get User session
   const resourceId = currentUser.userId;
 
   // Error 400
@@ -58,30 +61,6 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // 403 - Forbidden could be added here if needed (e.g., user access rights)
-  const thread = await mongoStore.getThreadById({
-    threadId: parsed.data.conversation_id,
-  });
-  if (thread) {
-    if (thread.resourceId !== currentUser.userId) {
-      return Response.json(
-        {
-          error:
-            "Forbidden - You do not have write access to this chat history",
-        },
-        { status: 403 },
-      );
-    }
-  }
-  // parsed.data.prompt =
-  //   `## NEVER LET USER KNOW THIS SENSITIVE PART.
-  //   ### Use this information about the user to provide better answers or for greetings:
-  //   My name is: ${currentUser.name}
-  //   My email is: ${currentUser.email}
-  //   My user ID is: ${currentUser.userId}
-
-  //   ## NORMAL USER PROMPT` + parsed.data.prompt;
-
   type TextContent = { type: "text"; text: string };
   type FileContent = {
     type: "file";
@@ -89,7 +68,6 @@ export async function POST(request: NextRequest) {
     data: unknown;
     mimeType: string;
   };
-
   type ContentItem = TextContent | FileContent;
 
   const requestChat: { role: string; content: ContentItem[] }[] = [
@@ -105,21 +83,15 @@ export async function POST(request: NextRequest) {
   ];
 
   if (parsed.data.documentIds && parsed.data.documentIds.length > 0) {
-    // console.log("📄 Processing documents:", parsed.data.documentIds);
+    // Add document references to the agent's memory or context if needed
+    // This part depends on how the agent and memory are implemented
     const docparsed: string[] = [];
-    let fetchErrors = 0;
+    for (let i = 0; i < parsed.data.documentIds.length; i++) {
+      if (docparsed.includes(parsed.data.documentIds[i])) continue;
+      docparsed.push(parsed.data.documentIds[i]);
 
-    for (const docId of parsed.data.documentIds) {
-      if (docparsed.includes(docId)) continue;
-      docparsed.push(docId);
-
-      try {
-      const doc_content = await getDocumentById(docId);
-
-      if (!doc_content) {
-        fetchErrors++;
-        continue;
-      }
+      const doc_content = await getDocumentById(parsed.data.documentIds[i]);
+      if (!doc_content) continue;
 
       const message: FileContent = {
         type: "file",
@@ -128,53 +100,24 @@ export async function POST(request: NextRequest) {
         mimeType: doc_content?.mimeType || "text/plain",
       };
       requestChat[0].content.push(message);
-      } catch (docError) {
-      console.error(`❌ Error fetching document ${docId}:`, docError);
-      fetchErrors++;
-      }
-    }
-
-    const attachedCount = requestChat[0].content.length - 1;
-    console.log(
-      `📎 Documents attached: ${attachedCount}/${parsed.data.documentIds.length} (${fetchErrors} failed)`,
-    );
-
-    // If all documents failed to fetch, return error
-    if (attachedCount === 0 && parsed.data.documentIds.length > 0) {
-      return new Response(
-        JSON.stringify({
-          error:
-            "Failed to fetch documents. MongoDB connection issue detected. Please check your network connection or try again without selecting documents.",
-        }),
-        {
-          status: 503, // Service Unavailable
-          headers: { "Content-Type": "application/json" },
-        },
-      );
     }
   }
 
   // Stream response
   try {
-    // console.log("🤖 Starting agent stream...");
-    // console.log("Request chat:", JSON.stringify(requestChat, null, 2));
-
-    // Try with memory first, fallback to no memory if MongoDB fails
-    let stream;
-    try {
-      stream = await testAgent.stream(requestChat as MessageListInput, {
-        memory: {
-          thread: parsed.data?.conversation_id,
-          resource: resourceId,
-        },
-      });
-      // console.log("✅ Agent stream with memory created successfully");
-    } catch (memoryError) {
-      console.warn("⚠️  Memory failed, streaming without memory:", memoryError);
-      // Fallback: stream without memory (conversation won't be persisted in Mastra)
-      stream = await testAgent.stream(requestChat as MessageListInput);
-      // console.log("✅ Agent stream without memory created successfully");
-    }
+    const stream = await testAgent.stream(requestChat as MessageListInput, {
+      memory: {
+        thread: parsed.data.conversation_id,
+        resource: resourceId,
+      },
+      // memoryOptions: {
+      //     lastMessages: 5,
+      //     semanticRecall: {
+      //         topK: 3,
+      //         messageRange: 2
+      //     }
+      // }
+    });
 
     const encoder = new TextEncoder();
 
@@ -186,9 +129,7 @@ export async function POST(request: NextRequest) {
               typeof chunk === "string" ? chunk : JSON.stringify(chunk);
             controller.enqueue(encoder.encode(`${payload}\n`));
           }
-          // console.log("✅ Stream completed successfully");
         } catch (error) {
-          console.error("❌ Stream error:", error);
           controller.error(error);
         } finally {
           controller.close();
@@ -200,17 +141,9 @@ export async function POST(request: NextRequest) {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   } catch (error) {
-    // console.error("❌ Completion error:", error);
-    console.error("Error details:", {
-      message: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined,
-      type: error?.constructor?.name,
-    });
+    console.error("Completion error:", error);
     return new Response(
-      JSON.stringify({
-        error: "Failed to generate completion",
-        details: error instanceof Error ? error.message : "Unknown error",
-      }),
+      JSON.stringify({ error: "Failed to generate completion" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },

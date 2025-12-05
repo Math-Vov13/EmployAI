@@ -49,16 +49,21 @@ export function ChatHeader({
   onRemoveDocument,
   onClearAll,
 }: Readonly<ChatHeaderProps>) {
+  const getSubtitleText = () => {
+    if (selectedDocuments.length === 0) {
+      return "Ask me anything - I'll search through all documents";
+    }
+    const documentText =
+      selectedDocuments.length > 1 ? "documents" : "document";
+    return `Chatting about ${selectedDocuments.length} selected ${documentText}`;
+  };
+
   return (
     <div className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">EmployAI Chat</h1>
-          <p className="text-sm text-gray-600">
-            {selectedDocuments.length === 0
-              ? "Ask me anything - I'll search through all documents"
-              : `Chatting about ${selectedDocuments.length} selected document${selectedDocuments.length > 1 ? "s" : ""}`}
-          </p>
+          <p className="text-sm text-gray-600">{getSubtitleText()}</p>
         </div>
         <Drawer open={drawerOpen} onOpenChange={onDrawerOpenChange}>
           <DrawerTrigger asChild>
