@@ -420,7 +420,7 @@ function ChatPageContent() {
   // Show welcome screen if no conversation selected
   if (!conversationId) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-gray-50">
         <ChatSidebar
           conversations={conversations}
           currentConversation={null}
@@ -429,7 +429,7 @@ function ChatPageContent() {
           onNewConversation={handleNewConversation}
         />
 
-        <div className="flex-1 flex items-center justify-center p-8">
+        <div className="ml-64 flex-1 flex items-center justify-center p-8">
           <div className="max-w-2xl w-full text-center">
             <div className="mb-8">
               <FiMessageSquare className="mx-auto text-gray-300 text-6xl mb-4" />
@@ -503,7 +503,7 @@ function ChatPageContent() {
 
   // Show chat interface when conversation is selected
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50">
       <ChatSidebar
         conversations={conversations}
         currentConversation={currentConversation}
@@ -512,7 +512,7 @@ function ChatPageContent() {
         onNewConversation={handleNewConversation}
       />
 
-      <div className="flex-1 flex flex-col">
+      <div className="ml-64 flex flex-col min-h-screen">
         <ChatHeader
           selectedDocuments={selectedDocuments}
           documents={documents}
