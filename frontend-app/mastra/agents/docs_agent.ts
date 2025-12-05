@@ -73,7 +73,7 @@ export const testAgent = new Agent({
         messageRange: 2,
       },
       threads: {
-        generateTitle: false,
+        generateTitle: true,
       },
     },
   }),

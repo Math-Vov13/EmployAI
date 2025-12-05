@@ -1,8 +1,6 @@
 import { requireAuth } from "@/app/lib/auth/middleware";
 import { getCurrentUser } from "@/app/lib/auth/session";
-import { toChatResponse } from "@/app/lib/db/models/Chat";
-import { getChatsCollection } from "@/app/lib/db/mongodb";
-import { ObjectId } from "mongodb";
+import { mongoStore } from "@/mastra/agents/docs_agent";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -22,17 +20,22 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const chatsCollection = await getChatsCollection();
-    const chats = await chatsCollection
-      .find({ userId: new ObjectId(currentUser.userId) })
-      .sort({ updatedAt: -1 })
-      .toArray();
-
-    return NextResponse.json({
-      success: true,
-      chats: chats.map(toChatResponse),
-      count: chats.length,
+    const user_data = await mongoStore.getThreadsByResourceId({
+      resourceId: currentUser.userId,
     });
+    console.log("Mongo Store User Data:", user_data);
+    return new Response(
+      JSON.stringify({
+        success: true,
+        userId: currentUser.userId,
+        threads: user_data,
+        count: user_data.length,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     console.error("Error fetching chats:", error);
     return NextResponse.json(
