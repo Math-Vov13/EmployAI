@@ -210,8 +210,8 @@ export function DocumentUploadForm({
               <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm mt-2">
                 <p className="font-semibold mb-1">File validation failed:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  {fileValidationErrors.map((err, idx) => (
-                    <li key={idx}>{err}</li>
+                  {fileValidationErrors.map((err) => (
+                    <li key={`error-${err}`}>{err}</li>
                   ))}
                 </ul>
               </div>

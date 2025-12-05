@@ -220,7 +220,10 @@ export default function ConversationPage() {
       const updated = [...prev];
       const lastIndex = updated.length - 1;
       if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
-        updated[lastIndex] = { ...updated[lastIndex], toolCalls: [...toolCalls] };
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          toolCalls: [...toolCalls],
+        };
       }
       return updated;
     });
@@ -251,7 +254,10 @@ export default function ConversationPage() {
     toolCalls: ToolCall[],
   ): { text: string; hasContent: boolean } => {
     if (parsed.type === "text-delta" && parsed.payload?.text) {
-      return { text: handleTextDelta(parsed, accumulatedText), hasContent: true };
+      return {
+        text: handleTextDelta(parsed, accumulatedText),
+        hasContent: true,
+      };
     }
     if (parsed.type === "error") {
       console.error("Stream error:", parsed);
@@ -265,7 +271,9 @@ export default function ConversationPage() {
   };
 
   // Helper: Process response stream
-  const processResponseStream = async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
+  const processResponseStream = async (
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+  ) => {
     const decoder = new TextDecoder();
     let accumulatedText = "";
     let hasReceivedContent = false;
@@ -287,7 +295,11 @@ export default function ConversationPage() {
           accumulatedText = result.text;
           hasReceivedContent = hasReceivedContent || result.hasContent;
         } catch (parseError) {
-          console.debug("Skipping non-JSON line:", parseError, line.substring(0, 50));
+          console.debug(
+            "Skipping non-JSON line:",
+            parseError,
+            line.substring(0, 50),
+          );
         }
       }
     }
@@ -300,9 +312,10 @@ export default function ConversationPage() {
   // Helper: Handle error in message
   const handleMessageError = (err: unknown) => {
     console.error("Error sending message:", err);
-    const errorMsg = err instanceof Error
-      ? err.message
-      : "Sorry, I encountered an error. Please try again.";
+    const errorMsg =
+      err instanceof Error
+        ? err.message
+        : "Sorry, I encountered an error. Please try again.";
 
     setMessages((prev) => {
       const updated = [...prev];

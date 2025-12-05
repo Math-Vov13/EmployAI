@@ -19,8 +19,6 @@ const requestSchema = z.object({
     .optional(),
 });
 
-// const threadId = randomUUID();
-
 // Helper: Validate authentication
 async function validateAuth(request: NextRequest) {
   const authError = await requireAuth(request);
@@ -70,10 +68,7 @@ async function parseRequestBody(request: NextRequest) {
 }
 
 // Helper: Check thread access permissions
-async function checkThreadPermissions(
-  conversationId: string,
-  userId: string,
-) {
+async function checkThreadPermissions(conversationId: string, userId: string) {
   const thread = await mongoStore.getThreadById({ threadId: conversationId });
 
   if (thread && thread.resourceId !== userId) {
