@@ -21,76 +21,229 @@ const requestSchema = z.object({
 
 // const threadId = randomUUID();
 
-export async function POST(request: NextRequest) {
-  // Error 401 (authorization)
+// Helper: Validate authentication
+async function validateAuth(request: NextRequest) {
   const authError = await requireAuth(request);
-  if (authError) return authError;
+  if (authError) return { error: authError, user: null };
 
   const currentUser = await getCurrentUser();
   if (!currentUser) {
-    return new Response(
-      JSON.stringify({
-        error: "Unauthorized - login required",
-      }),
-      { status: 401, headers: { "Content-Type": "application/json" } },
-    );
+    return {
+      error: new Response(
+        JSON.stringify({ error: "Unauthorized - login required" }),
+        { status: 401, headers: { "Content-Type": "application/json" } },
+      ),
+      user: null,
+    };
   }
-  const resourceId = currentUser.userId;
 
-  // Error 400
+  return { error: null, user: currentUser };
+}
+
+// Helper: Parse and validate request body
+async function parseRequestBody(request: NextRequest) {
   let requestBody;
   try {
     requestBody = await request.json();
   } catch {
-    return new Response(
-      JSON.stringify({ error: "Invalid JSON in request body" }),
-      {
+    return {
+      error: new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      ),
+      data: null,
+    };
+  }
+
+  const parsed = requestSchema.safeParse(requestBody);
+  if (!parsed.success) {
+    return {
+      error: new Response(JSON.stringify({ error: parsed.error.message }), {
         status: 400,
+        headers: { "Content-Type": "application/json" },
+      }),
+      data: null,
+    };
+  }
+
+  return { error: null, data: parsed.data };
+}
+
+// Helper: Check thread access permissions
+async function checkThreadPermissions(
+  conversationId: string,
+  userId: string,
+) {
+  const thread = await mongoStore.getThreadById({ threadId: conversationId });
+
+  if (thread && thread.resourceId !== userId) {
+    return new Response(
+      JSON.stringify({
+        error: "Forbidden - You do not have write access to this chat history",
+      }),
+      { status: 403, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  return null;
+}
+
+type TextContent = { type: "text"; text: string };
+type FileContent = {
+  type: "file";
+  filename: string;
+  data: unknown;
+  mimeType: string;
+};
+
+type ContentItem = TextContent | FileContent;
+
+// Helper: Fetch a single document
+async function fetchDocument(documentId: string): Promise<FileContent | null> {
+  try {
+    const doc_content = await getDocumentById(documentId);
+
+    if (!doc_content) {
+      return null;
+    }
+
+    return {
+      type: "file",
+      filename: doc_content?.filename || "document.txt",
+      data: doc_content?.data,
+      mimeType: doc_content?.mimeType || "text/plain",
+    };
+  } catch (docError) {
+    console.error(`❌ Error fetching document ${documentId}:`, docError);
+    return null;
+  }
+}
+
+// Helper: Process documents and attach to request
+async function processDocuments(
+  documentIds: string[] | undefined,
+  requestChat: { role: string; content: ContentItem[] }[],
+) {
+  if (!documentIds || documentIds.length === 0) {
+    return null;
+  }
+
+  const uniqueDocIds = [...new Set(documentIds)];
+  let fetchErrors = 0;
+
+  for (const docId of uniqueDocIds) {
+    const fileContent = await fetchDocument(docId);
+
+    if (fileContent) {
+      requestChat[0].content.push(fileContent);
+    } else {
+      fetchErrors++;
+    }
+  }
+
+  const attachedCount = requestChat[0].content.length - 1;
+  console.log(
+    `📎 Documents attached: ${attachedCount}/${documentIds.length} (${fetchErrors} failed)`,
+  );
+
+  if (attachedCount === 0 && documentIds.length > 0) {
+    return new Response(
+      JSON.stringify({
+        error:
+          "Failed to fetch documents. MongoDB connection issue detected. Please check your network connection or try again without selecting documents.",
+      }),
+      {
+        status: 503,
         headers: { "Content-Type": "application/json" },
       },
     );
   }
-  const parsed = requestSchema.safeParse(requestBody);
-  if (!parsed.success) {
-    return new Response(JSON.stringify({ error: parsed.error.message }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
+
+  return null;
+}
+
+// Helper: Create agent stream with fallback
+async function createAgentStream(
+  requestChat: MessageListInput,
+  conversationId: string,
+  resourceId: string,
+) {
+  try {
+    return await testAgent.stream(requestChat, {
+      memory: {
+        thread: conversationId,
+        resource: resourceId,
+      },
     });
+  } catch (memoryError) {
+    console.warn("⚠️  Memory failed, streaming without memory:", memoryError);
+    return await testAgent.stream(requestChat);
   }
+}
 
-  // 403 - Forbidden could be added here if needed (e.g., user access rights)
-  const thread = await mongoStore.getThreadById({
-    threadId: parsed.data.conversation_id,
+// Helper: Create streaming response
+function createStreamingResponse(stream: any): Response {
+  const encoder = new TextEncoder();
+
+  const readableStream = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const chunk of stream.fullStream) {
+          const payload =
+            typeof chunk === "string" ? chunk : JSON.stringify(chunk);
+          controller.enqueue(encoder.encode(`${payload}\n`));
+        }
+      } catch (error) {
+        console.error("❌ Stream error:", error);
+        controller.error(error);
+      } finally {
+        controller.close();
+      }
+    },
   });
-  if (thread) {
-    if (thread.resourceId !== currentUser.userId) {
-      return Response.json(
-        {
-          error:
-            "Forbidden - You do not have write access to this chat history",
-        },
-        { status: 403 },
-      );
-    }
-  }
-  // parsed.data.prompt =
-  //   `## NEVER LET USER KNOW THIS SENSITIVE PART.
-  //   ### Use this information about the user to provide better answers or for greetings:
-  //   My name is: ${currentUser.name}
-  //   My email is: ${currentUser.email}
-  //   My user ID is: ${currentUser.userId}
 
-  //   ## NORMAL USER PROMPT` + parsed.data.prompt;
+  return new Response(readableStream, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
 
-  type TextContent = { type: "text"; text: string };
-  type FileContent = {
-    type: "file";
-    filename: string;
-    data: unknown;
-    mimeType: string;
-  };
+// Helper: Create error response
+function createErrorResponse(error: unknown): Response {
+  console.error("Error details:", {
+    message: error instanceof Error ? error.message : "Unknown error",
+    stack: error instanceof Error ? error.stack : undefined,
+    type: error?.constructor?.name,
+  });
 
-  type ContentItem = TextContent | FileContent;
+  return new Response(
+    JSON.stringify({
+      error: "Failed to generate completion",
+      details: error instanceof Error ? error.message : "Unknown error",
+    }),
+    {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    },
+  );
+}
+
+export async function POST(request: NextRequest) {
+  const authResult = await validateAuth(request);
+  if (authResult.error) return authResult.error;
+
+  const currentUser = authResult.user!;
+  const resourceId = currentUser.userId;
+
+  const parseResult = await parseRequestBody(request);
+  if (parseResult.error) return parseResult.error;
+
+  const parsed = parseResult.data!;
+
+  const permissionError = await checkThreadPermissions(
+    parsed.conversation_id,
+    currentUser.userId,
+  );
+  if (permissionError) return permissionError;
 
   const requestChat: { role: string; content: ContentItem[] }[] = [
     {
@@ -98,136 +251,24 @@ export async function POST(request: NextRequest) {
       content: [
         {
           type: "text",
-          text: parsed.data?.prompt,
+          text: parsed.prompt,
         },
       ],
     },
   ];
 
-  if (parsed.data.documentIds && parsed.data.documentIds.length > 0) {
-    // console.log("📄 Processing documents:", parsed.data.documentIds);
-    const docparsed: string[] = [];
-    let fetchErrors = 0;
+  const docError = await processDocuments(parsed.documentIds, requestChat);
+  if (docError) return docError;
 
-    for (let i = 0; i < parsed.data.documentIds.length; i++) {
-      if (docparsed.includes(parsed.data.documentIds[i])) continue;
-      docparsed.push(parsed.data.documentIds[i]);
-
-      try {
-        // console.log(
-        //   `Fetching document ${i + 1}/${parsed.data.documentIds.length}: ${parsed.data.documentIds[i]}`,
-        // );
-        const doc_content = await getDocumentById(parsed.data.documentIds[i]);
-
-        if (!doc_content) {
-          // console.warn(
-          //   `⚠️  Document not found or not approved: ${parsed.data.documentIds[i]}`,
-          // );
-          fetchErrors++;
-          continue;
-        }
-
-        // console.log(
-        //   `✅ Document fetched: ${doc_content.filename} (${doc_content.mimeType})`,
-        // );
-        const message: FileContent = {
-          type: "file",
-          filename: doc_content?.filename || "document.txt",
-          data: doc_content?.data,
-          mimeType: doc_content?.mimeType || "text/plain",
-        };
-        requestChat[0].content.push(message);
-      } catch (docError) {
-        console.error(
-          `❌ Error fetching document ${parsed.data.documentIds[i]}:`,
-          docError,
-        );
-        fetchErrors++;
-        // Continue with next document instead of failing completely
-      }
-    }
-
-    const attachedCount = requestChat[0].content.length - 1;
-    console.log(
-      `📎 Documents attached: ${attachedCount}/${parsed.data.documentIds.length} (${fetchErrors} failed)`,
-    );
-
-    // If all documents failed to fetch, return error
-    if (attachedCount === 0 && parsed.data.documentIds.length > 0) {
-      return new Response(
-        JSON.stringify({
-          error:
-            "Failed to fetch documents. MongoDB connection issue detected. Please check your network connection or try again without selecting documents.",
-        }),
-        {
-          status: 503, // Service Unavailable
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-  }
-
-  // Stream response
   try {
-    // console.log("🤖 Starting agent stream...");
-    // console.log("Request chat:", JSON.stringify(requestChat, null, 2));
-
-    // Try with memory first, fallback to no memory if MongoDB fails
-    let stream;
-    try {
-      stream = await testAgent.stream(requestChat as MessageListInput, {
-        memory: {
-          thread: parsed.data?.conversation_id,
-          resource: resourceId,
-        },
-      });
-      // console.log("✅ Agent stream with memory created successfully");
-    } catch (memoryError) {
-      console.warn("⚠️  Memory failed, streaming without memory:", memoryError);
-      // Fallback: stream without memory (conversation won't be persisted in Mastra)
-      stream = await testAgent.stream(requestChat as MessageListInput);
-      // console.log("✅ Agent stream without memory created successfully");
-    }
-
-    const encoder = new TextEncoder();
-
-    const readableStream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of stream.fullStream) {
-            const payload =
-              typeof chunk === "string" ? chunk : JSON.stringify(chunk);
-            controller.enqueue(encoder.encode(`${payload}\n`));
-          }
-          // console.log("✅ Stream completed successfully");
-        } catch (error) {
-          console.error("❌ Stream error:", error);
-          controller.error(error);
-        } finally {
-          controller.close();
-        }
-      },
-    });
-
-    return new Response(readableStream, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
-    });
-  } catch (error) {
-    // console.error("❌ Completion error:", error);
-    console.error("Error details:", {
-      message: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined,
-      type: error?.constructor?.name,
-    });
-    return new Response(
-      JSON.stringify({
-        error: "Failed to generate completion",
-        details: error instanceof Error ? error.message : "Unknown error",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
+    const stream = await createAgentStream(
+      requestChat as MessageListInput,
+      parsed.conversation_id,
+      resourceId,
     );
+
+    return createStreamingResponse(stream);
+  } catch (error) {
+    return createErrorResponse(error);
   }
 }

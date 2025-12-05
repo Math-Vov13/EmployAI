@@ -218,6 +218,169 @@ function ChatPageContent() {
     setSelectedDocuments(selectedDocuments.filter((d) => d.id !== documentId));
   };
 
+  // Helper: Update assistant message with accumulated text
+  const updateAssistantMessage = (text: string) => {
+    setMessages((prev) => {
+      const updated = [...prev];
+      const lastIndex = updated.length - 1;
+      if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          content: text,
+        };
+      }
+      return updated;
+    });
+  };
+
+  // Helper: Update assistant message with tool calls
+  const updateAssistantToolCalls = (toolCalls: ToolCall[]) => {
+    setMessages((prev) => {
+      const updated = [...prev];
+      const lastIndex = updated.length - 1;
+      if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          toolCalls: [...toolCalls],
+        };
+      }
+      return updated;
+    });
+  };
+
+  // Helper: Process a single stream event
+  const processStreamEvent = (
+    parsed: any,
+    accumulatedText: string,
+    toolCalls: ToolCall[],
+  ): { text: string; hasContent: boolean } => {
+    if (parsed.type === "text-delta" && parsed.payload?.text) {
+      const newText = accumulatedText + parsed.payload.text;
+      updateAssistantMessage(newText);
+      return { text: newText, hasContent: true };
+    }
+
+    if (parsed.type === "error") {
+      console.error("Stream error:", parsed);
+      throw new Error(parsed.payload?.message || "Agent error occurred");
+    }
+
+    if (parsed.type === "tool-call") {
+      console.log("🔧 Tool call:", parsed);
+      const toolCall: ToolCall = {
+        name: parsed.toolName || parsed.payload?.toolName || "unknown",
+        args: parsed.args || parsed.payload?.args || {},
+        timestamp: new Date(),
+      };
+      toolCalls.push(toolCall);
+      updateAssistantToolCalls(toolCalls);
+    }
+
+    return { text: accumulatedText, hasContent: false };
+  };
+
+  // Helper: Process stream lines
+  const processStreamLines = (
+    lines: string[],
+    accumulatedText: string,
+    toolCalls: ToolCall[],
+  ): { text: string; hasContent: boolean } => {
+    let currentText = accumulatedText;
+    let hasContent = false;
+
+    for (const line of lines) {
+      if (!line.trim() || !line.startsWith("{")) continue;
+
+      try {
+        const parsed = JSON.parse(line);
+        const result = processStreamEvent(parsed, currentText, toolCalls);
+        currentText = result.text;
+        hasContent = hasContent || result.hasContent;
+      } catch (parseError) {
+        console.debug("Skipping non-JSON line:", line.substring(0, 50));
+      }
+    }
+
+    return { text: currentText, hasContent };
+  };
+
+  // Helper: Stream response from server
+  const streamChatResponse = async (response: Response): Promise<void> => {
+    if (!response.body) {
+      throw new Error("No response body received from server");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let accumulatedText = "";
+    let hasReceivedContent = false;
+    const toolCalls: ToolCall[] = [];
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n").filter((line) => line.trim());
+
+        const result = processStreamLines(lines, accumulatedText, toolCalls);
+        accumulatedText = result.text;
+        hasReceivedContent = hasReceivedContent || result.hasContent;
+      }
+    } catch (streamError) {
+      console.error("Error reading stream:", streamError);
+      throw new Error(
+        `Stream error: ${streamError instanceof Error ? streamError.message : "Unknown streaming error"}`,
+      );
+    }
+
+    if (!hasReceivedContent || accumulatedText.trim().length === 0) {
+      throw new Error("No content received from AI assistant");
+    }
+  };
+
+  // Helper: Send message to API
+  const sendMessageToAPI = async (payload: any): Promise<Response> => {
+    const response = await fetch("/api-client/chat/completion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error ||
+          `Server error: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    return response;
+  };
+
+  // Helper: Handle send error
+  const handleSendError = (err: unknown) => {
+    console.error("Error sending message:", err);
+
+    setMessages((prev) => {
+      const updated = [...prev];
+      const lastIndex = updated.length - 1;
+      if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+        const errorMsg =
+          err instanceof Error
+            ? err.message
+            : "Sorry, I encountered an error. Please try again.";
+
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          content: `❌ Error: ${errorMsg}\n\nPlease try again or contact support if the issue persists.`,
+        };
+      }
+      return updated;
+    });
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || loading) return;
 
@@ -248,135 +411,11 @@ function ChatPageContent() {
             : undefined,
       };
 
-      const response = await fetch("/api-client/chat/completion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error ||
-            `Server error: ${response.status} ${response.statusText}`,
-        );
-      }
-
-      if (!response.body) {
-        throw new Error("No response body received from server");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = "";
-      let hasReceivedContent = false;
-      const toolCalls: ToolCall[] = [];
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n").filter((line) => line.trim());
-
-          for (const line of lines) {
-            // Skip empty lines or lines that don't look like JSON
-            if (!line.trim() || !line.startsWith("{")) {
-              continue;
-            }
-
-            try {
-              const parsed = JSON.parse(line);
-
-              // Only process text-delta events for displaying content
-              if (parsed.type === "text-delta" && parsed.payload?.text) {
-                const textToAdd = parsed.payload.text;
-                accumulatedText += textToAdd;
-                hasReceivedContent = true;
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      content: accumulatedText,
-                    };
-                  }
-                  return updated;
-                });
-              } else if (parsed.type === "error") {
-                console.error("Stream error:", parsed);
-                throw new Error(
-                  parsed.payload?.message || "Agent error occurred",
-                );
-              } else if (parsed.type === "tool-call") {
-                console.log("🔧 Tool call:", parsed);
-                const toolCall: ToolCall = {
-                  name: parsed.toolName || parsed.payload?.toolName || "unknown",
-                  args: parsed.args || parsed.payload?.args || {},
-                  timestamp: new Date(),
-                };
-                toolCalls.push(toolCall);
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  if (
-                    lastIndex >= 0 &&
-                    updated[lastIndex].role === "assistant"
-                  ) {
-                    updated[lastIndex] = {
-                      ...updated[lastIndex],
-                      toolCalls: [...toolCalls],
-                    };
-                  }
-                  return updated;
-                });
-              }
-              // Ignore all other event types (tool-result, file data, step events, etc.)
-            } catch (parseError) {
-              // Silently ignore parse errors - don't add raw text to message
-              console.debug("Skipping non-JSON line:", line.substring(0, 50));
-            }
-          }
-        }
-      } catch (streamError) {
-        console.error("Error reading stream:", streamError);
-        throw new Error(
-          `Stream error: ${streamError instanceof Error ? streamError.message : "Unknown streaming error"}`,
-        );
-      }
-
-      if (!hasReceivedContent || accumulatedText.trim().length === 0) {
-        throw new Error("No content received from AI assistant");
-      }
-
-      // Refresh conversations list
+      const response = await sendMessageToAPI(payload);
+      await streamChatResponse(response);
       await fetchConversations();
     } catch (err) {
-      console.error("Error sending message:", err);
-
-      setMessages((prev) => {
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
-        if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
-          const errorMsg =
-            err instanceof Error
-              ? err.message
-              : "Sorry, I encountered an error. Please try again.";
-
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            content: `❌ Error: ${errorMsg}\n\nPlease try again or contact support if the issue persists.`,
-          };
-        }
-        return updated;
-      });
+      handleSendError(err);
     } finally {
       setLoading(false);
     }
