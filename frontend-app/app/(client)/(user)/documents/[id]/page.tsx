@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { format } from "date-fns";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FiXCircle } from "react-icons/fi";
@@ -234,11 +233,18 @@ export default function DocumentDetailPage() {
               <Button size="lg" onClick={handleDownload} className="flex-1">
                 Download Document
               </Button>
-              <Link href={`/chat/${document.id}`} className="flex-1">
-                <Button variant="secondary" size="lg" className="w-full">
-                  Chat with AI
-                </Button>
-              </Link>
+              <Button
+                variant="secondary"
+                size="lg"
+                className="flex-1"
+                onClick={() => {
+                  // Generate new conversation ID and redirect with document pre-selected
+                  const newConversationId = crypto.randomUUID();
+                  router.push(`/chat?c=${newConversationId}&doc=${document.id}`);
+                }}
+              >
+                Chat with AI
+              </Button>
             </div>
           </CardContent>
         </Card>

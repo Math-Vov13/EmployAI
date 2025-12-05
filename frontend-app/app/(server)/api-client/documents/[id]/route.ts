@@ -46,8 +46,18 @@ export async function GET(
       );
     }
 
-    // All authenticated users can view documents
-    // No ownership or admin check needed for viewing
+    // Authorization check:
+    // - Admins can view any document
+    // - Regular users can ONLY view APPROVED documents
+    if (currentUser.role !== "ADMIN") {
+      const documentStatus = document.metadata?.status || "PENDING";
+      if (documentStatus !== "APPROVED") {
+        return NextResponse.json(
+          { error: "Document not found or not yet approved" },
+          { status: 404 },
+        );
+      }
+    }
 
     // Fetch user information for uploadedBy field
     const usersCollection = await getUsersCollection();

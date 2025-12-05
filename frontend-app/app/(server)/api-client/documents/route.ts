@@ -28,16 +28,13 @@ export async function GET(request: NextRequest) {
 
     // Filter logic:
     // - Admins: see all documents (any status)
-    // - Regular users: see APPROVED documents + their own documents (any status)
+    // - Regular users: see ONLY APPROVED documents (even their own must be approved)
     let filter;
     if (currentUser.role === "ADMIN") {
       filter = {};
     } else {
       filter = {
-        $or: [
-          { "metadata.status": "APPROVED" },
-          { creatorId: new ObjectId(currentUser.userId) },
-        ],
+        "metadata.status": "APPROVED",
       };
     }
 

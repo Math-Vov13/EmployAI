@@ -38,8 +38,18 @@ export async function GET(
       );
     }
 
-    // All authenticated users can download documents
-    // No ownership or admin check needed for downloading
+    // Authorization check:
+    // - Admins can download any document
+    // - Regular users can ONLY download APPROVED documents
+    if (currentUser.role !== "ADMIN") {
+      const documentStatus = document.metadata?.status || "PENDING";
+      if (documentStatus !== "APPROVED") {
+        return NextResponse.json(
+          { error: "Document not found or not yet approved" },
+          { status: 404 },
+        );
+      }
+    }
 
     // Stream file from GridFS
     const bucket = await getGridFSBucket();
