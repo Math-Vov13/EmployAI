@@ -71,11 +71,15 @@ company description: EmployAI is a platform that enables businesses to create AI
 - Provide document references when applicable
 - Ask clarifying questions if the user's request is ambiguous
 `,
-  model: gateway(process.env.AGENT_MODEL || "anthropic:claude-3-5-sonnet-20241022"),
+  model: gateway(
+    process.env.AGENT_MODEL || "anthropic:claude-3-5-sonnet-20241022",
+  ),
   memory: new Memory({
     storage: mongoStore,
     vector: mongoVector,
-    embedder: gateway.textEmbeddingModel(process.env.EMBEDDING_MODEL_CACHE || "openai:text-embedding-3-small"),
+    embedder: gateway.textEmbeddingModel(
+      process.env.EMBEDDING_MODEL_CACHE || "openai:text-embedding-3-small",
+    ),
     options: {
       lastMessages: 10,
       semanticRecall: {

@@ -219,11 +219,11 @@ export function DocumentPreview({
               className="w-full max-h-[600px] rounded-lg"
             >
               <track
-              kind="captions"
-              src={`/api-client/documents/${documentId}/captions.vtt`}
-              srcLang="en"
-              label="English captions"
-              default
+                kind="captions"
+                src={`/api-client/documents/${documentId}/captions.vtt`}
+                srcLang="en"
+                label="English captions"
+                default
               />
               Your browser does not support video playback.
             </video>
@@ -235,7 +235,7 @@ export function DocumentPreview({
           <div className="flex items-center justify-center py-16">
             <div className="text-center">
               <div className="flex justify-center mb-6">{getFileIcon()}</div>
-                <audio src={previewUrl} controls className="mx-auto">
+              <audio src={previewUrl} controls className="mx-auto">
                 <track
                   kind="captions"
                   src={`/api-client/documents/${documentId}/captions.vtt`}
@@ -244,7 +244,7 @@ export function DocumentPreview({
                   default
                 />
                 Your browser does not support audio playback.
-                </audio>
+              </audio>
             </div>
           </div>
         )}

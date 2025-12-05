@@ -31,7 +31,9 @@ export async function saveDocumentPipeline(
   // 3. Create embeddings
   const { embeddings } = await embedMany({
     values: chunks.map((chunk) => chunk.text),
-    model: gateway.textEmbeddingModel(process.env.EMBEDDING_MODEL || "openai:text-embedding-3-small"),
+    model: gateway.textEmbeddingModel(
+      process.env.EMBEDDING_MODEL || "openai:text-embedding-3-small",
+    ),
   });
 
   // 4. Save to vector store
@@ -52,6 +54,4 @@ export async function saveDocumentPipeline(
     ids: chunks.map((_, idx) => `${docs_id}-${Date.now()}-${idx}`),
     deleteFilter: { source_id: docs_id, author_id: user_id },
   });
-
-  console.log("Document saved as id:", docs_id);
 }

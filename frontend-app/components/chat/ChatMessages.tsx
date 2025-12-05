@@ -8,6 +8,7 @@ interface ToolCall {
   name: string;
   args: any;
   timestamp: Date;
+  result?: any;
 }
 
 interface Message {
@@ -15,6 +16,7 @@ interface Message {
   content: string;
   timestamp: Date;
   toolCalls?: ToolCall[];
+  toolResults?: string[];
 }
 
 interface ChatMessagesProps {
@@ -90,6 +92,18 @@ export function ChatMessages({ messages }: Readonly<ChatMessagesProps>) {
                       {getToolDescription(message.toolCalls[0].name).label}
                     </span>
                   </div>
+                </div>
+              )}
+              {message.toolResults && message.toolResults.length > 0 && (
+                <div className="mb-3 space-y-1">
+                  {message.toolResults.map((result, idx) => (
+                    <div
+                      key={idx}
+                      className="text-xs text-gray-500 bg-gray-50 rounded px-2 py-1"
+                    >
+                      {result}
+                    </div>
+                  ))}
                 </div>
               )}
               <MarkdownMessage

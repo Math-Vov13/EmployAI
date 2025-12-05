@@ -31,7 +31,9 @@ export function createFilteredVectorQueryTool(fileIds: string[]) {
         // Generate embedding for the query
         const { embedding } = await embed({
           value: query,
-          model: gateway.textEmbeddingModel(process.env.EMBEDDING_MODEL || "openai:text-embedding-3-small"),
+          model: gateway.textEmbeddingModel(
+            process.env.EMBEDDING_MODEL || "openai:text-embedding-3-small",
+          ),
         });
 
         // Search vector store with filter for selected documents

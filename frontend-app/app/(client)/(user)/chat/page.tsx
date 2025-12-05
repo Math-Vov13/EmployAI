@@ -153,13 +153,34 @@ function ChatPageContent() {
         const data = await response.json();
 
         if (data.messages && data.messages.length > 0) {
-          const loadedMessages: Message[] = data.messages.map((msg: any) => {
+          // Filter out tool-call, tool-result, and tool messages - only keep text messages
+          const filteredMessages = data.messages.filter((msg: any) => {
+            // Skip tool role messages entirely
+            if (msg.role === "tool") return false;
+
+            // Skip messages with tool-call or tool-result type
+            if (msg.type === "tool-call" || msg.type === "tool-result")
+              return false;
+
+            // Check content array for tool types
+            if (Array.isArray(msg.content)) {
+              const hasOnlyToolContent = msg.content.every(
+                (part: any) =>
+                  part.type === "tool-call" || part.type === "tool-result",
+              );
+              if (hasOnlyToolContent) return false;
+            }
+
+            return true;
+          });
+
+          const loadedMessages: Message[] = filteredMessages.map((msg: any) => {
             // Mastra content can be string or array of content parts
             let content = "";
             if (typeof msg.content === "string") {
               content = msg.content;
             } else if (Array.isArray(msg.content)) {
-              // Extract text from content parts array
+              // Extract text from content parts array (skip tool-related parts)
               content = msg.content
                 .map((part: any) => {
                   if (typeof part === "string") return part;
@@ -177,12 +198,19 @@ function ChatPageContent() {
             }
 
             return {
-              role: msg.role,
+              role: msg.role === "user" ? "user" : "assistant",
               content,
               timestamp: new Date(msg.createdAt || msg.timestamp || new Date()),
+              // IMPORTANT: Don't load toolCalls from history to prevent "Thinking..." loop
+              // toolCalls are only for real-time streaming, not historical display
             };
           });
-          setMessages(loadedMessages);
+
+          // Filter out messages with empty content
+          const nonEmptyMessages = loadedMessages.filter(
+            (msg) => msg.content.trim().length > 0,
+          );
+          setMessages(nonEmptyMessages);
         } else {
           setMessages([]);
         }
@@ -268,7 +296,6 @@ function ChatPageContent() {
     }
 
     if (parsed.type === "tool-call") {
-      console.log("🔧 Tool call:", parsed);
       const toolCall: ToolCall = {
         name: parsed.toolName || parsed.payload?.toolName || "unknown",
         args: parsed.args || parsed.payload?.args || {},

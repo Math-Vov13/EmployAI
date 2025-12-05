@@ -50,11 +50,8 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-
     // Success - remove OTP from store
     otpStore.delete(email.toLowerCase());
-
-    console.log(`✅ OTP verified successfully for ${email}`);
 
     return NextResponse.json({
       success: true,

@@ -18,6 +18,7 @@ interface ToolCall {
   name: string;
   args: any;
   timestamp: Date;
+  result?: any;
 }
 
 interface Message {
@@ -25,6 +26,7 @@ interface Message {
   content: string;
   timestamp: Date;
   toolCalls?: ToolCall[];
+  toolResults?: string[];
 }
 
 interface Conversation {
@@ -169,6 +171,8 @@ export default function ConversationPage() {
               role: msg.role === "user" ? "user" : "assistant",
               content,
               timestamp: new Date(msg.createdAt || msg.timestamp || new Date()),
+              // IMPORTANT: Don't load toolCalls from history to prevent "Thinking..." loop
+              // toolCalls are only for real-time streaming, not historical display
             };
           });
 
@@ -247,16 +251,82 @@ export default function ConversationPage() {
     updateAssistantToolCalls(toolCalls);
   };
 
+  // Helper: Process tool-result event
+  const handleToolResult = (parsed: any, toolResults: string[]) => {
+    const toolName = parsed.toolName || parsed.payload?.toolName || "unknown";
+    const result = parsed.result || parsed.payload?.result;
+
+    let resultMessage = "";
+
+    // Format result based on tool type
+    if (
+      toolName === "vectorQueryTool" ||
+      toolName === "filteredVectorQueryTool"
+    ) {
+      if (result?.resultsFound) {
+        const docNames =
+          result.results
+            ?.map((r: any) => r.source)
+            .filter(
+              (s: string, i: number, arr: string[]) => arr.indexOf(s) === i,
+            ) || [];
+        resultMessage = `📄 Searched ${result.documentsSearched || "documents"} and found ${result.resultsFound} relevant chunks${docNames.length > 0 ? ` in: ${docNames.join(", ")}` : ""}`;
+      }
+    } else if (toolName === "websearchTool" || toolName === "websearch") {
+      if (result?.results && Array.isArray(result.results)) {
+        const urls = result.results.map((r: any) => r.url).slice(0, 3);
+        resultMessage = `🌐 Searched the web and found ${result.results.length} results${urls.length > 0 ? `: ${urls.join(", ")}` : ""}`;
+      }
+    }
+
+    if (resultMessage) {
+      toolResults.push(resultMessage);
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+        if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+          updated[lastIndex] = {
+            ...updated[lastIndex],
+            toolResults: [...toolResults],
+          };
+        }
+        return updated;
+      });
+    }
+  };
+
+  // Helper: Clear tool calls when text starts arriving
+  const clearToolCalls = () => {
+    setMessages((prev) => {
+      const updated = [...prev];
+      const lastIndex = updated.length - 1;
+      if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          toolCalls: undefined,
+        };
+      }
+      return updated;
+    });
+  };
+
   // Helper: Process stream event
   const processStreamEvent = (
     parsed: any,
     accumulatedText: string,
     toolCalls: ToolCall[],
-  ): { text: string; hasContent: boolean } => {
+    toolResults: string[],
+    hasReceivedText: boolean,
+  ): { text: string; hasContent: boolean; hasReceivedText: boolean } => {
     if (parsed.type === "text-delta" && parsed.payload?.text) {
+      // Clear tool calls when first text arrives
+      if (!hasReceivedText) {
+        clearToolCalls();
+      }
       return {
         text: handleTextDelta(parsed, accumulatedText),
         hasContent: true,
+        hasReceivedText: true,
       };
     }
     if (parsed.type === "error") {
@@ -264,10 +334,12 @@ export default function ConversationPage() {
       throw new Error(parsed.payload?.message || "Agent error occurred");
     }
     if (parsed.type === "tool-call") {
-      console.log("🔧 Tool call:", parsed);
       handleToolCall(parsed, toolCalls);
     }
-    return { text: accumulatedText, hasContent: false };
+    if (parsed.type === "tool-result") {
+      handleToolResult(parsed, toolResults);
+    }
+    return { text: accumulatedText, hasContent: false, hasReceivedText };
   };
 
   // Helper: Process response stream
@@ -277,7 +349,9 @@ export default function ConversationPage() {
     const decoder = new TextDecoder();
     let accumulatedText = "";
     let hasReceivedContent = false;
+    let hasReceivedText = false;
     const toolCalls: ToolCall[] = [];
+    const toolResults: string[] = [];
 
     while (true) {
       const { done, value } = await reader.read();
@@ -291,9 +365,16 @@ export default function ConversationPage() {
 
         try {
           const parsed = JSON.parse(line);
-          const result = processStreamEvent(parsed, accumulatedText, toolCalls);
+          const result = processStreamEvent(
+            parsed,
+            accumulatedText,
+            toolCalls,
+            toolResults,
+            hasReceivedText,
+          );
           accumulatedText = result.text;
           hasReceivedContent = hasReceivedContent || result.hasContent;
+          hasReceivedText = result.hasReceivedText;
         } catch (parseError) {
           console.debug(
             "Skipping non-JSON line:",

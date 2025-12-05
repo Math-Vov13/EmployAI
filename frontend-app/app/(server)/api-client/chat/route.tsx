@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
     const user_data = await mongoStore.getThreadsByResourceId({
       resourceId: currentUser.userId,
     });
-    console.log("Mongo Store User Data:", user_data);
     return new Response(
       JSON.stringify({
         success: true,

@@ -59,21 +59,53 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log("Mongo Store Thread:", thread);
-    console.log("Mongo Store Messages:", messages);
+    // Filter out intermediate tool messages - only keep user and assistant text messages
+    const filteredMessages = messages.filter((msg: any) => {
+      // Skip tool role messages entirely
+      if (msg.role === "tool") return false;
 
+      // Skip messages with tool-call or tool-result type
+      if (msg.type === "tool-call" || msg.type === "tool-result") return false;
+
+      // Check content array for tool types
+      if (Array.isArray(msg.content)) {
+        const hasOnlyToolContent = msg.content.every(
+          (part: any) =>
+            part.type === "tool-call" || part.type === "tool-result",
+        );
+        if (hasOnlyToolContent) return false;
+      }
+
+      return true;
+    });
+
+    // Filter out messages with empty content after processing
+    const nonEmptyMessages = filteredMessages.filter((msg: any) => {
+      if (typeof msg.content === "string") {
+        return msg.content.trim().length > 0;
+      }
+      if (Array.isArray(msg.content)) {
+        return msg.content.some((part: any) => {
+          if (typeof part === "string") return part.trim().length > 0;
+          if (part.type === "text" && part.text)
+            return part.text.trim().length > 0;
+          return false;
+        });
+      }
+      return false;
+    });
     return new Response(
       JSON.stringify({
         success: true,
         threadId: thread.id,
-        length: messages.length,
+        length: nonEmptyMessages.length,
         thread: {
           userId: thread.resourceId,
           title: thread.title,
           updatedAt: thread.updatedAt,
           createdAt: thread.createdAt,
         },
-        messages,
+        messages: nonEmptyMessages,
       }),
       {
         status: 200,

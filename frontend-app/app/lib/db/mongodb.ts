@@ -18,11 +18,7 @@ async function connectToDatabase() {
   if (cachedClient && cachedDb) {
     return { client: cachedClient, db: cachedDb };
   }
-
-  console.log("Connecting to MongoDB...");
-  console.log(`MONGODB_URI: ${MONGODB_URI}`);
   const client = await MongoClient.connect(MONGODB_URI);
-  console.log("Db connected", MONGODB_DB_NAME);
   const db = client.db(MONGODB_DB_NAME);
 
   cachedClient = client;
