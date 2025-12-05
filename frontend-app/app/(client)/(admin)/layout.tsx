@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Paperclip, User, Tag, LogOut } from "lucide-react";
+import { LayoutDashboard, LogOut, Paperclip, Tag, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -10,7 +10,7 @@ const navItems = [
   {
     label: "Dashboard",
     href: "/admin",
-    icon: <LayoutDashboard/>,
+    icon: <LayoutDashboard />,
   },
   {
     label: "Documents",
@@ -58,7 +58,7 @@ export default function AdminLayout({
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className="text-3xl">
-              <User className="border-2 border-black rounded-full"/>
+              <User className="border-2 border-black rounded-full" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">EmployAI</h1>
@@ -110,7 +110,7 @@ export default function AdminLayout({
             className="w-full"
             onClick={handleLogout}
           >
-            <LogOut/>
+            <LogOut />
             Logout
           </Button>
         </div>

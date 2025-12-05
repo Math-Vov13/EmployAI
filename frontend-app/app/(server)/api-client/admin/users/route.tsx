@@ -92,7 +92,9 @@ export async function POST(request: NextRequest) {
 
     const result = await usersCollection.insertOne(newUser);
 
-    const createdUser = await usersCollection.findOne({ _id: result.insertedId });
+    const createdUser = await usersCollection.findOne({
+      _id: result.insertedId,
+    });
     if (!createdUser) {
       return NextResponse.json(
         { error: "Failed to create user" },

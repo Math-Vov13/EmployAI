@@ -8,7 +8,7 @@ import {
   getGridFSBucket,
   getUsersCollection,
 } from "@/app/lib/db/mongodb";
-import { mongoVector} from "@/mastra/vector_store";
+import { mongoVector } from "@/mastra/vector_store";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -232,9 +232,7 @@ export async function DELETE(
       );
     }
 
-    console.log("Document deleted with id string:",
-      document.fileId.toString()
-    );
+    console.log("Document deleted with id string:", document.fileId.toString());
     await mongoVector.deleteVectors({
       indexName: "embeddings",
       filter: { source_id: document.fileId.toString() },

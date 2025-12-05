@@ -87,7 +87,8 @@ export function ChatSidebar({
               const lastMessage =
                 conv.messages[conv.messages.length - 1]?.content || "";
               const title =
-                conv.messages[0]?.content.substring(0, 50) + "..." || "New Chat";
+                conv.messages[0]?.content.substring(0, 50) + "..." ||
+                "New Chat";
 
               return (
                 <Card

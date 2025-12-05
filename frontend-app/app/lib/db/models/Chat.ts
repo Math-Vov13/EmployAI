@@ -22,7 +22,9 @@ export const chatMessageSchema = z.object({
 });
 
 export const createChatSchema = z.object({
-  documentIds: z.array(z.string()).min(1, "At least one document ID is required"),
+  documentIds: z
+    .array(z.string())
+    .min(1, "At least one document ID is required"),
   message: z.string().min(1, "Message is required"),
   chatHistory: z
     .array(

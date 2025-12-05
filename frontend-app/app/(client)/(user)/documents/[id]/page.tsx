@@ -4,10 +4,10 @@ import {
   formatFileSize,
   getFileTypeName,
 } from "@/app/lib/storage/file-validation";
+import { DocumentPreview } from "@/components/documents/DocumentPreview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { DocumentPreview } from "@/components/documents/DocumentPreview";
 import { Spinner } from "@/components/ui/spinner";
 import { format } from "date-fns";
 import Link from "next/link";

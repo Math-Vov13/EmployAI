@@ -1,11 +1,10 @@
 import { gateway } from "@ai-sdk/gateway";
 import { Agent } from "@mastra/core/agent";
-import { fastembed } from "@mastra/fastembed";
 import { Memory } from "@mastra/memory";
-import { MongoDBStore, MongoDBVector } from "@mastra/mongodb";
-import { vectorQueryTool} from "../tools/vectors_tool";
+import { MongoDBStore } from "@mastra/mongodb";
+import { vectorQueryTool } from "../tools/vectors_tool";
 import { websearchTool } from "../tools/websearch_tool";
-import { mongoVector } from "../vector_store";
+import { mongoVector } from "../vector_store";
 
 // Construire l'URI MongoDB avec les paramètres requis
 const buildMongoUri = () => {
@@ -80,4 +79,3 @@ export const testAgent = new Agent({
   }),
   tools: { vectorQueryTool, websearchTool },
 });
-  

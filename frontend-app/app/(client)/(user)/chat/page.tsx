@@ -107,9 +107,7 @@ export default function ChatPage() {
 
   const loadChatHistory = async (historyId: string) => {
     try {
-      const response = await fetch(
-        `/api-client/chat/history?id=${historyId}`,
-      );
+      const response = await fetch(`/api-client/chat/history?id=${historyId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.messages && data.messages.length > 0) {
@@ -129,7 +127,9 @@ export default function ChatPage() {
 
   const handleDocumentSelect = async (document: Document) => {
     if (selectedDocuments.find((d) => d.id === document.id)) {
-      setSelectedDocuments(selectedDocuments.filter((d) => d.id !== document.id));
+      setSelectedDocuments(
+        selectedDocuments.filter((d) => d.id !== document.id),
+      );
     } else if (selectedDocuments.length < 5) {
       setSelectedDocuments([...selectedDocuments, document]);
 
@@ -185,9 +185,10 @@ export default function ChatPage() {
       const payload = {
         prompt: inputMessage,
         conversation_id: conversationId, // Note: underscore format
-        documentIds: selectedDocuments.length > 0
-          ? selectedDocuments.map((d) => d.id)
-          : undefined, // Send undefined if no documents selected (optional field)
+        documentIds:
+          selectedDocuments.length > 0
+            ? selectedDocuments.map((d) => d.id)
+            : undefined, // Send undefined if no documents selected (optional field)
       };
 
       console.log("Sending chat request:", payload);
@@ -203,7 +204,8 @@ export default function ChatPage() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.error || `Server error: ${response.status} ${response.statusText}`,
+          errorData.error ||
+            `Server error: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -235,7 +237,10 @@ export default function ChatPage() {
                 setMessages((prev) => {
                   const updated = [...prev];
                   const lastIndex = updated.length - 1;
-                  if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+                  if (
+                    lastIndex >= 0 &&
+                    updated[lastIndex].role === "assistant"
+                  ) {
                     updated[lastIndex] = {
                       ...updated[lastIndex],
                       content: accumulatedText,
@@ -244,7 +249,9 @@ export default function ChatPage() {
                   return updated;
                 });
               } else if (parsed.type === "error") {
-                throw new Error(parsed.payload?.message || "Agent error occurred");
+                throw new Error(
+                  parsed.payload?.message || "Agent error occurred",
+                );
               } else if (parsed.text) {
                 accumulatedText += parsed.text;
                 hasReceivedContent = true;
@@ -252,7 +259,10 @@ export default function ChatPage() {
                 setMessages((prev) => {
                   const updated = [...prev];
                   const lastIndex = updated.length - 1;
-                  if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+                  if (
+                    lastIndex >= 0 &&
+                    updated[lastIndex].role === "assistant"
+                  ) {
                     updated[lastIndex] = {
                       ...updated[lastIndex],
                       content: accumulatedText,
@@ -269,7 +279,10 @@ export default function ChatPage() {
                 setMessages((prev) => {
                   const updated = [...prev];
                   const lastIndex = updated.length - 1;
-                  if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+                  if (
+                    lastIndex >= 0 &&
+                    updated[lastIndex].role === "assistant"
+                  ) {
                     updated[lastIndex] = {
                       ...updated[lastIndex],
                       content: accumulatedText,

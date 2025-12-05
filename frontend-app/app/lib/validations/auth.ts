@@ -88,7 +88,7 @@ export function validateEmail(email: string): {
   if (!result.success) {
     return {
       success: false,
-      error: result.error.errors[0]?.message || "Invalid email",
+      error: result.error.issues[0]?.message || "Invalid email",
     };
   }
   return { success: true };
@@ -105,7 +105,7 @@ export function validatePassword(password: string): {
   if (!result.success) {
     return {
       success: false,
-      error: result.error.errors[0]?.message || "Invalid password",
+      error: result.error.issues[0]?.message || "Invalid password",
     };
   }
   return { success: true };
@@ -123,9 +123,9 @@ export function validateUserSignIn(data: unknown): {
 
   if (!result.success) {
     const errors: Record<string, string> = {};
-    result.error.errors.forEach((error) => {
-      const field = error.path[0] as string;
-      errors[field] = error.message;
+    result.error.issues.forEach((issue) => {
+      const field = issue.path[0] as string;
+      errors[field] = issue.message;
     });
 
     return {
@@ -152,9 +152,9 @@ export function validateAdminSignIn(data: unknown): {
 
   if (!result.success) {
     const errors: Record<string, string> = {};
-    result.error.errors.forEach((error) => {
-      const field = error.path[0] as string;
-      errors[field] = error.message;
+    result.error.issues.forEach((issue) => {
+      const field = issue.path[0] as string;
+      errors[field] = issue.message;
     });
 
     return {

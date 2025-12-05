@@ -65,9 +65,11 @@ export async function GET(request: NextRequest) {
         ...docResponse,
         uploadedBy: {
           id: doc.creatorId.toString(),
-          email: creatorMap.get(doc.creatorId.toString()) || "unknown@example.com",
-          role: creators.find((u) => u._id.toString() === doc.creatorId.toString())
-            ?.role || "USER",
+          email:
+            creatorMap.get(doc.creatorId.toString()) || "unknown@example.com",
+          role:
+            creators.find((u) => u._id.toString() === doc.creatorId.toString())
+              ?.role || "USER",
         },
       };
     });
