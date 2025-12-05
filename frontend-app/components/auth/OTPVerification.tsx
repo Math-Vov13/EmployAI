@@ -66,7 +66,7 @@ export function OTPVerification({
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "");
+    const pastedData = e.clipboardData.getData("text").replaceAll(/\D/g, "");
 
     if (pastedData.length === 6) {
       const newOtp = pastedData.split("");
@@ -104,7 +104,7 @@ export function OTPVerification({
       }
 
       onVerified();
-    } catch (err) {
+    } catch {
       setError("Failed to verify code. Please try again.");
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
@@ -131,7 +131,7 @@ export function OTPVerification({
       setCountdown(60); // 60 second cooldown
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-    } catch (err) {
+    } catch {
       setError("Failed to resend code. Please try again.");
     } finally {
       setResending(false);

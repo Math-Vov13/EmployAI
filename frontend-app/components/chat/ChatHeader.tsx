@@ -48,7 +48,7 @@ export function ChatHeader({
   onDocumentSelect,
   onRemoveDocument,
   onClearAll,
-}: ChatHeaderProps) {
+}: Readonly<ChatHeaderProps>) {
   return (
     <div className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center justify-between">
@@ -144,6 +144,8 @@ export function ChatHeader({
               {getFileIcon(doc.mimeType)}
               <span className="font-medium">{doc.title}</span>
               <button
+                type="button"
+                title="Remove document"
                 onClick={() => onRemoveDocument(doc.id)}
                 className="text-blue-600 hover:text-blue-800"
               >

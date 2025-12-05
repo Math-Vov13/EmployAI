@@ -109,41 +109,28 @@ export async function POST(request: NextRequest) {
     const docparsed: string[] = [];
     let fetchErrors = 0;
 
-    for (let i = 0; i < parsed.data.documentIds.length; i++) {
-      if (docparsed.includes(parsed.data.documentIds[i])) continue;
-      docparsed.push(parsed.data.documentIds[i]);
+    for (const docId of parsed.data.documentIds) {
+      if (docparsed.includes(docId)) continue;
+      docparsed.push(docId);
 
       try {
-        // console.log(
-        //   `Fetching document ${i + 1}/${parsed.data.documentIds.length}: ${parsed.data.documentIds[i]}`,
-        // );
-        const doc_content = await getDocumentById(parsed.data.documentIds[i]);
+      const doc_content = await getDocumentById(docId);
 
-        if (!doc_content) {
-          // console.warn(
-          //   `⚠️  Document not found or not approved: ${parsed.data.documentIds[i]}`,
-          // );
-          fetchErrors++;
-          continue;
-        }
-
-        // console.log(
-        //   `✅ Document fetched: ${doc_content.filename} (${doc_content.mimeType})`,
-        // );
-        const message: FileContent = {
-          type: "file",
-          filename: doc_content?.filename || "document.txt",
-          data: doc_content?.data,
-          mimeType: doc_content?.mimeType || "text/plain",
-        };
-        requestChat[0].content.push(message);
-      } catch (docError) {
-        console.error(
-          `❌ Error fetching document ${parsed.data.documentIds[i]}:`,
-          docError,
-        );
+      if (!doc_content) {
         fetchErrors++;
-        // Continue with next document instead of failing completely
+        continue;
+      }
+
+      const message: FileContent = {
+        type: "file",
+        filename: doc_content?.filename || "document.txt",
+        data: doc_content?.data,
+        mimeType: doc_content?.mimeType || "text/plain",
+      };
+      requestChat[0].content.push(message);
+      } catch (docError) {
+      console.error(`❌ Error fetching document ${docId}:`, docError);
+      fetchErrors++;
       }
     }
 

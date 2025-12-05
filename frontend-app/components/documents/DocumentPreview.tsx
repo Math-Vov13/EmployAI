@@ -23,7 +23,7 @@ export function DocumentPreview({
   documentId,
   fileName,
   mimeType,
-}: DocumentPreviewProps) {
+}: Readonly<DocumentPreviewProps>) {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [textContent, setTextContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -218,6 +218,13 @@ export function DocumentPreview({
               controls
               className="w-full max-h-[600px] rounded-lg"
             >
+              <track
+              kind="captions"
+              src={`/api-client/documents/${documentId}/captions.vtt`}
+              srcLang="en"
+              label="English captions"
+              default
+              />
               Your browser does not support video playback.
             </video>
           </div>
@@ -228,9 +235,16 @@ export function DocumentPreview({
           <div className="flex items-center justify-center py-16">
             <div className="text-center">
               <div className="flex justify-center mb-6">{getFileIcon()}</div>
-              <audio src={previewUrl} controls className="mx-auto">
+                <audio src={previewUrl} controls className="mx-auto">
+                <track
+                  kind="captions"
+                  src={`/api-client/documents/${documentId}/captions.vtt`}
+                  srcLang="en"
+                  label="English captions"
+                  default
+                />
                 Your browser does not support audio playback.
-              </audio>
+                </audio>
             </div>
           </div>
         )}

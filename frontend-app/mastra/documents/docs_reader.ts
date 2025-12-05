@@ -70,7 +70,7 @@ async function readDocxFromBytes(bytes: Uint8Array): Promise<string> {
   try {
     const result = await mammoth.extractRawText({ buffer: Buffer.from(bytes) });
     return result.value;
-  } catch (error) {
+  } catch {
     throw new Error("The uploaded file is not a valid DOCX or is corrupted.");
   }
 }
@@ -80,7 +80,7 @@ function readHtmlFromBytes(bytes: Uint8Array): string {
     const html = new TextDecoder("utf-8").decode(bytes);
     const $ = cheerio.load(html);
     return $.text();
-  } catch (error) {
+  } catch {
     throw new Error("The uploaded file is not a valid HTML or is corrupted.");
   }
 }
@@ -97,7 +97,7 @@ function readXlsxFromBytes(bytes: Uint8Array): string {
     });
 
     return fullText;
-  } catch (error) {
+  } catch {
     throw new Error("The uploaded file is not a valid XLSX or is corrupted.");
   }
 }

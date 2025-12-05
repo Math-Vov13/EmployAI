@@ -13,7 +13,7 @@ interface MarkdownMessageProps {
 export function MarkdownMessage({
   content,
   isUser = false,
-}: MarkdownMessageProps) {
+}: Readonly<MarkdownMessageProps>) {
   // Handle empty content
   if (!content || content.trim().length === 0) {
     return (
@@ -41,15 +41,15 @@ export function MarkdownMessage({
             const match = /language-(\w+)/.exec(className || "");
             // Check if this is an inline code element by checking props
             const isInline = !match;
-            return !isInline ? (
-              <code className={className} {...props}>
-                {children}
-              </code>
-            ) : (
+            return isInline ? (
               <code
                 className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono"
                 {...props}
               >
+                {children}
+              </code>
+            ) : (
+              <code className={className} {...props}>
                 {children}
               </code>
             );

@@ -27,7 +27,7 @@ export function ChatInput({
   onInputChange,
   onSend,
   onKeyPress,
-}: ChatInputProps) {
+}: Readonly<ChatInputProps>) {
   return (
     <div className="bg-white border-t border-gray-200 p-4">
       <div className="max-w-4xl mx-auto">

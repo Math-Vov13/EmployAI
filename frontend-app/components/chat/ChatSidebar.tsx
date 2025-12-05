@@ -32,7 +32,7 @@ export function ChatSidebar({
   user,
   onConversationSelect,
   onNewConversation,
-}: ChatSidebarProps) {
+}: Readonly<ChatSidebarProps>) {
   const router = useRouter();
 
   const handleConversationClick = (conversation: Conversation) => {

@@ -339,7 +339,7 @@ function ChatPageContent() {
                 });
               }
               // Ignore all other event types (tool-result, file data, step events, etc.)
-            } catch (parseError) {
+            } catch {
               // Silently ignore parse errors - don't add raw text to message
               console.debug("Skipping non-JSON line:", line.substring(0, 50));
             }

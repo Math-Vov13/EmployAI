@@ -34,7 +34,7 @@ function getToolDescription(toolName: string): { icon: string; label: string } {
   return toolMap[toolName] || { icon: "🌐", label: "Searching the web..." };
 }
 
-export function ChatMessages({ messages }: ChatMessagesProps) {
+export function ChatMessages({ messages }: Readonly<ChatMessagesProps>) {
   if (messages.length === 0) {
     return (
       <div className="text-center py-16">
@@ -46,14 +46,14 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 max-w-2xl mx-auto">
           <Card className="cursor-pointer hover:bg-gray-50">
             <CardContent className="p-4">
-              <p className="font-medium text-sm">"Summarize the key points"</p>
+              <p className="font-medium text-sm">Summarize the key points</p>
               <p className="text-xs text-gray-500 mt-1">Get a quick overview</p>
             </CardContent>
           </Card>
           <Card className="cursor-pointer hover:bg-gray-50">
             <CardContent className="p-4">
               <p className="font-medium text-sm">
-                "What does this document say about..."
+                What does this document say about...
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 Ask specific questions
