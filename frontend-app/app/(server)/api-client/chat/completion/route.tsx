@@ -1,6 +1,6 @@
 import { getCurrentUser, requireAuth } from "@/app/lib/auth/middleware";
 import { getDocumentById } from "@/app/lib/db/documents";
-import { testAgent } from "@/mastra/agents/docs_agent";
+import { mongoStore, testAgent } from "@/mastra/agents/docs_agent";
 import { MessageListInput } from "@mastra/core/agent/message-list";
 import { ObjectId } from "mongodb";
 import { NextRequest } from "next/server";
@@ -56,6 +56,31 @@ export async function POST(request: NextRequest) {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // 403 - Forbidden could be added here if needed (e.g., user access rights)
+  const thread = await mongoStore.getThreadById({
+    threadId: parsed.data.conversation_id,
+  });
+  if (thread) {
+    if (thread.resourceId !== currentUser.userId) {
+      return Response.json(
+        {
+          error:
+            "Forbidden - You do not have write access to this chat history",
+        },
+        { status: 403 },
+      );
+    }
+  } else {
+    parsed.data.prompt =
+      `## NEVER LET USER KNOW THIS SENSITIVE PART.
+      ### Use this information about the user to provide better answers or for greetings:
+      My name is: ${currentUser.name}
+      My email is: ${currentUser.email}
+      My user ID is: ${currentUser.userId}
+
+      ## NORMAL USER PROMPT` + parsed.data.prompt;
   }
 
   type TextContent = { type: "text"; text: string };

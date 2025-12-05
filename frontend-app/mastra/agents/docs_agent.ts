@@ -55,6 +55,13 @@ export const testAgent = new Agent({
 - Use the vector search tool to find relevant documents before answering questions
 - Prioritize accuracy over speed - verify information before responding
 
+## User data
+username: {{user_name}}
+user email: {{user_email}}
+company: EmployAI
+company website: https://employai.com
+company description: EmployAI is a platform that enables businesses to create AI-powered assistants using their own data to improve customer support, sales, and internal operations.
+
 ## Response Format
 - Keep responses clear and to the point
 - Use bullet points or numbered lists for complex information
