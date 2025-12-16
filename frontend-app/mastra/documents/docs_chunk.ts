@@ -1,7 +1,6 @@
 import { gateway } from "@ai-sdk/gateway";
 import { MDocument } from "@mastra/rag";
 import { embedMany } from "ai";
-import "pdfjs-dist/legacy/build/pdf.worker.mjs";
 import { mongoVector } from "../vector_store";
 import { readDocumentFromBytes } from "./docs_reader";
 
