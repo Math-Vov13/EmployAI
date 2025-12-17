@@ -1,10 +1,11 @@
 import * as cheerio from "cheerio";
 import mammoth from "mammoth";
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
-import "pdfjs-dist/legacy/build/pdf.worker.mjs";
+// import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+// import "pdfjs-dist/legacy/build/pdf.worker.mjs";
+import { extractText } from "unpdf";
 import * as XLSX from "xlsx";
 
-const getDocument = pdfjsLib.getDocument;
+// const getDocument = pdfjsLib.getDocument;
 
 export async function readDocumentFromBytes(
   bytes: Uint8Array,
@@ -42,27 +43,25 @@ export async function readDocumentFromBytes(
   }
 }
 
-async function readPdfFromBytes(bytes: Uint8Array) {
+async function readPdfFromBytes(pdfBuffer: Uint8Array) {
   try {
-    const pdf = await getDocument({ data: bytes, disableWorker: true } as any)
-      .promise;
-    let fullText = "";
+    // unpdf détecte automatiquement le format du binaire
+    // merge: true fusionne toutes les pages en une seule string
+    const { text, totalPages } = await extractText(pdfBuffer, {
+      mergePages: true,
+    });
 
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-
-      const pageText = content.items.map((item: any) => item.str).join(" ");
-
-      fullText += pageText + "\n";
+    if (!text || text.trim().length === 0) {
+      console.warn(
+        `Attention: PDF valide (${totalPages} pages) mais aucun texte extrait. (Peut-être une image ?)`,
+      );
+      return "";
     }
 
-    return fullText;
+    return text;
   } catch (error) {
-    if (error instanceof Error && error.name === "InvalidPDFException") {
-      throw new Error("The uploaded file is not a valid PDF or is corrupted.");
-    }
-    throw error;
+    console.error("Erreur lors de l'extraction du PDF:", error);
+    throw new Error("Impossible de lire le contenu du PDF.");
   }
 }
 

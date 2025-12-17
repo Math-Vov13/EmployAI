@@ -118,9 +118,6 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      pdfjs-dist:
-        specifier: ^5.4.449
-        version: 5.4.449
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -160,6 +157,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      unpdf:
+        specifier: ^1.4.0
+        version: 1.4.0(@napi-rs/canvas@0.1.83)
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -8390,13 +8390,6 @@ packages:
         integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==,
       }
 
-  pdfjs-dist@5.4.449:
-    resolution:
-      {
-        integrity: sha512-CegnUaT0QwAyQMS+7o2POr4wWUNNe8VaKKlcuoRHeYo98cVnqPpwOXNSx6Trl6szH02JrRcsPgletV6GmF3LtQ==,
-      }
-    engines: { node: ">=20.16.0 || >=22.3.0" }
-
   pg-cloudflare@1.2.7:
     resolution:
       {
@@ -9898,6 +9891,17 @@ packages:
       {
         integrity: sha512-MR04uvD+07cwl/yhVuVWAtw+3GOR/knlL55Nd/wAdblk27GCVt3lqpTivy/tkJcZoNPzTwS1Y+KMojlLDhoTzg==,
       }
+
+  unpdf@1.4.0:
+    resolution:
+      {
+        integrity: sha512-TahIk0xdH/4jh/MxfclzU79g40OyxtP00VnEUZdEkJoYtXAHWLiir6t3FC6z3vDqQTzc2ZHcla6uEiVTNjejuA==,
+      }
+    peerDependencies:
+      "@napi-rs/canvas": ^0.1.69
+    peerDependenciesMeta:
+      "@napi-rs/canvas":
+        optional: true
 
   unpipe@1.0.0:
     resolution:
@@ -16176,10 +16180,6 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  pdfjs-dist@5.4.449:
-    optionalDependencies:
-      "@napi-rs/canvas": 0.1.83
-
   pg-cloudflare@1.2.7:
     optional: true
 
@@ -17209,6 +17209,10 @@ snapshots:
       "@types/unist": 3.0.3
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
+
+  unpdf@1.4.0(@napi-rs/canvas@0.1.83):
+    optionalDependencies:
+      "@napi-rs/canvas": 0.1.83
 
   unpipe@1.0.0: {}
 
