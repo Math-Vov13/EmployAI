@@ -37,6 +37,35 @@ export default function Home() {
               <Link href="/admin/sign-in">I am an administrator</Link>
             </Button>
           </div>
+
+          {/* Footer Links */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="flex flex-wrap gap-3 justify-center text-xs sm:text-sm">
+              <Link
+                href="/legal"
+                className="text-gray-600 hover:text-amber-600 hover:underline transition-colors"
+              >
+                Terms &amp; Conditions
+              </Link>
+              <span className="text-gray-300">•</span>
+              <Link
+                href="/rules"
+                className="text-gray-600 hover:text-amber-600 hover:underline transition-colors"
+              >
+                Platform Rules
+              </Link>
+              <span className="text-gray-300">•</span>
+              <Link
+                href="/policy"
+                className="text-gray-600 hover:text-amber-600 hover:underline transition-colors"
+              >
+                Privacy Policy
+              </Link>
+            </div>
+            <p className="text-center text-xs text-gray-500 mt-3">
+              © 2025 EmployAI. For internal company use only.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

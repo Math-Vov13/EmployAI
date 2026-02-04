@@ -30,18 +30,35 @@ export async function GET(request: NextRequest) {
     // - Admins: see all documents (any status)
     // - Regular users: see ONLY APPROVED documents (even their own must be approved)
     let filter;
-    if (currentUser.role === "ADMIN") {
+    const isAdmin =
+      currentUser.role?.toUpperCase() === "ADMIN" ||
+      currentUser.role === "ADMIN";
+
+    if (isAdmin) {
       filter = {};
+      console.log(
+        `Admin user detected (role: ${currentUser.role}) - fetching ALL documents`,
+      );
     } else {
       filter = {
         "metadata.status": "APPROVED",
       };
+      console.log(
+        `Regular user detected (role: ${currentUser.role}) - fetching APPROVED documents only`,
+      );
     }
+
+    console.log("User:", currentUser.email, "| Role:", currentUser.role);
+    console.log("Applied MongoDB filter:", JSON.stringify(filter));
 
     const documents = await documentsCollection
       .find(filter)
       .sort({ createdAt: -1 })
       .toArray();
+
+    console.log(
+      `Found ${documents.length} documents for user ${currentUser.email} (role: ${currentUser.role})`,
+    );
 
     // Fetch user information for all documents
     const usersCollection = await getUsersCollection();
@@ -161,8 +178,14 @@ export async function POST(request: NextRequest) {
     // Set document status based on user role
     // Admins: documents are auto-approved
     // Regular users: documents need review (PENDING)
-    const documentStatus =
-      currentUser.role === "ADMIN" ? "APPROVED" : "PENDING";
+    const isAdminUpload =
+      currentUser.role?.toUpperCase() === "ADMIN" ||
+      currentUser.role === "ADMIN";
+    const documentStatus = isAdminUpload ? "APPROVED" : "PENDING";
+
+    console.log(
+      `Document upload by ${currentUser.email} (role: ${currentUser.role}) - Status: ${documentStatus}`,
+    );
 
     const metadata = uploadData.data.metadata || {};
     metadata.status = documentStatus;

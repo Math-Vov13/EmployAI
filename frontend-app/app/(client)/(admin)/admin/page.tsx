@@ -6,14 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  FiCircle,
-  FiClock,
-  FiFile,
-  FiSmartphone,
-  FiTag,
-  FiUsers,
-} from "react-icons/fi";
+import { FiClock, FiFile, FiSmartphone, FiTag, FiUsers } from "react-icons/fi";
 
 interface DashboardStats {
   users: {
@@ -351,43 +344,6 @@ export default function AdminDashboard() {
           )}
         </CardContent>
       </Card>
-
-      {/* User Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="text-3xl mb-2 text-green-500">
-              <FiCircle className="mx-auto" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats?.users.online}
-            </p>
-            <p className="text-gray-600 mt-1">Online Users</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="text-3xl mb-2 text-orange-500">
-              <FiCircle className="mx-auto" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats?.users.standby}
-            </p>
-            <p className="text-gray-600 mt-1">Standby Users</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="text-3xl mb-2 text-gray-500">
-              <FiCircle className="mx-auto" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats?.users.offline}
-            </p>
-            <p className="text-gray-600 mt-1">Offline Users</p>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
